@@ -1,0 +1,70 @@
+{
+	"name": "libarea/sugata",
+	"description": "Fact Archive Platform.",
+	"type": "project",
+	"keywords": [
+		"hleb",
+		"libarea",
+		"sugata",
+		"directory",
+		"search",
+		"platform",
+		"facts",
+		"mvc",
+		"php",
+		"html"
+	],
+	"homepage": "https://github.com/libarea/sugata",
+	"license": "MIT",
+	"authors": [
+	{
+		"name": "Evgeny Konchik",
+		"email": "libarea@yandex.ru",
+		"homepage": "https://libarea.ru"
+	}
+	],
+    "require": {
+        "php": ">=8.2.0",
+        "ext-pdo": "*",
+        "ext-curl": "*",
+        "phphleb/framework": "^2.1.18",
+        "phphleb/migration": "dev-main",
+		"phphleb/imageresizer": "dev-master",
+		"phphleb/muller": "dev-main",
+		"jbroadway/urlify": "^1.2",
+		"respect/validation": "2.4.x-dev",
+		"matthiasmullie/minify": "dev-master",
+		"cocur/slugify": "dev-main",
+		"fastvolt/markdown": "v0.3.0.x-dev",
+		"akh/typograf": "dev-master",
+		"s2/rose": "dev-master"
+    },
+    "autoload": {
+        "classmap": [
+            "app/",
+            "vendor/phphleb"
+        ],
+        "psr-4": {
+            "Phphleb\\": "vendor/phphleb/",
+            "Hleb\\": "vendor/phphleb/framework/",
+            "App\\": "app/"
+        },
+        "exclude-from-classmap": [
+            "/storage/",
+            "/config/",
+            "/routes/",
+            "/vendor/phphleb/tests/",
+            "/vendor/phphleb/framework/Optional/",
+            "/vendor/phphleb/docs/match-directory"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true
+    },
+    "scripts": {
+        "post-create-project-cmd": [
+            "@php console project-setup-task --clear"
+        ]
+    },
+    "minimum-stability": "dev"
+}

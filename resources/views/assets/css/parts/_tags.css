@@ -1,0 +1,93 @@
+/*
+ * Tags (facets)
+ *
+ * Теги (фасеты)
+ */
+
+.tag-grey,
+.tag-yellow,
+.tag-violet,
+.tag-clear {
+  font-size: 0.9rem;
+  border-radius: var(--rounded);
+  margin-left: 0.25em;
+  padding: 0.08rem 0.35rem 0.15rem 0.35rem;
+  text-transform: lowercase;
+  text-decoration: none;
+}
+
+.tag-grey {
+  background-color: #ececec;
+  color: #6b3e4a;
+}
+
+.tag-grey:hover {
+  background-color: #fff;
+  color: #444;
+}
+
+.tag-yellow {
+  background-color: #fffcd7;
+  color: #7b5d5d;
+}
+
+.tag-violet {
+  background-color: var(--violet);
+  color: #544e4e;
+}
+
+.tag-clear {
+  color: #707476;
+  background-color: var(--white);
+  border: 1px solid #e8ebed;
+}
+
+.tag-clear:hover {
+  color: #707476;
+  background-color: #f5f7f8;
+}
+
+/* Этикетки */
+.label {
+  font-style: italic;
+  text-transform: lowercase;
+  font-size: 0.875rem;
+  padding: 3px 10px;
+  font-weight: 400;
+}
+
+.label-grey {
+  background-color: var(--violet);
+  color: var(--gray-600);
+}
+
+.label-orange {
+  background-color: #f9ddde;
+  color: var(--gray);
+}
+
+.label-green {
+  background-color: #f0f6f3;
+  color: var(--green);
+}
+
+.label-teal {
+  background-color: var(--teal);
+  color: var(--white);
+}
+
+.label-teal:hover {
+  background-color: #339a9c;
+  transition: background .2s ease-out;
+}
+
+.tagify {
+  width: 100%;
+  max-width: 780px;
+  border-radius: var(--rounded);
+  background-color: var(--white);
+}
+
+.tagify--noTags[required] {
+  --tags-border-color: var(--red);
+}

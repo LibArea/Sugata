@@ -10,6 +10,7 @@
 ## Ideas
 
 Сайт строит статические файлы (html)...
+Аналог Movable Type, LinkSQL и др.
 
 ### For testing (Installation)
 

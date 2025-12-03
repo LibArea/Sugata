@@ -1,0 +1,299 @@
+/*
+ * Components based on the basic style of libArea
+ *
+ * Компоненты, основанные на базовом стиле LibArea
+ */
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: 600;
+}
+
+header {
+  padding: 1rem;
+}
+
+main {
+  width: 100%;
+}
+
+aside {
+  flex-basis: 340px;
+}
+
+footer {
+  color: gray;
+  border-top: 1px solid #ebeaea;
+}
+
+aside ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+aside ul a {
+  color: var(--gray);
+}
+
+blockquote {
+  margin-left: 15px;
+  background-color: var(--blockquote-bg);
+  padding: 0.1rem 1rem;
+  border-left: 3px solid var(--gray-600);
+  display: table;
+}
+
+hr {
+  border: none;
+  clear: both;
+  background-color: var(--gray-100);
+  height: 1px;
+}
+
+details {
+  border-radius: var(--rounded);
+  background-color: var(--gray-100);
+  padding: 2px 6px;
+  margin: 0 0 15px 0;
+}
+
+summary {
+  background-color: var(--gray-100);
+  color: var(--gray);
+  font-size: 14px;
+}
+
+details[open]>summary {
+  padding: 0 0 10px 0;
+  color: var(--gray);
+}
+
+article {
+  margin-bottom: 25px;
+}
+
+article iframe {
+  max-width: 560px;
+  max-height: 320px;
+}
+
+video {
+  max-width: 560px;
+}
+
+
+.content {
+  margin: 0 auto;
+  height: 100%;
+  max-width: 1036px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* См. https://github.com/VKCOM/icons */
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  vertical-align: middle;
+}
+
+.icon.small {
+  width: 16px;
+}
+
+.icon.large {
+  width: 28px;
+  height: 28px;
+}
+
+.icon.max {
+  width: 121px;
+  height: 121px;
+}
+
+/* end */
+
+/*
+ * Share icons
+ *
+ * Иконки, поделиться
+ */
+
+.icon-share {
+  height: 48px;
+  width: 48px;
+}
+
+.icon.vk {
+  color: #07f;
+}
+
+.icon.ok {
+  color: #eb722e;
+  height: 47px;
+  width: 44px;
+}
+
+.icon.tg {
+  color: #64a9dc;
+}
+
+.icon.fb {
+  color: #3b5998;
+}
+
+.icon.lj {
+  color: #0d425a;
+}
+
+.icon.tw {
+  color: #00aced;
+}
+
+/* end */
+.title {
+  margin: 0;
+  font-weight: 500;
+  font-size: 1.375rem;
+}
+
+.title-dir {
+  font-weight: 500;
+  color: #666;
+  text-decoration: underline;
+}
+
+.title-facet {
+  color: #444;
+  font-weight: 500;
+  font-size: 1.375rem;
+}
+
+.title-dir {
+  margin-right: 15px;
+}
+
+.title-fact {
+  text-decoration: underline;
+}
+
+.uppercase-box {
+font-size: .75rem;
+    text-transform: uppercase;
+    margin: 0 0 10px 0;
+    letter-spacing: 1.5px;
+ font-weight: 500;
+ color: var(--gray-600);
+}
+
+.fact_footer {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 14px;
+  border: 1px solid #e5e5e5;
+  color: #666;
+  padding: 0 10px;
+  border-radius: 5px;
+}
+
+.read_more {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+.categories-telo {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.categories {
+ width: 50%;
+  flex-basis: 50%;
+  margin-bottom: 15px;
+}
+
+/* .color-1 {
+    background: rgba(255, 229, 179, 0.3);
+	border: 5px solid rgb(255, 229, 179);
+}
+
+.color-2 {
+    background: rgba(255,204,179,0.3);
+	border: 5px solid rgb(255,204,179);
+}
+
+
+.color-3 {
+    background: rgba(255,200,179,0.3);
+	border: 5px solid rgb(255,200,179);
+}
+
+.color-4 {
+    background: rgba(179,255,201,0.3);
+	border: 5px solid rgb(179,255,201);
+} */
+
+.box {
+  border-radius: var(--rounded);
+  padding: 20px 24px;
+  overflow-wrap: break-word;
+  margin-bottom: 15px;
+}
+
+.box-info {
+  border-radius: var(--rounded);
+  padding: 20px 24px;
+  overflow-wrap: break-word;
+  background-color: var(--beige);
+}
+
+.trigger img,
+a:hover>img {
+  opacity: 0.8;
+}
+
+.focus-id:hover {
+  cursor: pointer
+}
+
+.underline-hover:hover {
+  text-decoration: underline;
+}
+
+.content-body {
+  max-width: 810px;
+  overflow-wrap: break-word;
+  margin: 5px;
+  position: relative;
+  word-break: break-word;
+}
+
+.comment-body img {
+  max-width: 330px;
+}
+
+
+
+li.zebra {
+  padding: 5px;
+  list-style: none;
+}
+
+li.zebra+li {
+  border-top: 1px solid var(--gray-100);
+}
+
+.pagination {
+  display: flex;
+  gap: var(--gap-base);
+}

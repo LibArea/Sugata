@@ -1,0 +1,9 @@
+<?php
+/**
+ * Enter console commands from framework HLEB.
+ * All service commands: php console --help
+ */
+
+define('HLEB_PUBLIC_DIR', realpath(__DIR__ . '/public'));
+
+require realpath(__DIR__ . '/vendor/phphleb/framework/console.php');

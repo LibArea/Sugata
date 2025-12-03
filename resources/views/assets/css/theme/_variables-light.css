@@ -1,0 +1,67 @@
+/*
+ * Default (light) theme
+ *
+ * Тема по умолчанию (светлая)
+ */
+
+:root {
+  --bg-color: #fff;
+  --text-color: #030303;
+
+  --link-color: #0d44a0;
+  --link-color-hover: #ff5320;
+
+  --nav-bg-active: #fcebd9;
+  --nav-color-active: #332f2f;
+
+  --dropdown-bg: #fff;
+  --dropdown-box-shadow: 0 6px 18px 0 rgba(14, 21, 47, .13), 0 -2px 6px rgba(14, 21, 47, .03);
+
+  --form-color-active: #3595f6;
+  --form-bg-color: #ebf0f0;
+  --form-border-color: #ddd;
+  --form-text-color: #111;
+
+  --button-text-color: #fff;
+  --button-bg-color: #0085ee;
+  --button-border-color: #0379d7;
+  --button-border-color-hover: #fff;
+
+  --button-outline-text-color: #0085ee;
+  --button-outline-bg-color: #fff;
+  --button-outline-border-color: #0379d7;
+  --button-outline-text-color-hover: #fff;
+  --button-outline-bg-color-hover: #0085ee;
+  --button-outline-border-color-hover: #0379d7;
+
+  --header-bg: #fff;
+  --header-box-shadow: 0 1px 2px -1px rgb(0 0 0 / 25%);
+  --header-text-color: #9ca3af;
+  --header-logo-color: #111;
+  --header-form-bg-color: #f6f8fc;
+  --header-form-text-color: #333;
+
+  --footer-bg: #fff;
+  --footer-box-shadow: 0 1px 2px -1px rgb(0 0 0 / 15%);
+  --footer-text-color: #9ca3af;
+  --footer-color-active: #332f2f;
+
+  --blockquote-bg: #f3f3f6;
+
+  /* Colors used */
+  --black: #030303;
+  --white: #fff;
+  --yellow: #ffffe0;
+  --brown: #bb6619;
+  --green: #16a34a;
+  --sky: #0ea5e9;
+  --violet: #f3f1ed;
+  --red: #ef4444;
+  --red-200: #fecaca;
+  --gray: #4b5563;
+  --gray-100: #f6f8fc;
+  --gray-600: #9ca3af;
+  --blue: #3b82f6;
+  --slate: #cbd5e1;
+  --beige: #fff4e8;
+}

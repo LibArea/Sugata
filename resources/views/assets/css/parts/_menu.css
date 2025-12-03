@@ -1,0 +1,69 @@
+/*
+ * Dropdown menu and navigation
+ *
+ * Выпадающее меню и навигация
+ */
+
+.breadcrumbs {
+  list-style: none;
+  margin: 0 0 15px 0;
+  padding: 0;
+}
+
+.breadcrumbs li {
+  display: inline;
+  color: var(--gray-600);
+}
+
+.breadcrumbs li:not(:last-child):after {
+  content: " / ";
+}
+
+.menu a i {
+  font-size: 1.25rem;
+  margin: 0 0.5rem;
+}
+
+.menu li.active,
+.menu li:hover {
+  background-color: var(--white);
+  border-radius: var(--rounded);
+  max-width: 190px;
+}
+
+.menu li:hover {
+  transition-duration: .3s;
+}
+
+.menu li:hover>a {
+  color: var(--gray);
+  text-decoration: none;
+}
+
+.menu .icon,
+.dropdown ul .icon {
+  color: var(--gray);
+}
+
+.menu .active .icon {
+  color: var(--blue);
+}
+
+.menu .icon.gray-600 {
+  color: var(--gray-600);
+}
+
+.menu a {
+  color: var(--black);
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 0;
+  gap: .7rem;
+  max-width: 190px;
+}
+
+.menu a:visited {
+  color: var(--black);
+}

@@ -1,0 +1,104 @@
+/*
+ * For images (avatars, smileys, logos)
+ *
+ * Для изображений (аватарки, смайлкики, логотипы)
+ */
+
+.logo {
+  color: var(--header-logo-color);
+  font-size: 24px;
+}
+
+.favicons {
+  height: 16px;
+  width: 16px;
+}
+
+.img-sm {
+  width: 24px;
+  height: 24px;
+}
+
+.img-base {
+  width: 36px;
+  height: 36px;
+}
+
+.img-lg {
+  width: 64px;
+  height: 64px;
+}
+
+.img-xl {
+  width: 94px;
+  height: 94px;
+}
+
+.img-2xl {
+  width: 160px;
+  height: 160px;
+}
+
+.trigger img.img-base:hover {
+  opacity: 0.7;
+}
+
+.profile-ava {
+  position: absolute;
+  z-index: 5;
+  margin: 60px 10px 0 15px;
+  border-radius: var(--rounded);
+}
+
+.box-cover-img {
+  height: 200px;
+  width: 100%;
+}
+
+.profile-bg-img.bg-profile {
+  height: 90px;
+}
+
+.img-preview {
+  max-width: 780px;
+  position: relative;
+}
+
+.img-preview img {
+  max-width: 100%;
+  border: 1px solid #f3f3f3;
+}
+
+.cut-content img.cut-preview {
+  max-width: calc(100% + 50px);
+  margin-left: -25px;
+  border-radius: 0px;
+}
+
+.cut-content img,
+.content-body img {
+  max-width: 100%;
+}
+
+.img-preview img:hover {
+  box-shadow: 0 1px 8px 0 rgb(0 0 0 / 20%);
+}
+
+.CodeMirror-line {
+  max-width: 800px;
+}
+
+img.emoji {
+  max-width: 20px;
+  display: inline-block;
+  border-color: transparent;
+}
+
+
+#inputImg,
+.prevImg {
+  max-width: 100%;
+  max-height: 400px;
+  display: block;
+  margin: 20px 0 15px 0;
+}
