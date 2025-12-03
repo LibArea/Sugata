@@ -9,8 +9,10 @@
 
 ## Ideas
 
-Сайт строит статические файлы (html)...
-Аналог Movable Type, LinkSQL и др.
+Сайт строит статические файлы (html)... Аналог Movable Type, LinkSQL и др.
+
+![Sugata](https://raw.githubusercontent.com/LibArea/libarea/main/public/assets/images/sugata.jpg)
+
 
 ### For testing (Installation)
 
