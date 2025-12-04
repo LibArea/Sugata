@@ -4,8 +4,23 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
 ?>
 
 <main>
-  <?= insert('/_block/navigation/breadcrumbs-admin', ['sheet' =>  $data['sheet']]); ?>
-  <h1 class="text-xl"><?= __('app.edit_' . $data['sheet']); ?> </h1>
+<?= insert('/_block/navigation/breadcrumbs', [
+		'list' => [
+			[
+				'name' => __('app.home'),
+				'link' => url('homepage')
+			], [
+				'name' => __('app.structure'),
+				'link' => url('structure')
+			], [
+				'name' => __('app.edit_category'),
+				'link' => ''
+			], 
+		],
+		'sheet' =>  $data['sheet']
+	]); 
+	?>
+  <h1 class="uppercase-box"><?= __('app.edit_' . $data['sheet']); ?> </h1>
 
   <a class="gray-600" href="<?= $url; ?>"><?= __('app.go_to'); ?></a>
 

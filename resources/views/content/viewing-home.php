@@ -1,6 +1,5 @@
 <main>
-  <?= insert('/_block/navigation/breadcrumbs-admin', ['sheet' => 'viewing']); ?>
 
-<iframe src="https://wiki.local/mod/admin/viewing-v" width="100%" height="600"></iframe>
+  <iframe src="https://wiki.local/mod/admin/viewing-v" width="100%" height="600"></iframe>
 
 </main>

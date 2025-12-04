@@ -1,20 +1,27 @@
 <main>
-	<?= insert('/_block/navigation/breadcrumbs-admin', [
+	<?= insert('/_block/navigation/breadcrumbs', [
 		'list' => [
 			[
-				'name' => __('app.catalog'),
+				'name' => __('app.home'),
 				'link' => url('homepage')
-			]
+			],
+			[
+				'name' => __('app.facts'),
+				'link' => url('items')
+			],
+			[
+				'name' => __('app.add_fact'),
+				'link' => ''
+			],
 		],
 		'sheet' =>  $data['sheet']
-	]); ?>
+	]);
+	?>
 
-	<h1 class="title"><?= __('app.add_fact'); ?></h1>
-
+	<h1 class="uppercase-box"><?= __('app.add_fact'); ?></h1>
 
 	<form action="<?= url('add.item', method: 'post'); ?>" method="post">
 		<?= $container->csrf()->field(); ?>
-
 
 		<fieldset class="form-big">
 			<div class="form-label input-label"><label><?= __('app.title'); ?> <strong class="red">*</strong></label></div>
@@ -66,7 +73,6 @@
 		<?= Html::sumbit(__('app.add')); ?>
 	</form>
 </main>
-
 
 <script src="/assets/js/tag/tagify.min.js"></script>
 <link rel="stylesheet" href="/assets/js/tag/tagify.css" type="text/css">

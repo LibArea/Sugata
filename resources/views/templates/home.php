@@ -16,8 +16,6 @@
 			
 			<?php $arr = \App\Content\Parser\Content::cut($item['item_content']);
 				echo markdown($arr['content']); ?>
-			
-			 
 				
 			<a class="read_more" href=""><?= __('app.read_more'); ?> →</a>
 			<div class="fact_footer">

@@ -1,5 +1,19 @@
 <main>
-  <?= insert('/_block/navigation/breadcrumbs-admin', ['sheet' => 'tools']); ?>
+
+  <?= insert('/_block/navigation/breadcrumbs', [
+    'list' => [
+      [
+        'name' => __('app.home'),
+        'link' => url('homepage')
+      ],
+      [
+        'name' => __('app.tools'),
+        'link' => url('tools')
+      ],
+    ],
+    'sheet' =>  $data['sheet']
+  ]);
+  ?>
 
   <h1 class="uppercase-box"><?= __('app.tools'); ?> </h1>
 

@@ -1,39 +1,41 @@
 <main>
 
-	<?php if ($container->user()->active()) : ?>
+  <?php if ($container->user()->active()) : ?>
 
-		 
-		<?= __('app.auth_yes'); ?>
 
-	<?php else : ?>
+    <?= __('app.auth_yes'); ?>
 
-		<h1 class="title"><?= __('app.authorization'); ?></h1>
+  <?php else : ?>
 
-		<form class="mt20 mb20" action="<?= config('meta', 'url'); ?><?= url('authorization', method: 'post'); ?>" method="post">
-			<?= $container->csrf()->field(); ?>
+    <h1 class="title"><?= __('app.authorization'); ?></h1>
 
-			<fieldset class="max-w-sm mb-max-w-full">
-				<input class="w-100" name="email" type="email" placeholder="<?= __('app.email'); ?>" required="">
-			</fieldset>
+    <form class="mt20 mb20" action="<?= config('meta', 'url'); ?><?= url('authorization', method: 'post'); ?>" method="post">
+      <?= $container->csrf()->field(); ?>
 
-			<fieldset class="max-w-sm mb-max-w-full">
-				<input class="w-100" id="password" name="password" type="password" placeholder="<?= __('app.password'); ?>" required="">
-				<span class="showPassword"><svg class="icon">
-						<use xlink:href="/assets/svg/icons.svg#eye"></use>
-					</svg></span>
-			</fieldset>
+      <fieldset class="max-w-sm mb-max-w-full">
+        <input class="w-100" name="email" type="email" placeholder="<?= __('app.email'); ?>" required="">
+      </fieldset>
 
-			<fieldset class="flex gap-sm gray">
-				<input id="rememberme" name="rememberme" type="checkbox" value="1">
-				<label class="m0" for="rememberme"><?= __('app.remember_me'); ?></label>
-			</fieldset>
+      <fieldset class="max-w-sm mb-max-w-full">
+        <input class="w-100" id="password" name="password" type="password" placeholder="<?= __('app.password'); ?>" required="">
+        <span class="showPassword">
+          <svg class="icon">
+            <use xlink:href="/assets/svg/icons.svg#eye"></use>
+          </svg>
+        </span>
+      </fieldset>
 
-			<?= Html::sumbit(__('app.sign_in')); ?>
+      <fieldset class="flex gap-sm gray">
+        <input id="rememberme" name="rememberme" type="checkbox" value="1">
+        <label class="m0" for="rememberme"><?= __('app.remember_me'); ?></label>
+      </fieldset>
 
-			<a class="ml20 text-sm" href="<?= url('recover'); ?>"><?= __('app.forgot_password'); ?>?</a>
-		</form>
+      <?= Html::sumbit(__('app.sign_in')); ?>
 
-	<?php endif; ?>
+      <a class="ml20 text-sm" href="<?= url('recover'); ?>"><?= __('app.forgot_password'); ?>?</a>
+    </form>
+
+  <?php endif; ?>
 
 </main>
 <?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>

@@ -17,6 +17,7 @@ use App\Controllers\{
 	Facet\AddFacetController,
 	Facet\RedirectController,
 	
+	Item\ItemController,
 	Item\AddItemController,
 	Item\EditItemController
 };
@@ -73,7 +74,9 @@ Route::toGroup()
 	Route::get('/edit/facet/{type}/{id}')->controller(EditFacetController::class)->where(['type' => '[a-z]+', 'id' => '[0-9]+'])->name('facet.form.edit'); 
 	Route::get('/redirect/facet/{id}')->controller(RedirectController::class)->where(['id' => '[0-9]+'])->name('redirect.facet');
 	
-	Route::get('/items')->controller(HomeController::class, 'items')->name('items'); 
+	Route::get('/items')->controller(ItemController::class)->name('items'); 
+	Route::get('/item/view/{id}')->controller(ItemController::class, 'view')->where(['id' => '[0-9]+'])->name('view'); 
+	
 	
 	Route::post('/search/select/{type}')->controller(FormController::class)->where(['type' => '[a-z]+']);
 	Route::get('/logout')->controller(LoginController::class, 'logout')->name('logout');
