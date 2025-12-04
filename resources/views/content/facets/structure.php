@@ -15,10 +15,6 @@
 
   <h1 class="uppercase-box"><?= __('app.structure'); ?> </h1>
 
-  <?= insert('/content/facets/categories', ['nodes' => $data['nodes']]); ?>
-
-   <h1 class="uppercase-box"><?= __('app.structure'); ?> </h1>
-
   <?php if (!empty($data['nodes'])) : ?>
     <?php foreach ($data['nodes'] as $topic) : ?>
       <div class="w-50 mb5">

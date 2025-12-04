@@ -22,11 +22,8 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
 	?>
   <h1 class="uppercase-box"><?= __('app.edit_' . $data['sheet']); ?> </h1>
 
-  <a class="gray-600" href="<?= $url; ?>"><?= __('app.go_to'); ?></a>
-
-  <form class="max-w-md" action="<?= url('edit.facet', ['type' => $fs['facet_type']], method: 'post'); ?>" method="post" enctype="multipart/form-data">
+   <form class="max-w-md" action="<?= url('edit.facet', ['type' => $fs['facet_type']], method: 'post'); ?>" method="post" enctype="multipart/form-data">
     <?= $container->csrf()->field(); ?>
-    <?= insert('/content/facets/form/facet-type', ['type' => $fs['facet_type']]); ?>
 
     <fieldset>
       <label for="facet_title"><?= __('app.title'); ?><sup class="red">*</sup></label>
@@ -52,17 +49,6 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
       ]); ?>
     <?php endif; ?>
 
-    <?= insert('/_block/form/select/low-matching-facets', [
-      'data'          => $data,
-      'action'        => 'edit',
-      'type'          => 'category',
-      'title'         => __('app.bound_children'),
-      'help'          => __('app.necessarily'),
-      'red'           => 'red'
-    ]); ?>
-    </fieldset>
-
-
     <fieldset>
       <label for="facet_description"><?= __('app.meta_description'); ?><sup class="red">*</sup></label>
       <textarea class="add max-w-md" rows="6" minlength="3" name="facet_description"><?= $fs['facet_description']; ?></textarea>
@@ -74,14 +60,11 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
       <textarea class="add max-w-md block" rows="6" name="facet_info"><?= $fs['facet_info']; ?></textarea>
       <div class="mb20 help">Markdown, > 14 <?= __('app.characters'); ?></div>
 
-
       <?php if ($fs['facet_type'] == 'topic') : ?>
         <fieldset>
           <input type="checkbox" name="facet_is_comments" <?php if ($fs['facet_is_comments'] == 1) : ?>checked <?php endif; ?>> <?= __('app.facet_comments_disabled'); ?>
         </fieldset>
       <?php endif; ?>
-
-
 
       <?= insert('/_block/form/select/user', ['user' => $data['user']]); ?>
 
@@ -90,8 +73,8 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
         <?= Html::sumbit(__('app.edit')); ?>
       </fieldset>
   </form>
-
 </main>
+
 <script src="/assets/js/tag/tagify.min.js"></script>
 <link rel="stylesheet" href="/assets/js/tag/tagify.css" type="text/css">
 <script src="/assets/js/cropper/cropper.min.js"></script>

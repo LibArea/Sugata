@@ -18,7 +18,7 @@
                 body: JSON.stringify(props)
             };
             try {
-                const fetchResponse = await fetch('<?= url('search.select', ['type' => 'user']); ?>', settings);
+                const fetchResponse = await fetch('/mod/admin/search/select/user', settings);
                 return await fetchResponse.json();
             } catch (e) {
                 return e;

@@ -91,9 +91,6 @@ Route::toGroup()
 		Route::post('/edit/item')->controller(EditItemController::class, 'edit')->name('edit.item');
 	Route::endGroup();
 	
-	 
-	
 Route::endGroup();	
-
 
 Route::get('/')->controller(HomeController::class)->name('homepage');
