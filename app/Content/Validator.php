@@ -98,10 +98,7 @@ class Validator
     {
         $container = Container::getContainer();
 
-        // ['topic', 'blog', 'category', 'section']
-        if (!in_array($data['facet_type'], config('general', 'permitted'))) {
-            Msg::redirect(__('msg.went_wrong'), 'error');
-        }
+		$data['facet_type'] = 'category';
 
         if ($facet == false) {
             Msg::redirect(__('msg.went_wrong'), 'error');

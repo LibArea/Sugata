@@ -52,7 +52,7 @@
 			<?php endforeach; ?>
 
 		<?php else : ?>
-			<?= insert('/_block/no-content', ['type' => 'small', 'text' => __('app.no_websites'), 'icon' => 'info']); ?>
+			<?= insert('/_block/no-content', ['type' => 'small', 'text' => __('app.no_content'), 'icon' => 'info']); ?>
 		<?php endif; ?>
 
 		<?= Html::pagination($data['pNum'], $data['pagesCount'], false, '/'); ?>

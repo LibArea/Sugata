@@ -7,7 +7,6 @@ use App\Bootstrap\Services\User\UserData;
 
 class Html
 {
-    // Blog, topic or category
     public static function facets($facet, $type, $css, $sort = 'all')
     {
         $facets = preg_split('/(@)/', (string)$facet ?? false);
@@ -22,28 +21,22 @@ class Html
             }
         endforeach;
 
-
         return implode($result);
     }
-
 
     public static function facetDir($facet)
     {
         $facets = preg_split('/(@)/', (string)$facet ?? false);
- 
+
         $result = [];
         foreach (array_chunk($facets, 4) as $row) :
-		
             if ($row[1] == 'category') { 
-                    $result[] = '<a class="title-dir" href="' . urlDir($row[2]) . '">' . $row[3] . '</a>';
-   
+                $result[] = '<a class="title-dir" href="' . urlDir($row[2]) . '">' . $row[3] . '</a>';
             }
         endforeach;
 
-
         return implode($result);
     }
-
 
     public static function facets_puth($facet, $type)
     {
@@ -58,10 +51,7 @@ class Html
       
             }
 			
-
-			
         endforeach;
-
 
         return implode($result);
     }
