@@ -12,8 +12,6 @@
 			   
                       <a class="<?= $css; ?>" href="<?= urlDir($node['facet_path']); ?>" target="_blank" rel="noopener noreferrer"><?= $node['facet_title']; ?></a>
 
-           
-             
 
               <?php if (isset($node['children'])) {
                 internalRender($node['children'], $node['level'] + 1);
@@ -21,8 +19,6 @@
 
         	<?php if ($node['level'] == 1) : ?></div><?php endif; ?>
 
-	   
-	   
 
     <?php endforeach;
     }

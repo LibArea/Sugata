@@ -24,14 +24,14 @@ class Html
         return implode($result);
     }
 
-    public static function facetDir($facet)
+    public static function facetDir($facet, $css = 'title-dir')
     {
         $facets = preg_split('/(@)/', (string)$facet ?? false);
 
         $result = [];
         foreach (array_chunk($facets, 4) as $row) :
             if ($row[1] == 'category') { 
-                $result[] = '<a class="title-dir" href="' . urlDir($row[2]) . '">' . $row[3] . '</a>';
+                $result[] = '<a class="' . $css . '" href="' . urlDir($row[2]) . '">' . $row[3] . '</a>';
             }
         endforeach;
 

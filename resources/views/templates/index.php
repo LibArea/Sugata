@@ -13,12 +13,15 @@
     </div>
   <?php endif; ?>
 
-  <h2 class="uppercase-box"><?= __('app.facts'); ?></h2>
-
+    <div class="flex justify-between mb20">
+		<h2 class="uppercase-box"><?= $facet['facet_title']; ?></h2>
+		<div class="tag-yellow box mb-none"><?= $facet['facet_info']; ?></div>
+	</div>
+  
   <?php foreach ($items as $item) : ?>
     <article id="<?= $item['item_id']; ?>">
       <h3 class="title">
-        <a class="title-fact" href="">
+        <a class="title-fact" href="/<?= $facet['facet_path']; ?>/<?= $item['item_slug']; ?>.html">
           <?= $item['item_title']; ?>
         </a>
       </h3>

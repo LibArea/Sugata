@@ -12,7 +12,6 @@
   border-radius: var(--rounded);
   margin-left: 0.25em;
   padding: 0.08rem 0.35rem 0.15rem 0.35rem;
-  text-transform: lowercase;
   text-decoration: none;
 }
 

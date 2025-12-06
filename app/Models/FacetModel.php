@@ -102,6 +102,7 @@ class FacetModel extends Model
                 facet_parent_id,
                 facet_chaid_id,
 				facet_seo_title,
+				facet_info,
 				facet_description,
                 facet_is_deleted,
                 rel.*

@@ -17,6 +17,8 @@ use S2\Rose\Stemmer\PorterStemmerEnglish;
 use S2\Rose\Entity\Indexable;
 use S2\Rose\Indexer;
 
+use S2\Rose\Entity\ExternalId;
+
 class BuildController extends Controller
 {
 	protected $path;
@@ -171,7 +173,7 @@ class BuildController extends Controller
 		$this->copyDirectFile();
 
 		// Строем страницы в категориях
-		$this->buildHtml();
+		$this->buildHtmlDir();
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
@@ -217,7 +219,7 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
-	public function buildHtml(): void
+	public function buildHtmlDir(): void
 	{
 		// Создает домашнюю страницу и css
 		$this->buildHtmlHome();
@@ -229,7 +231,7 @@ class BuildController extends Controller
 		foreach ($facets as $facet) {
 
 			$childrenForFeed =  FacetModel::childrenForFeed($facet['facet_id']);
-			$items = ItemModel::feedItem($childrenForFeed, $facet['facet_id'], Html::pageNumber(), 1, 'all');
+			$items = ItemModel::feedItem($childrenForFeed, $facet['facet_id'], Html::pageNumber(), 20, 'all');
 
 
 			$tree = FacetModel::breadcrumb($facet['facet_id']);
@@ -243,12 +245,55 @@ class BuildController extends Controller
 				'items' =>  $items,
 				'breadcrumb' => $breadcrumb,
 				'childrens' => $childrens,
+				'facet' => $facet,
 				'meta' => $meta
 			]));
+			
 		}
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
+
+	public function buildHtmlView(): void
+	{
+		$temp_dit =   '/templates/view.php';
+		
+ 
+
+		$items = ItemModel::getItemAll();
+
+            foreach ($items as $item) {
+
+                  $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+
+
+				/**
+				 * Рекомендованный контент (см. getSimilar())
+				 * @param ExternalId $externalId An id of indexed item to search other similar items
+				 * @param bool       $includeFormatting Switch the snippets to HTML formatting if available
+				 * @param int|null   $instanceId Id of instance where to search these similar items
+				 * @param int        $minCommonWords Lower limit for common words. The less common words,
+				 *                                   the more items are returned, but among them the proportion
+				 *                                   of irrelevant items is increasing.
+				 * @param int        $limit
+				 */
+				$storage = SearchModel::PdoStorage();
+				$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
+
+
+				file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($temp_dit, [
+					'item' =>  $item,
+					'similar' => $similar,
+					'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
+					'dir_path' => $dir[2],
+					'meta' => Meta::view($item, $dir[2])
+				]));
+			}
+
+		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
+	}
+
+ 
 
 
 	public function deletion(): void

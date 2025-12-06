@@ -69,20 +69,16 @@ class Meta
         return self::get(config('meta', 'home_title'), config('meta',  'home_desc'), $meta);
     }
 
-    public static function publication(string $type, array $content): string
+    public static function view(array $content, $facet_path): string
     {
             $meta = [
                 'published_time' => $content['item_date'],
                 'type'      => 'article',
                 'og'        => true,
                 'imgurl'    => false,
-              //  'url'       => post_slug($type, (int)$content['item_id'], $content['item_slug']),
+				'url'    	=> fact_slug($facet_path, $content['item_slug']),
             ];
   
-		
-		$content['item_title'] = fragment($content['item_content'], 80);
-
-
         $description  = (fragment($content['item_content'], 250) == '') ? strip_tags($content['item_title']) : fragment($content['item_content'], 250);
 
         return self::get(htmlEncode(strip_tags($content['item_title'])), htmlEncode($description), $meta);
@@ -91,9 +87,9 @@ class Meta
 
     public static function category(array $facet): string
     {
-		$url    = url('homepage');
-		$title  = $facet['facet_seo_title'] . ' — ' . __('app.facts');
-		$description = __('app.feed_facts') . $facet['facet_description'];
+		$url    = config('general', 'url_html') . $facet['facet_path'] . '/index.html';
+		$title  = __('app.facts') . ' — ' .  $facet['facet_title'];
+		$description = __('app.feed_facts') . '.  ' .  $facet['facet_description'];
 
         $meta = [
             'og'        => true,

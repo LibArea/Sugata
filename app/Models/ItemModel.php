@@ -69,7 +69,7 @@ class ItemModel extends Model
 			        item_published,
                     item_user_id,
                     item_date,
-                    item_is_deleted,
+	                item_is_deleted,
 
                     rel.*
   
@@ -101,40 +101,6 @@ class ItemModel extends Model
 
         return DB::run($sql)->rowCount();
     }
-
-  /*  public static function goItems($limit, $page = 1, $sort = 'main')
-    {
-		$sort   = self::sorts($sort);
-		$start  = ($page - 1) * self::$limit;
-		
-        $sql = "SELECT DISTINCT
-                    item_id,
-                    item_title,
-                    item_content,
-	                item_slug,
-			        item_published,
-                    item_user_id,
-                    item_date,
-                    rel.*
-                        FROM facets_items_relation 
-                        LEFT JOIN items ON relation_item_id = item_id
-                        LEFT JOIN (
-                            SELECT  		 
-                                relation_item_id,
-                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@',  facet_title SEPARATOR '@') AS facet_list
-                                FROM facets
-                                LEFT JOIN facets_items_relation on facet_id = relation_facet_id
-                                    GROUP BY relation_item_id
-                        ) AS rel
-                            ON rel.relation_item_id = item_id
-                                    WHERE $sort LIMIT :start, :limit";
-				
-        return DB::run($sql, ['start' => $start, 'limit' => self::$limit])->fetchAll();
-    }
-*/
-
-
-
 
     /**
      * Add a domain
@@ -292,6 +258,35 @@ class ItemModel extends Model
         $data = ['params' => $params];
 
         return DB::run($sql, $data)->fetch();
+    }
+	
+    public static function getItemAll()
+    {
+        $sql = "SELECT
+                    item_id,
+                    item_title,
+					item_content,
+                    item_slug,
+                    item_published,
+                    item_user_id,
+                    item_modified,
+                    item_date,
+                    rel.*
+                        FROM items
+                        LEFT JOIN
+                        (
+                            SELECT 
+                                relation_item_id,
+                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@',  facet_title SEPARATOR '@') AS facet_list
+                                FROM facets  
+                                LEFT JOIN facets_items_relation on facet_id = relation_facet_id
+                                        GROUP BY relation_item_id
+                        ) AS rel
+                            ON rel.relation_item_id = item_id 
+    
+                        WHERE item_is_deleted = 0";
+
+        return DB::run($sql)->fetchAll();
     }
 	
     /**

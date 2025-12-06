@@ -57,9 +57,16 @@
   </fieldset>
 
   <fieldset>
-    <div class="form-label input-label red"><label><?= __('app.rebuild_html'); ?></label></div>
+    <div class="form-label input-label red"><label><?= __('app.rebuild_html_dir'); ?></label></div>
     <div class="form-element">
-      <a href="<?= url('update.html'); ?>"><button type="submit" name="action" class="btn btn-primary" value="submit"><?= __('app.rebuild_html'); ?></button></a>
+      <a href="<?= url('update.html.dir'); ?>"><button type="submit" name="action" class="btn btn-primary" value="submit"><?= __('app.rebuild'); ?></button></a>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <div class="form-label input-label red"><label><?= __('app.rebuild_view'); ?></label></div>
+    <div class="form-element">
+      <a href="<?= url('update.html.view'); ?>"><button type="submit" name="action" class="btn btn-primary" value="submit"><?= __('app.rebuild'); ?></button></a>
     </div>
   </fieldset>
 

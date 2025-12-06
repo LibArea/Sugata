@@ -14,7 +14,7 @@ use S2\Rose\Entity\ExternalId;
 
 class ItemController extends Controller
 {
-    static $limit = 10;
+    static $limit = 25;
 	
     public function index()
     {

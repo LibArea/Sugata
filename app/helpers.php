@@ -22,15 +22,9 @@ function __(?string $key, array $params = [])
     return Translate::get($key, $params);
 }
 
-function post_slug(string $type, int $id, string $slug = '')
+function fact_slug(string $facet_path, string $slug)
 {
-    if ($type == 'page') return;
-
-    if (config('meta', 'slug_post') == false) {
-        return url($type . '.id', ['id' => $id]);
-    }
-
-    return url($type, ['id' => $id, 'slug' => $slug]);
+    return config('general', 'url_html') . $facet_path . '/' . $slug . '.html';
 }
 
 function is_current($url)
