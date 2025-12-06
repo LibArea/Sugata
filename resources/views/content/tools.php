@@ -33,14 +33,12 @@
     </div>
   </fieldset>
 
-
   <fieldset>
     <div class="form-label input-label"><label><?= __('app.search_index'); ?></label></div>
     <div class="form-element">
-      <a href=""><button type="submit" name="action" class="btn btn-primary" value="submit"><?= __('app.rebuild'); ?></button></a>
+      <a href="<?= url('update.indexing'); ?>"><button type="submit" name="action" class="btn btn-primary" value="submit"><?= __('app.rebuild'); ?></button></a>
     </div>
   </fieldset>
-
 
   <hr>
 

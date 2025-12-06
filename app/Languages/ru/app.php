@@ -30,6 +30,7 @@ return [
 	'not_published' 	=> 'Не опубликован',
 	'children' 			=> 'Дети',
 	'author' 			=> 'Автор',
+	'recommended' 		=> 'Рекомендовано',
 	
     'add'				=> 'Добавить',
     'edit'           	=> 'Изменить',

@@ -12,6 +12,7 @@ use Loupe\Loupe\Config\TypoTolerance;
 use Loupe\Loupe\Configuration;
 use Loupe\Loupe\LoupeFactory;
 
+use S2\Rose\Stemmer\PorterStemmerRussian;
 use S2\Rose\Stemmer\PorterStemmerEnglish;
 use S2\Rose\Entity\Indexable;
 use S2\Rose\Indexer;
@@ -120,7 +121,7 @@ class BuildController extends Controller
 
 		$storage->erase();
 
-		$stemmer = new PorterStemmerRussian(new PorterStemmerEnglish());
+		$stemmer = new \S2\Rose\Stemmer\PorterStemmerRussian(new \S2\Rose\Stemmer\PorterStemmerEnglish());
 
 		$indexer = new Indexer($storage, $stemmer);
 
@@ -132,20 +133,23 @@ class BuildController extends Controller
 			$indexable = new Indexable(
 				$item['item_id'],
 				$item['item_title'],
-				$item['item_content'],
+				markdown($item['item_content']),
 				1 // 1 - факты
 			);
 
 			$indexable
 				// ->setKeywords($item['item_keywords'] ?? '') 
-				->setDescription($item['item_content'])
-				->setDate($item['item_modified'])
-				// ->setDate(new \DateTime('2016-08-24 00:00:00'))
-				// ->setUrl($item['item_url'])
+				->setDescription(markdown($item['item_content']))
+				//->setDate($item['item_modified'])
+				->setDate(new \DateTime($item['item_modified']))
+				//->setUrl($item['facet_list'])
+				
 				->setUrl(json_encode([
-					'facets' => $item['facet_list'],
-
-				], JSON_UNESCAPED_UNICODE))
+						'url' => $item['item_url'],
+						'item_id' => $item['item_id'],
+						'facets' => $item['facet_list'], 
+					], JSON_UNESCAPED_UNICODE))
+				
 				->setRelevanceRatio(3.14)
 			;
 

@@ -107,14 +107,9 @@ class SearchModel extends Model
 		$sql = "SELECT item_id, 
 						item_title, 
 						item_content, 
-						item_domain, 
 						item_modified,
 						item_date,
-						item_url, 
-						item_favicon_img, 
 						item_slug,
-						item_keywords
-						
 						rel.*
 							FROM items 
 								LEFT JOIN ( SELECT  
@@ -124,9 +119,7 @@ class SearchModel extends Model
 											LEFT JOIN facets_items_relation on facet_id = relation_facet_id  
 												GROUP BY relation_item_id  
 									) AS rel ON rel.relation_item_id = item_id  
-									
-								
-											WHERE item_is_deleted = 0 AND item_published = 1";
+										WHERE item_is_deleted = 0 AND item_published = 1";
 
 		return DB::run($sql)->fetchAll();
 	}
