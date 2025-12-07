@@ -71,7 +71,11 @@ return [
 	 * Для построение статики
 	 */
 	'url_html'	=>  'http://wiki-view.local/',
-	 
+
+	/*
+	 * Название сайта
+	 */
+	'site_name'	=>  'Архив фактов',	 
 	 
 	// Пусть до сайта, где будут находиться HTML файлы
 	// HLEB_GLOBAL_DIR + path_html
