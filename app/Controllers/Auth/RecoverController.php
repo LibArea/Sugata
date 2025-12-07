@@ -8,7 +8,6 @@ use Hleb\Static\Request;
 use Hleb\Base\Controller;
 use App\Models\User\{UserModel, SettingModel};
 use App\Models\Auth\AuthModel;
-use App\Content\Integration\Google;
 use SendEmail, Meta, Html, Msg;
 
 use Respect\Validation\Validator as v;
@@ -19,13 +18,7 @@ class RecoverController extends Controller
     {
         $redirect  = url('recover');
 
-        if (config('integration', 'captcha')) {
-            if (!Google::checkCaptchaCode()) {
-                Msg::redirect(__('msg.code_error'), 'error', $redirect);
-            }
-        }
-
-		$email = Request::post('email')->value();
+        $email = Request::post('email')->value();
         if (v::email()->isValid($email) === false) {
             Msg::redirect(__('msg.email_correctness'), 'error', $redirect);
         }
@@ -122,9 +115,9 @@ class RecoverController extends Controller
             return false;
         }
 
-		if (v::stringType()->length(8, 32)->validate($password) === false) {
-			Msg::redirect(__('msg.string_length', ['name' => '«' . __('msg.title') . '»']), 'error', url('recover.code', ['code' => $code]));
-		}
+        if (v::stringType()->length(8, 32)->validate($password) === false) {
+            Msg::redirect(__('msg.string_length', ['name' => '«' . __('msg.title') . '»']), 'error', url('recover.code', ['code' => $code]));
+        }
 
         $newpass  = password_hash($password, PASSWORD_BCRYPT);
         SettingModel::editPassword(['id' => $user_id, 'password' => $newpass]);

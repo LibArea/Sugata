@@ -4,9 +4,13 @@
  * Для изображений (аватарки, смайлкики, логотипы)
  */
 
-.logo {
-  color: var(--header-logo-color);
-  font-size: 24px;
+h1.logo {
+    width: 146px;
+    height: 21px;
+    text-indent: -9999px;
+    background: url(/logo.svg);
+    background-size: 146px 21px;
+    margin: 0;
 }
 
 .favicons {
@@ -43,20 +47,9 @@
   opacity: 0.7;
 }
 
-.profile-ava {
-  position: absolute;
-  z-index: 5;
-  margin: 60px 10px 0 15px;
-  border-radius: var(--rounded);
-}
-
 .box-cover-img {
   height: 200px;
   width: 100%;
-}
-
-.profile-bg-img.bg-profile {
-  height: 90px;
 }
 
 .img-preview {
@@ -67,38 +60,4 @@
 .img-preview img {
   max-width: 100%;
   border: 1px solid #f3f3f3;
-}
-
-.cut-content img.cut-preview {
-  max-width: calc(100% + 50px);
-  margin-left: -25px;
-  border-radius: 0px;
-}
-
-.cut-content img,
-.content-body img {
-  max-width: 100%;
-}
-
-.img-preview img:hover {
-  box-shadow: 0 1px 8px 0 rgb(0 0 0 / 20%);
-}
-
-.CodeMirror-line {
-  max-width: 800px;
-}
-
-img.emoji {
-  max-width: 20px;
-  display: inline-block;
-  border-color: transparent;
-}
-
-
-#inputImg,
-.prevImg {
-  max-width: 100%;
-  max-height: 400px;
-  display: block;
-  margin: 20px 0 15px 0;
 }

@@ -43,7 +43,7 @@ class EditFacetController extends Controller
                     'low_arr'           => FacetModel::getLowLevelList($facet['facet_id']),
                     'user'              => UserModel::get($facet['facet_user_id'], 'id'),
                     'sheet'             => $facet_type,
-                    'facet_inf'            => $facet,
+                    'facet_inf'         => $facet,
                 ]
             ]
         );
@@ -78,7 +78,7 @@ class EditFacetController extends Controller
                 'facet_top_level'           => $facet_top_level == 'on' ? 1 : 0,
                 'facet_post_related'        => $post_related,
                 'facet_type'                => $new_type,
-                'facet_is_comments'            => $facet_is_comments == 'on' ? 1 : 0,
+                'facet_is_comments'         => $facet_is_comments == 'on' ? 1 : 0,
             ]
         );
 

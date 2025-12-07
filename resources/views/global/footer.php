@@ -14,72 +14,9 @@
 <?php endif; ?>
 
 <script nonce="<?= config('main', 'nonce'); ?>">
-  document.addEventListener('DOMContentLoaded', () => {
-    new Zooom("img-preview img, .comment-text img:not(.emoji, .gif), .content-body img:not(.emoji, .gif)", {
-      // control layer positions
-      zIndex: 99,
-
-      // animation time in number
-      animationTime: 300,
-
-      // cursor type
-      cursor: {
-        in: "zoom-in",
-        out: "zoom-out",
-      },
-
-      // overlay layer color and opacity, rgba, hsla, ...
-      overlay: "<?= $container->cookies()->get('dayNight')->value() == 'dark' ? '#283541' : '#fff';  ?>",
-
-      // callback function
-      // see usage example docs/index.html
-      onResize: function() {},
-      onOpen: function(element) {},
-      onClose: function(element) {},
-    });
-  });
 
   <?= Msg::get(); ?>
 
-  <?php if ($container->user()->scroll()) : ?>
-    // Что будет смотреть
-    const coolDiv = getById("scroll");
-
-    // Куда будем подгружать
-    const scroll = getById("scrollArea");
-
-    // Начальная загрузка (первая страница загружается статически)
-    let postPage = 2;
-
-    var type = 'no';
-    <?php $sheet = $sheet ?? null;
-    if ($sheet == 'all') : ?>
-      var type = 'all';
-    <?php endif; ?>
-
-    function getPosts(path) {
-      fetch(path)
-        .then(res => res.text()).then((res) => {
-          if (getById("no_content")) {
-            return;
-          }
-          scroll.insertAdjacentHTML("beforeend", res);
-          postPage += 1;
-        })
-        .catch((e) => alert(e));
-    }
-
-    const observer = new IntersectionObserver(entries => {
-      const firstEntry = entries[0];
-      if (firstEntry.isIntersecting) {
-        if (`${postPage}` > 25) return;
-        getPosts(`/post/scroll/${type}?page=${postPage}`);
-      }
-    });
-    if (coolDiv) {
-      observer.observe(coolDiv);
-    }
-  <?php endif; ?>
 </script>
 
 </body>

@@ -7,7 +7,6 @@ namespace App\Controllers;
 use Hleb\Static\Request;
 use Hleb\Base\Controller;
 use App\Models\{FormModel, FacetModel};
-use Html;
 
 class FormController extends Controller
 {

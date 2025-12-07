@@ -83,7 +83,6 @@ class ConsoleController extends Module
         self::consoleRedirect();
     }
 
-
     public static function css()
     {
         (new \App\Controllers\SassController)->collect();
@@ -110,33 +109,7 @@ class ConsoleController extends Module
         $storage = SearchModel::PdoStorage();
         $storage->erase();
 
-        self::allContents();
         self::allFacets();
-    }
-
-    public static function allContents()
-    {
-        $indexer = self::indexer();
-
-        // Индексируем контент 
-        $contents = SearchModel::getContentsAll();
-        foreach ($contents as $item) {
-
-            $indexable = new Indexable(
-                (string)$item['post_id'],
-                $item['post_title'],
-                markdown($item['post_content'], 'text'),
-                1 // 1 - статьи
-            );
-
-            $url =  post_slug($item['post_type'], $item['post_id'], $item['post_slug']) ?? 'null';
-
-            $indexable->setUrl((string)$url);
-
-            $indexer->index($indexable);
-        }
-
-        self::consoleRedirect();
     }
 
     public static function allFacets()
@@ -162,32 +135,6 @@ class ConsoleController extends Module
         self::consoleRedirect();
     }
 
-    public static function newIndex()
-    {
-        $indexer = self::indexer();
-
-        $lastId = SearchModel::getLastIDContent();
-
-        $contents = SearchModel::newIndexContent($lastId);
-
-        foreach ($contents as $item) {
-
-            $indexable = new Indexable(
-                (string)$item['post_id'],
-                $item['post_title'],
-                markdown($item['post_content'], 'text'),
-                1 // 1 - статьи
-            );
-
-            $url =  post_slug($item['post_type'], $item['post_id'], $item['post_slug']) ?? 'null';
-
-            $indexable->setUrl((string)$url);
-
-            $indexer->index($indexable);
-        }
-
-        self::consoleRedirect();
-    }
 
     public static function indexer()
     {

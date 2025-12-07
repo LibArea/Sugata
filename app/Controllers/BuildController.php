@@ -145,14 +145,14 @@ class BuildController extends Controller
 				//->setDate($item['item_modified'])
 				->setDate(new \DateTime($item['item_modified']))
 				//->setUrl($item['facet_list'])
-				
+
 				->setUrl(json_encode([
-						'url' => $item['item_url'],
-						'item_id' => $item['item_id'],
-						'slug' => $item['item_slug'], 
-						'facets' => $item['facet_list'], 
-					], JSON_UNESCAPED_UNICODE))
-				
+					'url' => $item['item_url'],
+					'item_id' => $item['item_id'],
+					'slug' => $item['item_slug'],
+					'facets' => $item['facet_list'],
+				], JSON_UNESCAPED_UNICODE))
+
 				->setRelevanceRatio(3.14)
 			;
 
@@ -167,14 +167,17 @@ class BuildController extends Controller
 		// Создает домашнюю страницу и css
 		$this->buildHtmlHome();
 
-		// Строем категории
-		$this->buildDir();
-
 		// Копируем папку uploads в публичное пространство
 		$this->copyDirectFile();
 
+		// Строем категории
+		$this->buildDir();
+
 		// Строем страницы в категориях
 		$this->buildHtmlDir();
+
+		// Строем страницы полной версии факта
+		$this->buildHtmlView();
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
@@ -249,7 +252,6 @@ class BuildController extends Controller
 				'facet' => $facet,
 				'meta' => $meta
 			]));
-			
 		}
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
@@ -258,43 +260,43 @@ class BuildController extends Controller
 	public function buildHtmlView(): void
 	{
 		$temp_dit =   '/templates/view.php';
-		
+
 		Html::pageNumber();
 
 		$items = ItemModel::getItemAll();
 
-            foreach ($items as $item) {
+		foreach ($items as $item) {
 
-                  $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
-
-
-				/**
-				 * Рекомендованный контент (см. getSimilar())
-				 * @param ExternalId $externalId An id of indexed item to search other similar items
-				 * @param bool       $includeFormatting Switch the snippets to HTML formatting if available
-				 * @param int|null   $instanceId Id of instance where to search these similar items
-				 * @param int        $minCommonWords Lower limit for common words. The less common words,
-				 *                                   the more items are returned, but among them the proportion
-				 *                                   of irrelevant items is increasing.
-				 * @param int        $limit
-				 */
-				$storage = SearchModel::PdoStorage();
-				$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
+			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
 
 
-				file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($temp_dit, [
-					'item' =>  $item,
-					'similar' => $similar,
-					//'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
-					'dir' => $dir,
-					'meta' => Meta::view($item, $dir[2])
-				]));
-			}
+			/**
+			 * Рекомендованный контент (см. getSimilar())
+			 * @param ExternalId $externalId An id of indexed item to search other similar items
+			 * @param bool       $includeFormatting Switch the snippets to HTML formatting if available
+			 * @param int|null   $instanceId Id of instance where to search these similar items
+			 * @param int        $minCommonWords Lower limit for common words. The less common words,
+			 *                                   the more items are returned, but among them the proportion
+			 *                                   of irrelevant items is increasing.
+			 * @param int        $limit
+			 */
+			$storage = SearchModel::PdoStorage();
+			$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
+
+
+			file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($temp_dit, [
+				'item' =>  $item,
+				'similar' => $similar,
+				//'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
+				'dir' => $dir,
+				'meta' => Meta::view($item, $dir[2])
+			]));
+		}
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
- 
+
 
 
 	public function deletion(): void
