@@ -249,9 +249,23 @@ class ItemModel extends Model
                     u.id,
                     u.login,
                     u.avatar,
-					u.created_at
+					u.created_at,
+					 rel.*
 
                         FROM Items
+						
+                        LEFT JOIN
+                        (
+                            SELECT 
+                                relation_item_id,
+                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@',  facet_title SEPARATOR '@') AS facet_list
+                                FROM facets  
+                                LEFT JOIN facets_items_relation on facet_id = relation_facet_id
+                                        GROUP BY relation_item_id
+                        ) AS rel
+                            ON rel.relation_item_id = item_id 
+						
+						
                         LEFT JOIN users u ON u.id = item_user_id
                             WHERE $sort";
 
@@ -268,6 +282,8 @@ class ItemModel extends Model
 					item_content,
                     item_slug,
                     item_published,
+					item_source_title,
+					item_source_url,
                     item_user_id,
                     item_modified,
                     item_date,

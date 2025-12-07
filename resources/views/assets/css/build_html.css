@@ -13,8 +13,11 @@
 @import './parts/_components.css';
 @import './parts/_basic.css';
 @import './parts/_images.css';
+@import './parts/_inputs.css';
+@import './parts/_menu.css';
 @import './parts/_table.css';
 @import './parts/_button.css';
+@import './parts/_tags.css';
 @import './parts/_media.css';
 @import './parts/_code.css';
 

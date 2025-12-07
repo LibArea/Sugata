@@ -13,15 +13,15 @@
     </div>
   <?php endif; ?>
 
-    <div class="flex justify-between mb20">
-		<h2 class="uppercase-box"><?= $facet['facet_title']; ?></h2>
-		<div class="tag-yellow box mb-none"><?= $facet['facet_info']; ?></div>
-	</div>
-  
+  <div class="flex justify-between mb20">
+    <h2 class="uppercase-box"><?= $facet['facet_title']; ?></h2>
+    <div class="tag-yellow box mb-none"><?= $facet['facet_info']; ?></div>
+  </div>
+
   <?php foreach ($items as $item) : ?>
     <article id="<?= $item['item_id']; ?>">
       <h3 class="title">
-        <a class="title-fact" href="/<?= $facet['facet_path']; ?>/<?= $item['item_slug']; ?>.html">
+        <a class="title-fact" href="/<?= Html::facets_puth($item['facet_list']); ?>/<?= $item['item_slug']; ?>.html">
           <?= $item['item_title']; ?>
         </a>
       </h3>
@@ -29,7 +29,7 @@
       <?php $arr = \App\Content\Parser\Content::cut($item['item_content']);
       echo markdown($arr['content']); ?>
 
-      <a class="read_more" href=""><?= __('app.read_more'); ?> →</a>
+      <a class="read_more" href="/<?= Html::facets_puth($item['facet_list']); ?>/<?= $item['item_slug']; ?>.html"><?= __('app.read_more'); ?> →</a>
       <div class="fact_footer">
         <?= HTML::facetDir($item['facet_list']); ?>
 

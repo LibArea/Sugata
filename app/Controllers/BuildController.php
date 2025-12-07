@@ -149,6 +149,7 @@ class BuildController extends Controller
 				->setUrl(json_encode([
 						'url' => $item['item_url'],
 						'item_id' => $item['item_id'],
+						'slug' => $item['item_slug'], 
 						'facets' => $item['facet_list'], 
 					], JSON_UNESCAPED_UNICODE))
 				
@@ -258,7 +259,7 @@ class BuildController extends Controller
 	{
 		$temp_dit =   '/templates/view.php';
 		
- 
+		Html::pageNumber();
 
 		$items = ItemModel::getItemAll();
 
@@ -284,8 +285,8 @@ class BuildController extends Controller
 				file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($temp_dit, [
 					'item' =>  $item,
 					'similar' => $similar,
-					'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
-					'dir_path' => $dir[2],
+					//'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
+					'dir' => $dir,
 					'meta' => Meta::view($item, $dir[2])
 				]));
 			}

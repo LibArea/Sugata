@@ -38,7 +38,7 @@ class Html
         return implode($result);
     }
 
-    public static function facets_puth($facet, $type)
+    public static function facets_puth($facet, $type = 'category')
     {
         $facets = preg_split('/(@)/', (string)$facet ?? false);
  

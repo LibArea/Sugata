@@ -57,6 +57,7 @@ return [
     'editing'			=> 'Ищменить',
 	'fullscreen'		=> 'Полный скрин',
     'note'				=> 'Заметка',
+	'source'			=> 'Источник',
 	'source_title'		=> 'TITLE источника',
 	'source_url'		=> 'URl источника',
 

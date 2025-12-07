@@ -1,17 +1,18 @@
 <main>
-	<?= insert('/_block/navigation/breadcrumbs', [
-		'list' => [
-			[
-				'name' => __('app.home'),
-				'link' => url('homepage')
-			], [
-				'name' => __('app.structure'),
-				'link' => url('structure')
-			], 
-		],
-		'sheet' =>  $data['sheet']
-	]); 
-	?>
+  <?= insert('/_block/navigation/breadcrumbs', [
+    'list' => [
+      [
+        'name' => __('app.home'),
+        'link' => url('homepage')
+      ],
+      [
+        'name' => __('app.structure'),
+        'link' => url('structure')
+      ],
+    ],
+    'sheet' =>  $data['sheet']
+  ]);
+  ?>
 
   <h1 class="uppercase-box"><?= __('app.structure'); ?> </h1>
 

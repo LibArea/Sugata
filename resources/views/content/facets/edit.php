@@ -4,25 +4,27 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
 ?>
 
 <main>
-<?= insert('/_block/navigation/breadcrumbs', [
-		'list' => [
-			[
-				'name' => __('app.home'),
-				'link' => url('homepage')
-			], [
-				'name' => __('app.structure'),
-				'link' => url('structure')
-			], [
-				'name' => __('app.edit_category'),
-				'link' => ''
-			], 
-		],
-		'sheet' =>  $data['sheet']
-	]); 
-	?>
+  <?= insert('/_block/navigation/breadcrumbs', [
+    'list' => [
+      [
+        'name' => __('app.home'),
+        'link' => url('homepage')
+      ],
+      [
+        'name' => __('app.structure'),
+        'link' => url('structure')
+      ],
+      [
+        'name' => __('app.edit_category'),
+        'link' => ''
+      ],
+    ],
+    'sheet' =>  $data['sheet']
+  ]);
+  ?>
   <h1 class="uppercase-box"><?= __('app.edit_' . $data['sheet']); ?> </h1>
 
-   <form class="max-w-md" action="<?= url('edit.facet', ['type' => $fs['facet_type']], method: 'post'); ?>" method="post" enctype="multipart/form-data">
+  <form class="max-w-md" action="<?= url('edit.facet', ['type' => $fs['facet_type']], method: 'post'); ?>" method="post" enctype="multipart/form-data">
     <?= $container->csrf()->field(); ?>
 
     <fieldset>
