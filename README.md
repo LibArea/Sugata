@@ -14,6 +14,8 @@
 ![Sugata](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata.png)
 
 
+![Показ факта](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata2.png)
+
 ### For testing (Installation)
 
 Install the package through [Composer](http://getcomposer.org/). 
