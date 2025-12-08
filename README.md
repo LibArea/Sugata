@@ -5,11 +5,11 @@
 
 # Sugata
 
-Архив фактов
+Sugata — is a static site generator that uses Markdown and is written in PHP. Used on the Fact Archive website.
 
 ## Ideas
 
-Сайт строит статические файлы (html)... Аналог Movable Type, LinkSQL и др.
+Analogue of Movable Type, LinkSQL, etc.
 
 ![Sugata - архив фактов](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata-for-github.png)
 
