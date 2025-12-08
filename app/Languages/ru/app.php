@@ -64,7 +64,7 @@ return [
 	'rebuild_resources'	=> 'Перестроить ресурсы',
 	'rebuild'           => 'Перестроить',
 	'page_rebuilt'		=> 'Перестроена',
-	'rebuild_all' 		=> 'Всё HTML/DIR',
+	'transfer photo'	=> 'Перенести Фото',
 	'rebuild_dir' 		=> 'DIR',
 	'rebuild_title'		=> 'Пути (path) в категориях',
 	'rebuild_css_title'	=> 'Стили (JS / CSS)',

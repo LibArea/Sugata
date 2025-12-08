@@ -163,22 +163,10 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.successfully'), 'success', url('tools'));
 	}
 
-	public function all(): void
+	public function transfer(): void
 	{
-		// Создает домашнюю страницу и css
-		$this->buildHtmlHome();
-
 		// Копируем папку uploads в публичное пространство
 		$this->copyDirectFile();
-
-		// Строем категории
-		$this->buildDir();
-
-		// Строем страницы в категориях
-		$this->buildHtmlDir();
-
-		// Строем страницы полной версии факта
-		$this->buildHtmlView();
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
@@ -195,6 +183,8 @@ class BuildController extends Controller
 	public function buildHtmlHome()
 	{
 		$items = ItemModel::feedItem(false, false, 1, 5);
+		
+		Html::pageNumber();
 
 		$temp =   '/templates/home.php';
 

@@ -2,7 +2,7 @@
 
 <main class="content">
 
-    <?= insert('/content/facets/categories', ['nodes' => $nodes]); ?>
+    <?= insert('/content/facets/categories'); ?>
 
     <h2 class="uppercase-box"><?= __('app.latest_facts'); ?></h2>
 

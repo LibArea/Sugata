@@ -25,7 +25,7 @@ class AddItemController extends Controller
         render(
             '/content/items/add',
             [
-                'meta'  => Meta::get(__('app.add_website')),
+                'meta'  => Meta::get(__('app.add_fact')),
                 'data'  => [
                     'sheet'    => 'add_fact',
 

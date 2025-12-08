@@ -47,12 +47,15 @@ Route::toGroup()
 	->prefix('/mod/admin/')
 	->middleware(DefaultMiddleware::class, data: [RegType::REGISTERED_ADMIN, '=']);
 	
+	Route::post('/backend/upload/{type}/{id}')->controller(EditItemController::class, 'uploadContentImage')->where(['type' => '[a-z-]+', 'id' => '[0-9]+']);
 
 	Route::get('/manual/update/css')->controller(BuildController::class, 'index')->name('update.css'); 
 	Route::get('/manual/update/path')->controller(BuildController::class, 'path')->name('update.path');
-	Route::get('/manual/update/all')->controller(BuildController::class, 'all')->name('update.all');
+	Route::get('/manual/update/transfer')->controller(BuildController::class, 'transfer')->name('update.transfer');
 	Route::get('/manual/update/dir')->controller(BuildController::class, 'buildDir')->name('update.dir');
-	Route::get('/manual/update/html')->controller(BuildController::class, 'buildHtml')->name('update.html');
+	Route::get('/manual/update/html-dir')->controller(BuildController::class, 'buildHtmlDir')->name('update.html.dir');
+	Route::get('/manual/update/html-view')->controller(BuildController::class, 'buildHtmlView')->name('update.html.view');
+	Route::get('/manual/update/indexing')->controller(BuildController::class, 'searchIndex')->name('update.indexing');
 	
 	Route::get('/manual/deletion/dir')->controller(BuildController::class, 'deletion')->name('deletion.dir');
 	

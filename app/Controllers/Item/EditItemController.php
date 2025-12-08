@@ -36,7 +36,7 @@ class EditItemController extends Controller
         render(
             '/content/items/edit',
             [
-                'meta'  => Meta::get(__('app.edit_website')),
+                'meta'  => Meta::get(__('app.edit_fact')),
                 'data'  => [
                     'item'            => $item,
                     'sheet'         => 'edit',

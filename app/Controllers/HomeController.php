@@ -20,7 +20,7 @@ class HomeController extends Controller
         render(
             '/index',
             [
-                'meta'  => Meta::get(__('meta.all_comments'), __('meta.all_comments_desc'), $m),
+                'meta'  => Meta::get(__('app.admin'), __('app.admin'), $m),
                 'data'  => [
                     'sheet'         => 'home',
                 ]
