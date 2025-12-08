@@ -58,15 +58,9 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
     </fieldset>
 
     <fieldset>
-      <?= __('app.information'); ?> (sidebar / info)<sup class="red">*</sup>
+      <?= __('app.information'); ?><sup class="red">*</sup>
       <textarea class="add max-w-md block" rows="6" name="facet_info"><?= $fs['facet_info']; ?></textarea>
       <div class="mb20 help">Markdown, > 14 <?= __('app.characters'); ?></div>
-
-      <?php if ($fs['facet_type'] == 'topic') : ?>
-        <fieldset>
-          <input type="checkbox" name="facet_is_comments" <?php if ($fs['facet_is_comments'] == 1) : ?>checked <?php endif; ?>> <?= __('app.facet_comments_disabled'); ?>
-        </fieldset>
-      <?php endif; ?>
 
       <?= insert('/_block/form/select/user', ['user' => $data['user']]); ?>
 

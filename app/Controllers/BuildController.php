@@ -47,11 +47,10 @@ class BuildController extends Controller
 			$this->buildCss_html(HLEB_GLOBAL_DIR . $putch, $key);
 		}
 
-		//$this->buildCss_html(config('general', 'path_css_build'));
-
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
+	// Строим CSS для админки
 	protected function buildCss($putch, $key)
 	{
 		$minifier = new Minify\CSS($putch);
@@ -60,14 +59,16 @@ class BuildController extends Controller
 		return true;
 	}
 
+	// Строим CSS для статики
 	protected function buildCss_html($putch)
 	{
 		$minifier = new Minify\CSS($putch);
-		$minifier->minify($this->path . 'style.css');
-
+		$minifier->minify($this->path . '/assets/css/style.css');
+		
 		return true;
 	}
 
+	// Строим JS для админки. Для статики JS нет.
 	protected function buildJs($putch, $key)
 	{
 		$minifier = new Minify\JS($putch . $key . '.js');
@@ -197,13 +198,7 @@ class BuildController extends Controller
 
 		$temp =   '/templates/home.php';
 
-		$nodes = Html::builder(0, 0, FacetModel::getTree());
-
-		file_put_contents($this->path . '/index.html', view($temp, ['meta' => Meta::home(), 'items' => $items, 'nodes' => $nodes]));
-
-		$minifier = new Minify\CSS(HLEB_GLOBAL_DIR . '/resources/views/assets/css/build.css');
-
-		$minifier->minify($this->path . 'style.css');
+		file_put_contents($this->path . '/index.html', view($temp, ['meta' => Meta::home(), 'items' => $items]));
 	}
 
 	public function buildDir()
@@ -296,12 +291,9 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
-
-
-
 	public function deletion(): void
 	{
-		$filesToKeep = ['uploads', 'favicon.ico', '.osp', 'style.css']; // Список файлов, которые нужно оставить
+		$filesToKeep = ['uploads', 'assets', 'favicon.ico', '.osp']; // Список файлов, которые нужно оставить
 
 		// Получить список всех файлов в директории
 		$files = scandir($this->path);

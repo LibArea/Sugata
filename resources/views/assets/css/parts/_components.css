@@ -209,18 +209,20 @@ font-size: .75rem;
   text-decoration: underline;
 }
 
+.item-categories {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px 0 10px 0;
+    margin-bottom: 25px;
+    border-radius: 5px;
+}
+
 .categories-telo {
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
+  width: 50%;
   margin-bottom: 20px;
 }
 
-.categories {
- width: 50%;
-  flex-basis: 50%;
-  margin-bottom: 15px;
-}
+
 
 /* .color-1 {
     background: rgba(255, 229, 179, 0.3);

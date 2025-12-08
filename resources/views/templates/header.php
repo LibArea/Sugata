@@ -9,7 +9,7 @@
   <?= $meta; ?>
 
   <link rel="icon" sizes="16x16" href="/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/style.css?<?= config('general', 'version'); ?>" type="text/css">
+  <link rel="stylesheet" href="/assets/css/style.css?<?= config('general', 'version'); ?>" type="text/css">
 </head>
 
 <body>

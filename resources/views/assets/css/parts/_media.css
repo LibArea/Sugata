@@ -18,4 +18,18 @@
 	.mb-none  {
 	  display: none;
     }
+	
+	.item-categories {
+	  padding: 5px 0 10px 0;
+	  margin-bottom: 5px;
+	}
+	
+	.categories-telo {
+		width: 100%;
+		margin-bottom: 15px;
+	}
+	
+	.categories-telo div {
+		display: none;
+	}
 }

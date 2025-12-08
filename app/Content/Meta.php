@@ -39,14 +39,6 @@ class Meta
                         . "<meta property=\"og:image:height\" content=\"320\">";
                 }
 
-                $output .= "<meta name=\"twitter:card\" content=\"summary\">"
-                    . "<meta name=\"twitter:title\" content=\"$title\">"
-                    . "<meta name=\"twitter:url\" content=\"" . $url . $m['url'] . "\">"
-                    . "<meta property=\"twitter:description\" content=\"$description\">";
-
-                if (!empty($m['imgurl'])) {
-                    $output .= "<meta property=\"twitter:image\" content=\"" . $url . $m['imgurl'] . "\">";
-                }
             }
 
             if (!empty($m['indexing'])) {
@@ -87,7 +79,7 @@ class Meta
 
     public static function category(array $facet): string
     {
-		$url    = config('general', 'url_html') . $facet['facet_path'] . '/index.html';
+		$url    = config('general', 'url_html') . $facet['facet_path'] . '/';
 		$title  = __('app.facts') . ' — ' .  $facet['facet_title'];
 		$description = __('app.feed_facts') . '.  ' .  $facet['facet_description'];
 
