@@ -62,8 +62,6 @@ Route::toGroup()
 	Route::get('/add/item')->controller(AddItemController::class)->name('item.form.add');
 	Route::get('/edit/item/{id}')->controller(EditItemController::class)->where(['id' => '[0-9]+'])->name('item.form.edit');
 	 
-	Route::get('/web/dir/{sort}/{slug}')->controller(HomeController::class, 'category')->name('category');
-	 
 	Route::get('/item/img/{id}/remove')->controller(EditItemController::class, 'thumbItemRemove')->where(['id' => '[0-9]+'])->name('delete.item.thumb');
 	
 	// возможно надо удалить
@@ -71,7 +69,7 @@ Route::toGroup()
 	Route::get('/viewing-v')->controller(ViewingController::class, 'viewingHome')->name('viewing.home');
 	 
 	Route::get('/category')->controller(FacetController::class, 'structure')->name('structure');
-	Route::get('/tools')->controller(HomeController::class, 'tools')->name('tools');
+	Route::get('/tools')->controller(BuildController::class, 'tools')->name('tools');
 	
 	Route::get('/add/facet/{type}')->controller(AddFacetController::class)->where(['type' => '[a-z]+'])->name('facet.form.add');
 	Route::get('/edit/facet/{type}/{id}')->controller(EditFacetController::class)->where(['type' => '[a-z]+', 'id' => '[0-9]+'])->name('facet.form.edit'); 
