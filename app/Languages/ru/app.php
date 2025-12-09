@@ -31,6 +31,10 @@ return [
 	'children' 			=> 'Дети',
 	'author' 			=> 'Автор',
 	'recommended' 		=> 'Рекомендовано',
+	
+	'sign_in' 			=> 'Войти',
+	'password_recovery' => 'Восстановить пароль',
+	'reset' 			=> 'Сбросить',
 
 	'add'				=> 'Добавить',
 	'edit'           	=> 'Изменить',

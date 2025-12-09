@@ -50,6 +50,19 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
+    public function tools()
+    {
+        render(
+            '/content/tools',
+            [
+                'meta'  => Meta::get(__('app.tools')),
+                'data'  => [
+                    'sheet'         => 'tools',
+                ]
+            ]
+        );
+    }
+
 	// Строим CSS для админки
 	protected function buildCss($putch, $key)
 	{

@@ -7,9 +7,9 @@
 
   <?php else : ?>
 
-    <h1 class="title"><?= __('app.authorization'); ?></h1>
+    <h1 class="uppercase-box"><?= __('app.authorization'); ?></h1>
 
-    <form class="mt20 mb20" action="<?= config('meta', 'url'); ?><?= url('authorization', method: 'post'); ?>" method="post">
+    <form class="mb20" action="<?= config('meta', 'url'); ?><?= url('authorization', method: 'post'); ?>" method="post">
       <?= $container->csrf()->field(); ?>
 
       <fieldset class="max-w-sm mb-max-w-full">

@@ -1,6 +1,6 @@
 <main>
-  <h1><?= __('app.password_recovery'); ?></h1>
-  <form class="max-w-sm" action="<?= url('new.pass', method: 'post'); ?>" method="post">
+  <h1 class="uppercase-box"><?= __('app.password_recovery'); ?></h1>
+  <form class="mb20" action="<?= url('new.pass', method: 'post'); ?>" method="post">
     <?= $container->csrf()->field(); ?>
     <fieldset>
       <label for="password"><?= __('app.new_password'); ?></label>
@@ -16,7 +16,6 @@
       <?php if (config('general', 'invite') == false) : ?>
         <span class="mr5 ml5 text-sm"><a href="<?= url('register'); ?>"><?= __('app.registration'); ?></a></span>
       <?php endif; ?>
-      <span class="mr5 ml5 text-sm"><a href="<?= url('login'); ?>"><?= __('app.sign_in'); ?></a></span>
     </p>
   </form>
 </main>

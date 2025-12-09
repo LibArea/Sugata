@@ -31,14 +31,18 @@ return [
 	'children' 			=> 'Children',
 	'author' 			=> 'Author',
 	'recommended' 		=> 'Recommended',
+	
+	'sign_in' 			=> 'Sign In',
+	'password_recovery' => 'Recover password',
+	'reset' 			=> 'Reset',
 
-	'add'				=> 'Добавить',
-	'edit'           	=> 'Изменить',
-	'characters'		=> 'символов',
-	'category'			=> 'Категория',
-	'add_category'		=> 'Добавить категорию',
-	'edit_category'		=> 'Изменить категорию',
-	'title'				=> 'Название',
+	'add'				=> 'Add',
+	'edit'           	=> 'Change',
+	'characters'		=> 'characters',
+	'category'			=> 'Category',
+	'add_category'		=> 'Add category',
+	'edit_category'		=> 'Change category',
+	'title'				=> 'Title',
 	'posted'			=> 'Публикация',
 	'bold'				=> 'Жирный',
 	'italic'			=> 'Курсив',
@@ -64,7 +68,7 @@ return [
 	'rebuild_resources'	=> 'Перестроить ресурсы',
 	'rebuild'           => 'Перестроить',
 	'page_rebuilt'		=> 'Перестроена',
-	'rebuild_all' 		=> 'Всё HTML/DIR',
+	'transfer photo'	=> 'Перенести Фото',
 	'rebuild_dir' 		=> 'DIR',
 	'rebuild_title'		=> 'Пути (path) в категориях',
 	'rebuild_css_title'	=> 'Стили (JS / CSS)',
@@ -74,12 +78,15 @@ return [
 	'deletion_dir' 		=> 'Удаление DIR',
 	'delete' 			=> 'Удалить',
 	'feed_facts' 		=> 'Лента фактов',
-	'no_thumb' 			=> 'Фотографии для факта нет',
+	'no_thumb' 			=> 'There is no photo to prove the fact',
 
-	'no_content' 		=> 'Содержимого нет...',
+	'no_content' 		=> 'There is no content...',
 
 	/* Date and time + events */
 	'months'        => ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 	'today'         => 'Today',
 	'yesterday'     => 'Yesterday',
+	
+	'meta_description'	=> 'Description for search engines...',
+	'information' 		=> 'Short description...',
 ];

@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use Hleb\Base\Controller;
-use App\Models\ItemModel;
-use Meta, Html;
+use Meta;
 
 class HomeController extends Controller
 {
@@ -22,22 +21,11 @@ class HomeController extends Controller
             [
                 'meta'  => Meta::get(__('app.admin'), __('app.admin'), $m),
                 'data'  => [
-                    'sheet'         => 'home',
+                    'sheet' => 'home',
                 ]
             ]
         );
     }
 
-    public function tools()
-    {
-        render(
-            '/content/tools',
-            [
-                'meta'  => Meta::get(__('app.tools')),
-                'data'  => [
-                    'sheet'         => 'tools',
-                ]
-            ]
-        );
-    }
+
 }
