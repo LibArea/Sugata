@@ -14,30 +14,7 @@ use S2\Rose\Entity\ExternalId;
 
 class ItemController extends Controller
 {
-    static $limit = 25;
-
     public function index()
-    {
-        // $childrens, $category_id, $page, $sort, $limit
-        $items      = ItemModel::feedItem(false, false, Html::pageNumber(), self::$limit, 'all');
-        $pagesCount = ItemModel::feedItemCount(false, false, 'all');
-
-        render(
-            '/content/items/all',
-            [
-                'meta'  => Meta::get(__('app.tools')),
-                'data'  => [
-                    'sheet'         => 'facts',
-                    'items'         => $items,
-                    'count'         => $pagesCount,
-                    'pagesCount'    => ceil($pagesCount / self::$limit),
-                    'pNum'          => Html::pageNumber(),
-                ]
-            ]
-        );
-    }
-
-    public function view()
     {
         $id = Request::param('id')->asInt();
         $item = ItemModel::getItem($id, 'id');

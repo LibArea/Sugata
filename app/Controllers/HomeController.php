@@ -5,23 +5,29 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use Hleb\Base\Controller;
-use Meta;
+use App\Models\ItemModel;
+use Meta, Html;
 
 class HomeController extends Controller
 {
+	static $limit = 25;
+	
     public function index(): void
     {
-        $m = [
-            'og'    => false,
-            'url'   => '',
-        ];
+        // $childrens, $category_id, $page, $sort, $limit
+        $items      = ItemModel::feedItem(false, false, Html::pageNumber(), self::$limit, 'all');
+        $pagesCount = ItemModel::feedItemCount(false, false, 'all');
 
         render(
             '/index',
             [
-                'meta'  => Meta::get(__('app.admin'), __('app.admin'), $m),
+                'meta'  => Meta::get(__('app.tools')),
                 'data'  => [
-                    'sheet' => 'home',
+                    'sheet'         => 'facts',
+                    'items'         => $items,
+                    'count'         => $pagesCount,
+                    'pagesCount'    => ceil($pagesCount / self::$limit),
+                    'pNum'          => Html::pageNumber(),
                 ]
             ]
         );

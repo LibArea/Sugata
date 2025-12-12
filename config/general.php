@@ -70,7 +70,7 @@ return [
 	/*
 	 * Для построение статики
 	 */
-	'url_html'	=>  'https://wiki-view.local/',
+	'url_html'	=>  'http://wiki-view.local/',
 
 	/*
 	 * Название сайта
@@ -94,7 +94,6 @@ return [
 
 			],
 		],
-
 		[
 			'title' => 'Спорт',
 			'path'   => 'sport',
@@ -110,9 +109,6 @@ return [
 
 			],
 		],
-
-
-
 		[
 			'title' => 'Домашний очаг',
 			'path'   => 'private-life',
@@ -127,7 +123,6 @@ return [
 
 			],
 		],
-
 		[
 			'title' => 'Наука и образование',
 			'path'   => 'science',
@@ -141,7 +136,6 @@ return [
 
 			],
 		],
-
 		[
 			'title' => 'Культура и искусство',
 			'path'   => 'culture-arts',
@@ -155,8 +149,7 @@ return [
 
 			],
 		],
-		
-				[
+		[
 			'title' => 'Медицина и здоровье',
 			'path'   => 'health',
 			'help'  => 'Питание, болезни, лечение',
@@ -172,7 +165,6 @@ return [
 
 
 	],
-
 
 	/*
 	 * Menu in the admin panel
@@ -200,13 +192,7 @@ return [
 			'id'    => 'add_fact',
 			'tl'    => 10,
 		],
-		[
-			'url'   => 'items',
-			'title' => 'app.facts',
-			'icon'  => 'post',
-			'id'    => 'facts',
-			'tl'    => 10,
-		],
+
 	],
 
 	// To check existing facet types

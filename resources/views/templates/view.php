@@ -8,15 +8,13 @@
 				'name' => __('app.home'),
 				'link' => url('homepage')
 			],
-
 			[
 				'name' => $dir[3],
 				'link' => config('general', 'url_html') . $dir[2]
 			],
-
 			[
 				'name' => __('app.fact'),
-				'link' => url('items')
+				'link' => ''
 			],
 		],
 		'sheet' =>  'view',

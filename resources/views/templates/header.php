@@ -9,6 +9,8 @@
   <?= $meta; ?>
 
   <link rel="icon" sizes="16x16" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" sizes="120x120" href="/favicon-120.ico" type="image/png">
+  <link rel="icon" sizes="144x144" href="/favicon-144.ico" type="image/png">
   <link rel="stylesheet" href="/assets/css/style.css?<?= config('general', 'version'); ?>" type="text/css">
 </head>
 

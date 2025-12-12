@@ -9,7 +9,6 @@ use App\Controllers\{
 	Auth\RecoverController,
 	
 	HomeController,
-	ViewingController,
 	BuildController,
 	FormController,
 	Facet\FacetController,
@@ -64,10 +63,6 @@ Route::toGroup()
 	 
 	Route::get('/item/img/{id}/remove')->controller(EditItemController::class, 'thumbItemRemove')->where(['id' => '[0-9]+'])->name('delete.item.thumb');
 	
-	// возможно надо удалить
-	Route::get('/viewing')->controller(ViewingController::class)->name('viewing');
-	Route::get('/viewing-v')->controller(ViewingController::class, 'viewingHome')->name('viewing.home');
-	 
 	Route::get('/category')->controller(FacetController::class, 'structure')->name('structure');
 	Route::get('/tools')->controller(BuildController::class, 'tools')->name('tools');
 	
@@ -75,9 +70,7 @@ Route::toGroup()
 	Route::get('/edit/facet/{type}/{id}')->controller(EditFacetController::class)->where(['type' => '[a-z]+', 'id' => '[0-9]+'])->name('facet.form.edit'); 
 	Route::get('/redirect/facet/{id}')->controller(RedirectController::class)->where(['id' => '[0-9]+'])->name('redirect.facet');
 	
-	Route::get('/items')->controller(ItemController::class)->name('items'); 
-	Route::get('/item/view/{id}')->controller(ItemController::class, 'view')->where(['id' => '[0-9]+'])->name('view'); 
-	
+	Route::get('/item/view/{id}')->controller(ItemController::class)->where(['id' => '[0-9]+'])->name('view'); 
 	
 	Route::post('/search/select/{type}')->controller(FormController::class)->where(['type' => '[a-z]+']);
 	Route::get('/logout')->controller(LoginController::class, 'logout')->name('logout');

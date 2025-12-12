@@ -17,7 +17,7 @@ return [
 	'authorization'		=> 'Authorization',
 	'tools' 			=> 'Tools',
 	'admin' 			=> 'Panel',
-	'auth_yes'			=> 'You are logged in as staff. <br> This is a closed section.',
+	'auth_yes'			=> 'You are logged in as staff.',
 	'structure'			=> 'Structure',
 	'fact'				=> 'Fact',
 	'facts'				=> 'Facts',
