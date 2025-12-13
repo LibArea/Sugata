@@ -31,6 +31,13 @@ return [
 	'children' 			=> 'Children',
 	'author' 			=> 'Author',
 	'recommended' 		=> 'Recommended',
+	'setting' 			=> 'Settings',
+	
+	'nickname' 			=> 'Nickname',
+	'old_password'		=> 'Old Password',
+	'new_password'		=> 'New Password',
+	'confirm_password'	=> 'Repeat password',	
+	'website' 			=> 'Website',
 	
 	'sign_in' 			=> 'Sign In',
 	'password_recovery' => 'Recover password',

@@ -4,10 +4,120 @@
  * Выпадающее меню и навигация
  */
 
+nav {
+  min-width: 15rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-width: 17rem;
+  padding: 1.5rem 1.5rem 1.5rem 0;
+  display: block;
+  position: fixed;
+  top: 3.75rem;
+  height: 100%;
+}
+
+.dropdown,
+.menu,
 .breadcrumbs {
   list-style: none;
-  margin: 0 0 15px 0;
+  margin: 0;
   padding: 0;
+}
+
+.menu a i {
+  font-size: 1.25rem;
+  margin: 0 0.5rem;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: var(--dropdown-bg);
+  box-shadow: var(--dropdown-box-shadow);
+  padding: 0.5rem;
+  z-index: 55;
+  min-width: 215px;
+  border-radius: var(--rounded);
+}
+
+/* right user menu */
+.dropdown.user {
+  margin-top: 10px;
+  padding: 1rem 0 0.7rem 0;
+}
+
+.right-close {
+  color: var(--gray-600);
+  padding: 3px 8px 0 0;
+  margin-top: -20px;
+  float: right;
+  display: block;
+}
+
+.user-box {
+  padding: 0 0 0.4rem 1rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.975rem;
+}
+
+.user-nav li a {
+  margin-left: 10px;
+}
+
+/* end */
+
+.dropdown.left {
+  left: 0;
+  width: 150px;
+}
+
+.menu a,
+.dropdown li>a,
+.dropdown li>div {
+  color: var(--black);
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 0;
+  gap: .7rem;
+  max-width: 190px;
+}
+
+.dropdown li:hover>a,
+.dropdown li>a.active,
+.dropdown li>div.active {
+  color: var(--link-color-hover);
+}
+
+.nav-overflow {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu__left:not(.menu__active) li {
+  margin-bottom: 5px;
+}
+
+.menu li.active,
+.menu li:hover {
+  background-color: var(--white);
+  border-radius: var(--rounded);
+}
+
+.menu li:hover {
+  transition-duration: .3s;
+}
+
+.menu li:hover>a {
+  color: var(--gray);
+}
+
+.mess li:hover {
+  background-color: var(--gray-100);
 }
 
 .breadcrumbs li {
@@ -19,30 +129,13 @@
   content: " / ";
 }
 
-.menu a i {
-  font-size: 1.25rem;
-  margin: 0 0.5rem;
-}
-
-.menu li.active,
-.menu li:hover {
-  background-color: var(--white);
-  border-radius: var(--rounded);
-  max-width: 190px;
-}
-
-.menu li:hover {
-  transition-duration: .3s;
-}
-
-.menu li:hover>a {
-  color: var(--gray);
-  text-decoration: none;
-}
-
 .menu .icon,
 .dropdown ul .icon {
   color: var(--gray);
+}
+
+.menu .icon {
+  min-width: 24px;
 }
 
 .menu .active .icon {
@@ -53,17 +146,61 @@
   color: var(--gray-600);
 }
 
-.menu a {
-  color: var(--black);
-  padding: 8px;
+/* Navigation */
+.nav-bar {
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  min-width: 0;
-  gap: .7rem;
-  max-width: 190px;
+  margin: 5px 0 20px 0;
 }
 
-.menu a:visited {
-  color: var(--black);
+ul.nav {
+  list-style: none;
+  align-items: center;
+  display: flex;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+}
+
+ul.nav>li {
+  padding: 2px 8px;
+}
+
+ul.nav.small>li {
+  padding: 3px 6px;
+}
+
+ul.nav>li>a {
+  color: var(--gray);
+}
+
+ul.nav>li.active {
+  border-bottom: 2px solid var(--blue);
+  color: var(--nav-color-active);
+}
+
+ul.nav>li.active>a {
+  color: var(--nav-color-active);
+}
+
+ul.nav>li a:hover {
+  color: var(--link-color-hover);
+}
+
+ul.nav>li.active>a {
+  color: var(--nav-color-active);
+}
+
+ul.nav>li.active a:hover {
+  color: var(--nav-color-active);
+}
+
+/* If it's tabs */
+.content-tabs {
+  display: none;
+}
+
+.content-tabs.tab_active {
+  display: block;
 }

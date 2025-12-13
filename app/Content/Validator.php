@@ -172,4 +172,47 @@ class Validator
 
         return $facet;
     }
+	
+    public static function setting($data)
+    {
+        $redirect = url('setting');
+		
+		$container = Container::getContainer();
+
+        if (v::stringType()->length(3, 11)->validate($data['login']) === false) {
+            Msg::redirect(__('msg.string_length', ['name' => '«' . __('msg.login') . '»']), 'error', $redirect);
+        }
+
+        if ($data['email']) {
+            if (v::email()->isValid($data['email']) === false) {
+                Msg::redirect(__('msg.email_correctness'), 'error', $redirect);
+            }
+        }
+
+        return true;
+    }
+	
+    public static function security(array $data, string $email)
+    {
+        $redirect   = url('setting.security');
+
+        if ($data['password2'] != $data['password3']) {
+            Msg::redirect(__('msg.pass_match_err'), 'error', $redirect);
+        }
+
+        if (substr_count($data['password2'], ' ') > 0) {
+            Msg::redirect(__('msg.password_spaces'), 'error', $redirect);
+        }
+
+        if (v::stringType()->length(6, 10000)->validate($data['password2']) === false) {
+            Msg::redirect(__('msg.string_length', ['name' => '«' . __('msg.password') . '»']), 'error', $redirect);
+        }
+
+        $userInfo   = AuthModel::getUser($email, 'email');
+        if (!password_verify($data['password'], $userInfo['password'])) {
+            Msg::redirect(__('msg.old_error'), 'error', $redirect);
+        }
+
+        return true;
+    }
 }

@@ -2,8 +2,6 @@
 
   <?php if ($container->user()->active()) : ?>
 
-    <div class="tag-yellow box mb-none center"><?= __('app.auth_yes'); ?></div>
-
     <?= insert('/_block/navigation/breadcrumbs', [
       'list' => [
         [

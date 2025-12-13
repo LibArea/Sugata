@@ -4,7 +4,7 @@
 
   <header class="content flex items-center justify-between">
     <a href="<?= url('homepage'); ?>">
-	  <h1 class="logo"><?= config('general', 'site_name'); ?></h1>
+      <h1 class="logo"><?= config('general', 'site_name'); ?></h1>
     </a>
 
     <?php if ($container->user()->active()) : ?>

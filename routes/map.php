@@ -11,6 +11,7 @@ use App\Controllers\{
 	HomeController,
 	BuildController,
 	FormController,
+	SettingController,
 	Facet\FacetController,
 	Facet\EditFacetController,
 	Facet\AddFacetController,
@@ -75,6 +76,10 @@ Route::toGroup()
 	Route::post('/search/select/{type}')->controller(FormController::class)->where(['type' => '[a-z]+']);
 	Route::get('/logout')->controller(LoginController::class, 'logout')->name('logout');
 	
+	Route::get('/setting')->controller(SettingController::class)->name('setting');
+	Route::get('/setting/security')->controller(SettingController::class, 'securityForm')->name('setting.security');
+	Route::post('/setting/edit')->controller(SettingController::class, 'edit')->name('setting.edit.profile');
+	
 		// Отправка на изменение
 	Route::toGroup()->protect();
 		Route::post('/edit/facet/{type}')->controller(EditFacetController::class, 'edit')->where(['type' => '[a-z]+'])->name('edit.facet');
@@ -83,6 +88,8 @@ Route::toGroup()
 		
 		Route::post('/add/item')->controller(AddItemController::class, 'add')->name('add.item');
 		Route::post('/edit/item')->controller(EditItemController::class, 'edit')->name('edit.item');
+		
+		Route::post('/user/edit/security')->controller(SettingController::class, 'securityEdit')->where(['type' => '[a-z]+'])->name('setting.edit.security');
 	Route::endGroup();
 	
 Route::endGroup();	

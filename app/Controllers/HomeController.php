@@ -21,7 +21,7 @@ class HomeController extends Controller
         render(
             '/index',
             [
-                'meta'  => Meta::get(__('app.tools')),
+                'meta'  => Meta::get(__('app.admin')),
                 'data'  => [
                     'sheet'         => 'facts',
                     'items'         => $items,

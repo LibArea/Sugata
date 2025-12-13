@@ -31,6 +31,13 @@ return [
 	'children' 			=> 'Дети',
 	'author' 			=> 'Автор',
 	'recommended' 		=> 'Рекомендовано',
+	'setting' 			=> 'Настройка',
+	
+	'nickname' 			=> 'Никнейм',
+	'old_password'		=> 'Старый пароль',
+	'new_password'		=> 'Новый пароль',
+	'confirm_password'	=> 'Повторите пароль',	
+	'website' 			=> 'Сайт',
 	
 	'sign_in' 			=> 'Войти',
 	'password_recovery' => 'Восстановить пароль',

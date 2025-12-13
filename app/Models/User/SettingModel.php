@@ -16,26 +16,7 @@ class SettingModel extends Model
         $sql = "UPDATE users SET 
                     email           = :email,  
                     login           = :login, 
-                    whisper         = :whisper, 
-                    name            = :name,
-                    activated       = :activated,
-                    limiting_mode   = :limiting_mode,
-                    scroll          = :scroll,
-                    nsfw            = :nsfw,
-					post_design 	= :post_design,
-                    template        = :template,
-                    lang            = :lang,
-                    updated_at      = :updated_at,
-                    color           = :color,
-                    about           = :about,
-                    trust_level     = :trust_level,
-                    website         = :website,
-                    location        = :location,
-                    public_email    = :public_email,
-                    github          = :github,
-                    skype           = :skype,
-                    telegram        = :telegram,
-                    vk              = :vk
+                    website         = :website
                         WHERE id    = :id";
 
         return DB::run($sql, $params);
