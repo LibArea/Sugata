@@ -12,6 +12,8 @@ use App\Controllers\{
 	BuildController,
 	FormController,
 	SettingController,
+	SearchController,
+	
 	Facet\FacetController,
 	Facet\EditFacetController,
 	Facet\AddFacetController,
@@ -79,6 +81,8 @@ Route::toGroup()
 	Route::get('/setting')->controller(SettingController::class)->name('setting');
 	Route::get('/setting/security')->controller(SettingController::class, 'securityForm')->name('setting.security');
 	Route::post('/setting/edit')->controller(SettingController::class, 'edit')->name('setting.edit.profile');
+	
+	Route::get('/search/go')->controller(SearchController::class, 'go')->name('search.go');
 	
 		// Отправка на изменение
 	Route::toGroup()->protect();

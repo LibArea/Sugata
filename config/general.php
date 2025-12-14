@@ -9,6 +9,9 @@ return [
 	// TRUE - by invitation only
 	// TRUE - только по приглашению
 	'invite'		=> false,
+	
+	// TRUE - включить морфологическую поисковую систему
+	'search_engine' => true,
 
 	// To force an update (css)
 	'version'     	=> 27,
@@ -70,7 +73,7 @@ return [
 	/*
 	 * Для построение статики
 	 */
-	'url_html'	=>  'http://wiki-view.local/',
+	'url_html'	=>  'https://sugata.ru/',
 
 	/*
 	 * Название сайта
@@ -193,6 +196,14 @@ return [
 			'tl'    => 10,
 		],
 
+		[
+			'url'   => 'setting',
+			'title' => 'app.setting',
+			'icon'  => 'settings',
+			'id'    => 'setting',
+			'tl'    => 10,
+			'br' => 'br',
+		],
 	],
 
 	// To check existing facet types

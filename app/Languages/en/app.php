@@ -39,6 +39,9 @@ return [
 	'confirm_password'	=> 'Repeat password',	
 	'website' 			=> 'Website',
 	
+	'find' 				=> 'Find',
+	'logout' 			=> 'Logout',
+	
 	'sign_in' 			=> 'Sign In',
 	'password_recovery' => 'Recover password',
 	'reset' 			=> 'Reset',

@@ -39,6 +39,9 @@ return [
 	'confirm_password'	=> 'Повторите пароль',	
 	'website' 			=> 'Сайт',
 	
+	'find' 				=> 'Найти',
+	'logout' 			=> 'Выйти',
+	
 	'sign_in' 			=> 'Войти',
 	'password_recovery' => 'Восстановить пароль',
 	'reset' 			=> 'Сбросить',

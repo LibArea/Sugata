@@ -180,4 +180,46 @@ class SearchModel extends Model
 
         return DB::run($sql)->fetchAll();
     }
+	
+    public static function getSearch(int $page, int $limit, string $query)
+    {
+        $start  = ($page - 1) * $limit;
+        $sql = "SELECT DISTINCT 
+                item_id, 
+                item_title as title, 
+                item_slug, 
+                item_content as content,
+                rel.*
+                    FROM facets_items_relation  
+                    LEFT JOIN items ON relation_item_id = item_id 
+                    LEFT JOIN ( SELECT  
+                            relation_item_id,  
+                            GROUP_CONCAT(facet_type, '@', facet_slug, '@', facet_title SEPARATOR '@') AS facet_list  
+                            FROM facets  
+                            LEFT JOIN facets_items_relation on facet_id = relation_facet_id  
+                                GROUP BY relation_item_id  
+                    ) AS rel ON rel.relation_item_id = item_id  
+                       
+                            WHERE item_is_deleted = 0 
+                                AND MATCH(item_title, item_content) AGAINST (:qa) LIMIT :start, :limit";
+
+        return DB::run($sql, ['qa' => $query, 'start' => $start, 'limit' => $limit])->fetchAll();
+    }
+	
+    public static function getSearchCount(string $query)
+    {
+        $sql = "SELECT item_id FROM items WHERE item_is_deleted = 0 AND MATCH(item_title, item_content) AGAINST (:qa)";
+
+        return DB::run($sql, ['qa' => $query])->rowCount();
+    }
+	
+    public static function getSearchTags(null|string $query, string $type, int $limit)
+    {
+        $sql = "SELECT 
+                    facet_slug slug, 
+                    facet_title title
+                        FROM facets WHERE facet_type = :type AND (facet_title LIKE :qa1 OR facet_slug LIKE :qa2) LIMIT :limit";
+
+        return DB::run($sql, ['type' => $type, 'qa1' => "%" . $query . "%", 'qa2' => "%" . $query . "%", 'limit' => $limit])->fetchAll();
+    }
 }
