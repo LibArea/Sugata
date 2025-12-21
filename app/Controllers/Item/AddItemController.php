@@ -63,6 +63,6 @@ class AddItemController extends Controller
             ItemModel::addItemFacets($arr, $item_last['item_id']);
         }
 
-        Msg::redirect(__('app.site_added'), 'success', url('items'));
+        Msg::redirect(__('app.site_added'), 'success', url('homepage'));
     }
 }

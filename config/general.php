@@ -9,7 +9,7 @@ return [
 	// TRUE - by invitation only
 	// TRUE - только по приглашению
 	'invite'		=> false,
-	
+
 	// TRUE - включить морфологическую поисковую систему
 	'search_engine' => true,
 
@@ -46,12 +46,12 @@ return [
 
 	// Path to svg sprite
 	// Путь к спрайту svg
-	'svg_path'  	=> '/assets/svg/icons.svg',
+	'svg_path'	=> '/assets/svg/icons.svg',
 
 	// Paths to template files
 	// Separate style files that may not be included in the templates
 	// Отдельные файлы стилей, которые могут не включаться в шаблоны
-	'path_css_admin' => [
+	'path_css_admin'	=> [
 		'style'	=> '/resources/views/assets/css/build.css',
 	],
 
@@ -99,49 +99,43 @@ return [
 		],
 		[
 			'title' => 'Спорт',
-			'path'   => 'sport',
+			'path'	=> 'sport',
 			'sub'   => [
 
 				[
 					'title' => 'Бег',
-					'path'   => 'sport/run',
+					'path'	=> 'sport/run',
 					'sub'   => '',
 				],
-
-
-
 			],
 		],
 		[
 			'title' => 'Домашний очаг',
-			'path'   => 'private-life',
+			'path'	=> 'private-life',
 			'sub'   => [
 
 				[
 					'title' => 'Животные',
-					'path'   => 'private-life/pets',
+					'path'	=> 'private-life/pets',
 					'sub'   => '',
 				],
-
-
 			],
 		],
 		[
 			'title' => 'Наука и образование',
-			'path'   => 'science',
+			'path'	=> 'science',
 			'sub'   => [
 
 				[
 					'title' => 'История',
-					'path'   => 'science/history',
+					'path'	=> 'science/history',
 					'sub'   => '',
 				],
-
 			],
 		],
 		[
 			'title' => 'Культура и искусство',
-			'path'   => 'culture-arts',
+			'path'	=> 'culture-arts',
 			'sub'   => [
 
 				[
@@ -149,12 +143,11 @@ return [
 					'path'   => 'culture.arts/movies',
 					'sub'   => '',
 				],
-
 			],
 		],
 		[
 			'title' => 'Медицина и здоровье',
-			'path'   => 'health',
+			'path'	=> 'health',
 			'help'  => 'Питание, болезни, лечение',
 			'sub'   => [],
 		],
@@ -193,15 +186,14 @@ return [
 			'title' => 'app.add_fact',
 			'icon'  => 'write',
 			'id'    => 'add_fact',
-			'tl'    => 10,
+			'tl'    => 1,
 		],
-
 		[
 			'url'   => 'setting',
 			'title' => 'app.setting',
 			'icon'  => 'settings',
 			'id'    => 'setting',
-			'tl'    => 10,
+			'tl'    => 1,
 			'br' => 'br',
 		],
 	],

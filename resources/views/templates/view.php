@@ -2,87 +2,87 @@
 
 <main class="content">
 
-	<?= insert('/_block/navigation/breadcrumbs', [
-		'list' => [
-			[
-				'name' => __('app.home'),
-				'link' => url('homepage')
-			],
-			[
-				'name' => $dir[3],
-				'link' => config('general', 'url_html') . $dir[2]
-			],
-			[
-				'name' => __('app.fact'),
-				'link' => ''
-			],
-		],
-		'sheet' =>  'view',
-	]);
+  <?= insert('/_block/navigation/breadcrumbs', [
+    'list' => [
+      [
+        'name' => __('app.home'),
+        'link' => url('homepage')
+      ],
+      [
+        'name' => $dir[3],
+        'link' => config('general', 'url_html') . $dir[2]
+      ],
+      [
+        'name' => __('app.fact'),
+        'link' => ''
+      ],
+    ],
+    'sheet' =>  'view',
+  ]);
 
-	?>
-	<article>
-		<?php if (!empty($item['item_thumb_img'])) : ?>
-			<div class="box br-lightgray img-preview">
-				<img class="w-100" src="<?= Img::PATH['thumbs'] . $item['item_thumb_img']; ?>" alt="<?= $item['item_title']; ?>">
-			</div>
-		<?php endif; ?>
+  ?>
+  <article>
+    <?php if (!empty($item['item_thumb_img'])) : ?>
+      <div class="box br-lightgray img-preview">
+        <img class="w-100" src="<?= Img::PATH['thumbs'] . $item['item_thumb_img']; ?>" alt="<?= $item['item_title']; ?>">
+      </div>
+    <?php endif; ?>
 
-		<h1 class="title"><?= $item['item_title']; ?></h1>
+    <h1 class="title"><?= $item['item_title']; ?></h1>
 
-		<?= markdown($item['item_content']); ?>
+    <?= markdown($item['item_content']); ?>
 
-		<div class="flex justify-between mb20 gray-600">
-			<?php if (!empty($item['item_source_title'])) : ?>
-				<div>
-					<?= __('app.source') ?>: <a class="gray-600" href="<?= $item['item_source_url']; ?>" rel="nofollow"><?= $item['item_source_title']; ?></a>
-				</div>
-			<?php endif; ?>
-		</div>
-	</article>
+    <div class="flex justify-between mb20 gray-600">
+      <?php if (!empty($item['item_source_title'])) : ?>
+        <div>
+          <?= __('app.source') ?>: <a class="gray-600" href="<?= $item['item_source_url']; ?>" rel="nofollow"><?= $item['item_source_title']; ?></a>
+        </div>
+      <?php endif; ?>
+    </div>
+  </article>
 
-	<fieldset class="copy">
-		<input id="inputText" value="<?= fact_slug($dir[2], $item['item_slug']); ?>">
-		<button class="btn btn-primary" id="copyText">
-			<svg class="icon" viewBox="0 0 24 24">
-				<path fill-rule="evenodd" d="M4 12.3V12c0-1.47.005-2.547.075-3.403.074-.904.216-1.482.454-1.949a4.85 4.85 0 0 1 2.12-2.12c.466-.237 1.045-.379 1.948-.453C9.51 4.001 10.675 4 12.3 4h4.512a2.073 2.073 0 0 0-.174-.49 2.4 2.4 0 0 0-1.048-1.048 2.439 2.439 0 0 0-.931-.239 13.48 13.48 0 0 0-1.026-.023H12.26c-1.576 0-2.814 0-3.81.081-1.014.083-1.856.255-2.619.644A6.65 6.65 0 0 0 2.925 5.83c-.389.763-.56 1.605-.644 2.62-.081.995-.081 2.233-.081 3.809v1.373c0 .392 0 .738.023 1.025.025.306.081.623.239.931a2.4 2.4 0 0 0 1.048 1.05c.162.082.326.136.49.173V12.3ZM10.08 6h-.035c-.52 0-.964 0-1.329.03-.382.03-.755.097-1.112.276a2.9 2.9 0 0 0-1.298 1.298c-.179.357-.246.73-.277 1.112C6 9.081 6 9.524 6 10.046v7.909c0 .52 0 .964.03 1.329.03.382.097.755.276 1.112a2.9 2.9 0 0 0 1.298 1.298c.357.179.73.246 1.112.277.365.029.808.029 1.33.029h6.909c.52 0 .964 0 1.329-.03.383-.03.755-.097 1.112-.276a2.9 2.9 0 0 0 1.298-1.298c.179-.357.246-.73.277-1.112.029-.365.029-.808.029-1.33v-7.909c0-.52 0-.964-.03-1.329-.03-.382-.097-.755-.276-1.112a2.9 2.9 0 0 0-1.298-1.298c-.357-.179-.73-.246-1.112-.277C17.919 6 17.476 6 16.954 6H10.08ZM8.408 7.916c.065-.032.179-.07.452-.093a17.65 17.65 0 0 1 1.22-.023h6.84c.565 0 .936 0 1.22.023.273.022.387.06.452.093a1.1 1.1 0 0 1 .492.492c.032.065.07.179.093.452.022.284.023.655.023 1.22v7.84c0 .565 0 .936-.023 1.22-.023.273-.06.387-.093.452a1.1 1.1 0 0 1-.492.492c-.065.032-.179.07-.452.093a17.65 17.65 0 0 1-1.22.023h-6.84c-.565 0-.936 0-1.22-.023-.273-.023-.387-.06-.452-.093a1.1 1.1 0 0 1-.492-.492c-.032-.065-.07-.18-.093-.452a17.057 17.057 0 0 1-.023-1.22v-7.84c0-.565 0-.936.023-1.22.022-.273.06-.387.093-.452a1.1 1.1 0 0 1 .492-.492Z" clip-rule="evenodd" />
-			</svg>
-		</button>
-	</fieldset>
+  <fieldset class="copy">
+    <input id="inputText" value="<?= fact_slug($dir[2], $item['item_slug']); ?>">
+    <button class="btn btn-primary" id="copyText">
+      <svg class="icon" viewBox="0 0 24 24">
+        <path fill-rule="evenodd" d="M4 12.3V12c0-1.47.005-2.547.075-3.403.074-.904.216-1.482.454-1.949a4.85 4.85 0 0 1 2.12-2.12c.466-.237 1.045-.379 1.948-.453C9.51 4.001 10.675 4 12.3 4h4.512a2.073 2.073 0 0 0-.174-.49 2.4 2.4 0 0 0-1.048-1.048 2.439 2.439 0 0 0-.931-.239 13.48 13.48 0 0 0-1.026-.023H12.26c-1.576 0-2.814 0-3.81.081-1.014.083-1.856.255-2.619.644A6.65 6.65 0 0 0 2.925 5.83c-.389.763-.56 1.605-.644 2.62-.081.995-.081 2.233-.081 3.809v1.373c0 .392 0 .738.023 1.025.025.306.081.623.239.931a2.4 2.4 0 0 0 1.048 1.05c.162.082.326.136.49.173V12.3ZM10.08 6h-.035c-.52 0-.964 0-1.329.03-.382.03-.755.097-1.112.276a2.9 2.9 0 0 0-1.298 1.298c-.179.357-.246.73-.277 1.112C6 9.081 6 9.524 6 10.046v7.909c0 .52 0 .964.03 1.329.03.382.097.755.276 1.112a2.9 2.9 0 0 0 1.298 1.298c.357.179.73.246 1.112.277.365.029.808.029 1.33.029h6.909c.52 0 .964 0 1.329-.03.383-.03.755-.097 1.112-.276a2.9 2.9 0 0 0 1.298-1.298c.179-.357.246-.73.277-1.112.029-.365.029-.808.029-1.33v-7.909c0-.52 0-.964-.03-1.329-.03-.382-.097-.755-.276-1.112a2.9 2.9 0 0 0-1.298-1.298c-.357-.179-.73-.246-1.112-.277C17.919 6 17.476 6 16.954 6H10.08ZM8.408 7.916c.065-.032.179-.07.452-.093a17.65 17.65 0 0 1 1.22-.023h6.84c.565 0 .936 0 1.22.023.273.022.387.06.452.093a1.1 1.1 0 0 1 .492.492c.032.065.07.179.093.452.022.284.023.655.023 1.22v7.84c0 .565 0 .936-.023 1.22-.023.273-.06.387-.093.452a1.1 1.1 0 0 1-.492.492c-.065.032-.179.07-.452.093a17.65 17.65 0 0 1-1.22.023h-6.84c-.565 0-.936 0-1.22-.023-.273-.023-.387-.06-.452-.093a1.1 1.1 0 0 1-.492-.492c-.032-.065-.07-.18-.093-.452a17.057 17.057 0 0 1-.023-1.22v-7.84c0-.565 0-.936.023-1.22.022-.273.06-.387.093-.452a1.1 1.1 0 0 1 .492-.492Z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  </fieldset>
 
-	<?php if ($similar) : ?>
-		<br>
-		<h4 class="uppercase-box"><?= __('app.recommended'); ?></h4>
-		<?php foreach ($similar as $value) :
-			$fields = json_decode($value['url'], true); ?>
+  <?php if ($similar) : ?>
+    <br>
+    <h4 class="uppercase-box"><?= __('app.recommended'); ?></h4>
+    <?php foreach ($similar as $value) :
+      $fields = json_decode($value['url'], true); ?>
 
-			<article>
-				<h3 class="title">
-					<a class="title-fact" href="/<?= Html::facets_puth($fields['facets']); ?>/<?= $fields['slug']; ?>.html">
-						<?= $value['title']; ?>
-					</a>
-				</h3>
-				<div class="fact_content">
-					<?= $value['snippet']; ?> <?= $value['snippet2']; ?>
-				</div>
-				<div class="fact_footer">
-					<?= HTML::facetDir($fields['facets']); ?>
+      <article>
+        <h3 class="title">
+          <a class="title-fact" href="/<?= Html::facets_puth($fields['facets']); ?>/<?= $fields['slug']; ?>.html">
+            <?= $value['title']; ?>
+          </a>
+        </h3>
+        <div class="fact_content">
+          <?= $value['snippet']; ?> <?= $value['snippet2']; ?>
+        </div>
+        <div class="fact_footer">
+          <?= HTML::facetDir($fields['facets']); ?>
 
-					<span class="lowercase"><?= langDate($value['added_at']); ?></span>
-				</div>
-			</article>
-		<?php endforeach; ?>
-	<?php endif; ?>
+          <span class="lowercase"><?= langDate($value['added_at']); ?></span>
+        </div>
+      </article>
+    <?php endforeach; ?>
+  <?php endif; ?>
 
 </main>
 
 <script nonce="<?= config('main', 'nonce'); ?>">
-	let text = document.getElementById("inputText");
-	let btn = document.getElementById("copyText");
-	btn.onclick = function() {
-		text.select();
-		document.execCommand("copy");
-	}
+  let text = document.getElementById("inputText");
+  let btn = document.getElementById("copyText");
+  btn.onclick = function() {
+    text.select();
+    document.execCommand("copy");
+  }
 </script>
 
 <?= insert('/templates/footer'); ?>

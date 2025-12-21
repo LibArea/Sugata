@@ -18,6 +18,6 @@
 
   <header class="content">
     <a href="<?= url('homepage'); ?>">
-	  <h1 class="logo"><?= config('general', 'site_name'); ?></h1>
+      <h1 class="logo"><?= config('general', 'site_name'); ?></h1>
     </a>
   </header>

@@ -30,7 +30,7 @@ class EditItemController extends Controller
         // Only the site author and staff can edit
         // Редактировать может только автор сайта и персонал
         if ($this->container->access()->author('item', $item) === false) {
-            $this->container->redirect()->to(url('home'), status: 303);
+            $this->container->redirect()->to(url('homepage'), status: 303);
         }
 
         render(

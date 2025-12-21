@@ -28,13 +28,15 @@
               <a class="title-fact" href="<?= url('view', ['id' => $item['item_id']]); ?>">
                 <?= $item['item_title']; ?>
               </a>
-              <sup>
-                <a class="ml10 gray-600" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
-                  <svg class="icon text-sm">
-                    <use xlink:href="/assets/svg/icons.svg#edit"></use>
-                  </svg>
-                </a>
-              </sup>
+              <?php if ($container->access()->author('item', $item) === true) : ?>
+                <sup>
+                  <a class="ml10 gray-600" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
+                    <svg class="icon text-sm">
+                      <use xlink:href="/assets/svg/icons.svg#edit"></use>
+                    </svg>
+                  </a>
+                </sup>
+              <?php endif; ?>
               <?php if (!$item['item_published']) : ?>
                 <sup class="red text-sm">
                   <?= __('app.not_published'); ?>

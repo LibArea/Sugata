@@ -42,9 +42,37 @@ Route::toGroup()
 		Route::get('/recover')->controller(RecoverController::class, 'showPasswordForm')->name('recover');  
 Route::endGroup();
 
- 
+/**
+ * Access after authorization (TL1)
+ * Доступ после авторизации (TL1)
+ * ->middleware(Registrar::class, data: [RegType::UNDEFINED_USER, '>=']);
+ */
+Route::toGroup()
+	->prefix('/mod/admin/')
+	->middleware(DefaultMiddleware::class, data: [RegType::USER_FIRST_LEVEL, '>=']);
 
-// Администрирование
+	Route::get('/add/item')->controller(AddItemController::class)->name('item.form.add');
+	Route::get('/edit/item/{id}')->controller(EditItemController::class)->where(['id' => '[0-9]+'])->name('item.form.edit');
+
+	Route::get('/setting')->controller(SettingController::class)->name('setting');
+	Route::get('/setting/security')->controller(SettingController::class, 'securityForm')->name('setting.security');
+
+	Route::get('/logout')->controller(LoginController::class, 'logout')->name('logout');
+	Route::get('/search/go')->controller(SearchController::class, 'go')->name('search.go');
+
+		// Отправка на изменение
+	Route::toGroup()->protect();
+		Route::post('/add/item')->controller(AddItemController::class, 'add')->name('add.item');
+		Route::post('/edit/item')->controller(EditItemController::class, 'edit')->name('edit.item');
+		
+		Route::post('/setting/edit')->controller(SettingController::class, 'edit')->name('setting.edit.profile');
+		Route::post('/user/edit/security')->controller(SettingController::class, 'securityEdit')->where(['type' => '[a-z]+'])->name('setting.edit.security');
+	Route::endGroup();
+
+
+Route::endGroup();
+
+ // Администрирование
 Route::toGroup()
 	->prefix('/mod/admin/')
 	->middleware(DefaultMiddleware::class, data: [RegType::REGISTERED_ADMIN, '=']);
@@ -61,9 +89,7 @@ Route::toGroup()
 	
 	Route::get('/manual/deletion/dir')->controller(BuildController::class, 'deletion')->name('deletion.dir');
 	
-	Route::get('/add/item')->controller(AddItemController::class)->name('item.form.add');
-	Route::get('/edit/item/{id}')->controller(EditItemController::class)->where(['id' => '[0-9]+'])->name('item.form.edit');
-	 
+ 
 	Route::get('/item/img/{id}/remove')->controller(EditItemController::class, 'thumbItemRemove')->where(['id' => '[0-9]+'])->name('delete.item.thumb');
 	
 	Route::get('/category')->controller(FacetController::class, 'structure')->name('structure');
@@ -76,24 +102,12 @@ Route::toGroup()
 	Route::get('/item/view/{id}')->controller(ItemController::class)->where(['id' => '[0-9]+'])->name('view'); 
 	
 	Route::post('/search/select/{type}')->controller(FormController::class)->where(['type' => '[a-z]+']);
-	Route::get('/logout')->controller(LoginController::class, 'logout')->name('logout');
-	
-	Route::get('/setting')->controller(SettingController::class)->name('setting');
-	Route::get('/setting/security')->controller(SettingController::class, 'securityForm')->name('setting.security');
-	Route::post('/setting/edit')->controller(SettingController::class, 'edit')->name('setting.edit.profile');
-	
-	Route::get('/search/go')->controller(SearchController::class, 'go')->name('search.go');
 	
 		// Отправка на изменение
 	Route::toGroup()->protect();
 		Route::post('/edit/facet/{type}')->controller(EditFacetController::class, 'edit')->where(['type' => '[a-z]+'])->name('edit.facet');
 		Route::post('/edit/facet/logo/{type}/{facet_id}')->controller(EditFacetController::class, 'logoEdit')->where(['type' => '[a-z]+', 'facet_id' => '[0-9]+'])->name('edit.logo.facet');
 		Route::post('/add/facet/{type}')->controller(AddFacetController::class, 'add')->where(['type' => '[a-z]+'])->name('add.facet');
-		
-		Route::post('/add/item')->controller(AddItemController::class, 'add')->name('add.item');
-		Route::post('/edit/item')->controller(EditItemController::class, 'edit')->name('edit.item');
-		
-		Route::post('/user/edit/security')->controller(SettingController::class, 'securityEdit')->where(['type' => '[a-z]+'])->name('setting.edit.security');
 	Route::endGroup();
 	
 Route::endGroup();	
