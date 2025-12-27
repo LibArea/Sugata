@@ -50,6 +50,8 @@ Route::endGroup();
 Route::toGroup()
 	->prefix('/mod/admin/')
 	->middleware(DefaultMiddleware::class, data: [RegType::USER_FIRST_LEVEL, '>=']);
+	
+	Route::get('/facts/{type}')->controller(HomeController::class, 'facts')->where(['type' => '[a-z]+'])->name('facts');
 
 	Route::get('/add/item')->controller(AddItemController::class)->name('item.form.add');
 	Route::get('/edit/item/{id}')->controller(EditItemController::class)->where(['id' => '[0-9]+'])->name('item.form.edit');

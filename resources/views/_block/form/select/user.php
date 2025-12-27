@@ -1,8 +1,11 @@
-<?php if ($container->user()->admin()) { ?>
-  <fieldset>
-    <label><?= __('app.author'); ?></label>
-    <input name='user_id' id="user_id">
-  </fieldset>
+ 
+   <fieldset class="form-big">
+      <div class="form-label input-label"><label><?= __('app.author'); ?></label></div>
+      <div class="form-element">
+        <input name='user_id' id="user_id">
+      </div>
+    </fieldset>
+  
     <script nonce="<?= config('main', 'nonce'); ?>">
         const user_search = async (props = {}) => {
             const settings = {
@@ -45,4 +48,3 @@
 
         });
     </script>
-<?php } ?>

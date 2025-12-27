@@ -38,7 +38,7 @@ class EditItemController extends Controller
             [
                 'meta'  => Meta::get(__('app.edit_fact')),
                 'data'  => [
-                    'item'            => $item,
+                    'item'			=> $item,
                     'sheet'         => 'edit',
                     'type'          => 'item.edit',
                     'user'          => UserModel::get($item['item_user_id'], 'id'),

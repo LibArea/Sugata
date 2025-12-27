@@ -28,7 +28,7 @@ class Login
 
         self::setUserLog($user['id']);
 
-        redirect('/');
+        redirect(url('facts', ['type' => 'my']));
     }
 
     /**

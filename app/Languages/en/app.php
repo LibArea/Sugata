@@ -91,6 +91,8 @@ return [
 	'no_thumb' 			=> 'There is no photo to prove the fact',
 
 	'no_content' 		=> 'There is no content...',
+	'all_facts' 		=> 'Все',
+	'my_facts' 			=> 'Мои факты',
 
 	/* Date and time + events */
 	'months'        => ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],

@@ -14,16 +14,33 @@ class HomeController extends Controller
 	
     public function index(): void
     {
-        // $childrens, $category_id, $page, $sort, $limit
-        $items      = ItemModel::feedItem(false, false, Html::pageNumber(), self::$limit, 'all');
-        $pagesCount = ItemModel::feedItemCount(false, false, 'all');
-
+		if ($this->container->user()->id()) {
+			redirect(url('facts', ['type' => 'my']));
+		}
+		
         render(
             '/index',
             [
                 'meta'  => Meta::get(__('app.admin')),
+                'data'  => []
+            ]
+        );
+    }
+
+
+	// $type = all, my
+    public function facts($type): void
+    {
+        // $childrens, $category_id, $page, $sort, $limit
+        $items      = ItemModel::feedItem(false, false, Html::pageNumber(), self::$limit, $type);
+        $pagesCount = ItemModel::feedItemCount(false, false, $type);
+
+        render(
+            '/content/items/index',
+            [
+                'meta'  => Meta::get(__('app.admin')),
                 'data'  => [
-                    'sheet'         => 'facts',
+                    'sheet'         => $type,
                     'items'         => $items,
                     'count'         => $pagesCount,
                     'pagesCount'    => ceil($pagesCount / self::$limit),
@@ -32,6 +49,6 @@ class HomeController extends Controller
             ]
         );
     }
-
+	
 
 }

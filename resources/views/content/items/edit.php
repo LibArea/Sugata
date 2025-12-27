@@ -78,9 +78,13 @@ $item = $data['item'];
       </div>
     </fieldset>
 
-    <fieldset>
-      <input type="checkbox" name="item_published" <?php if ($item['item_published'] == 1) : ?>checked <?php endif; ?>> <span class="red"><?= __('app.posted'); ?></span>
-    </fieldset>
+	<?php if ($container->user()->admin()) : ?>
+	  <?= insert('/_block/form/select/user', ['user' => $data['user']]); ?>
+
+		<fieldset>
+		  <input type="checkbox" name="item_published" <?php if ($item['item_published'] == 1) : ?>checked <?php endif; ?>> <span class="red"><?= __('app.posted'); ?></span>
+		</fieldset>
+	<?php endif; ?>
 
     <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
     <?= Html::sumbit(__('app.edit')); ?>

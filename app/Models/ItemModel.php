@@ -70,7 +70,7 @@ class ItemModel extends Model
                     item_user_id,
                     item_date,
 	                item_is_deleted,
-
+					u.id, u.login, u.avatar, u.created_at, 
                     rel.*
   
                         FROM facets_items_relation 
@@ -84,6 +84,7 @@ class ItemModel extends Model
                                     GROUP BY relation_item_id
                         ) AS rel
                             ON rel.relation_item_id = item_id
+							LEFT JOIN users u ON u.id = item_user_id
                                     WHERE  $sort LIMIT :start, :limit";
 
         return DB::run($sql, ['start' => $start, 'limit' => $limit])->fetchAll();
@@ -155,6 +156,8 @@ class ItemModel extends Model
     {
 		$item_published = $data['item_published'] == 'on' ? 1 : 0;
 		
+		$user_id = json_decode($data['user_id'], true);
+		
 		$params =  [
 				'item_id'           	=> $data['item_id'],
                 'item_title'            => $data['item_title'],
@@ -166,7 +169,7 @@ class ItemModel extends Model
 				'item_thumb_img' 		=> $data['item_thumb_img'] ?? NULL,
 				'item_modified' 		=> date("Y-m-d H:i:s"),
 				'item_published'  		=> $item_published,
-                'item_user_id'          => self::container()->user()->id(),
+                'item_user_id'          => (int)$user_id[0]['id'],
 
             ];
 			
