@@ -20,6 +20,9 @@ class ItemModel extends Model
             case 'all':
                 $sort     = "item_is_deleted = 0 ORDER BY item_date DESC";
                 break;
+            case 'moderation':
+                $sort     = "item_published = 0 ORDER BY item_date DESC";
+                break;
             case 'deleted':
                 $sort     = "item_is_deleted = 1 ORDER BY item_id DESC";
                 break;

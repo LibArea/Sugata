@@ -27,11 +27,9 @@ class HomeController extends Controller
         );
     }
 
-
-	// $type = all, my
     public function facts($type): void
     {
-        // $childrens, $category_id, $page, $sort, $limit
+        // $childrens, $category_id, $page, $sort, $limit, $type: all, my, moderation
         $items      = ItemModel::feedItem(false, false, Html::pageNumber(), self::$limit, $type);
         $pagesCount = ItemModel::feedItemCount(false, false, $type);
 

@@ -13,6 +13,7 @@ Analogue of Movable Type, LinkSQL, etc.
 
 ![Sugata - архив фактов](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata-for-github.png)
 
+![Sugata - admin](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata-for-github-admin.png)
 
 ### For testing (Installation)
 

@@ -28,6 +28,11 @@
               'url'   => url('facts', ['type' => 'my']),
               'title' => 'app.my_facts',
               'id'    => 'my',
+            ],             [
+              'url'   => url('facts', ['type' => 'moderation']),
+              'title' => 'app.moderation',
+              'id'    => 'moderation',
+			  'tl' 	  => 10,
             ],
             [
               'url'   => url('facts', ['type' => 'all']),

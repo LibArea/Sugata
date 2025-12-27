@@ -93,6 +93,7 @@ return [
 	'no_content' 		=> 'There is no content...',
 	'all_facts' 		=> 'Все',
 	'my_facts' 			=> 'Мои факты',
+	'moderation'		=> 'Moderation',
 
 	/* Date and time + events */
 	'months'        => ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
