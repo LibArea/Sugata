@@ -1,3 +1,5 @@
+<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>
+
 <main>
 
   <?php if ($container->user()->active()) : ?>
@@ -38,6 +40,12 @@
               'url'   => url('facts', ['type' => 'all']),
               'title' => 'app.all_facts',
               'id'    => 'all',
+            ],
+            [
+              'url'   => url('facts', ['type' => 'page']),
+              'title' => 'app.pages',
+              'id'    => 'apage',
+			  'tl' 	  => 10,
             ],
           ],
         ]
@@ -125,4 +133,3 @@
   <?php endif; ?>
 
 </main>
-<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>

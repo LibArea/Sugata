@@ -1,3 +1,5 @@
+<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>
+
 <main>
 
 	<?= insert('/_block/navigation/breadcrumbs', [
@@ -50,5 +52,3 @@
 		</fieldset>
 	</form>
 </main>
-
-<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>

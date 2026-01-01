@@ -50,6 +50,10 @@ $item = $data['item'];
       </div>
     </fieldset>
 
+    <?php if ($container->user()->admin()) : ?>
+		<?= insert('/_block/form/content-type', ['type' => $item['item_type']]); ?>
+	<?php endif; ?>
+
     <?= insert('/_block/form/thumb-foto', ['item' => $item]); ?>
 
     <?= insert('/_block/form/editor/toolbar-img', ['height'  => '300px', 'content' => $item['item_content'], 'type' => 'item_content', 'id' => $item['item_id']]); ?>

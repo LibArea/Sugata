@@ -94,6 +94,9 @@ return [
 	'all_facts' 		=> 'Все',
 	'my_facts' 			=> 'Мои факты',
 	'moderation'		=> 'Moderation',
+	'page'				=> 'Page',
+	'pages'				=> 'Pages',
+	'type'				=> 'Type',
 
 	/* Date and time + events */
 	'months'        => ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],

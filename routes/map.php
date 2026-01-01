@@ -61,6 +61,8 @@ Route::toGroup()
 
 	Route::get('/logout')->controller(LoginController::class, 'logout')->name('logout');
 	Route::get('/search/go')->controller(SearchController::class, 'go')->name('search.go');
+	Route::post('/search/select/{type}')->controller(FormController::class)->where(['type' => '[a-z]+']);
+	
 
 		// Отправка на изменение
 	Route::toGroup()->protect();
@@ -103,8 +105,7 @@ Route::toGroup()
 	
 	Route::get('/item/view/{id}')->controller(ItemController::class)->where(['id' => '[0-9]+'])->name('view'); 
 	
-	Route::post('/search/select/{type}')->controller(FormController::class)->where(['type' => '[a-z]+']);
-	
+ 
 		// Отправка на изменение
 	Route::toGroup()->protect();
 		Route::post('/edit/facet/{type}')->controller(EditFacetController::class, 'edit')->where(['type' => '[a-z]+'])->name('edit.facet');

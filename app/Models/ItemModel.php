@@ -13,21 +13,29 @@ class ItemModel extends Model
 {
     public static function sorts($sheet)
     {
+		$user_id = self::container()->user()->id();
+		
         switch ($sheet) {
             case 'main':
-                $sort     = "item_is_deleted = 0 AND item_published = 1 ORDER BY item_id DESC";
+                $sort     = "item_is_deleted = 0 AND item_type = 'fact' AND item_published = 1 ORDER BY item_id DESC";
                 break;
             case 'all':
-                $sort     = "item_is_deleted = 0 ORDER BY item_date DESC";
+                $sort     = "item_is_deleted = 0 AND item_type = 'fact' ORDER BY item_date DESC";
+                break;
+            case 'page':
+                $sort     = "item_is_deleted = 0 AND item_type = 'page' ORDER BY item_date DESC";
                 break;
             case 'moderation':
-                $sort     = "item_published = 0 ORDER BY item_date DESC";
+                $sort     = "item_published = 0 AND item_type = 'fact' ORDER BY item_date DESC";
+                break;
+            case 'my':
+                $sort     = "item_type = 'fact' AND item_user_id = $user_id ORDER BY item_date DESC";
                 break;
             case 'deleted':
                 $sort     = "item_is_deleted = 1 ORDER BY item_id DESC";
                 break;
             default:
-                $sort = 'item_published = 1 ORDER BY item_id DESC';
+                $sort = "item_published = 1 AND item_type = 'fact' ORDER BY item_id DESC";
         }
 
         return $sort;
@@ -69,6 +77,7 @@ class ItemModel extends Model
                     item_title,
                     item_content,
 	                item_slug,
+					item_type,
 			        item_published,
                     item_user_id,
                     item_date,
@@ -122,6 +131,7 @@ class ItemModel extends Model
                 'item_title'            => $data['item_title'],
                 'item_content'          => $data['item_content'],
 				'item_note'				=> $data['item_note'],
+				'item_type'				=> $data['item_type'],
 				'item_source_title'		=> $data['item_source_title'],
 				'item_source_url'		=> $data['item_source_url'],
                 'item_slug'             => $data['item_slug'],
@@ -133,6 +143,7 @@ class ItemModel extends Model
         $sql = "INSERT INTO items(item_title, 
                             item_content, 
 							item_note,
+							item_type,
 							item_source_title,
 							item_source_url,
                             item_slug,
@@ -142,8 +153,9 @@ class ItemModel extends Model
                        VALUES(:item_title, 
                        :item_content, 
 					   :item_note,
+					   :item_type,
 					   :item_source_title,
-					:item_source_url,
+					   :item_source_url,
                        :item_slug,
                        :item_published,
                        :item_user_id)";
@@ -166,6 +178,7 @@ class ItemModel extends Model
                 'item_title'            => $data['item_title'],
                 'item_content'          => $data['item_content'],
 				'item_note'				=> $data['item_note'],
+				'item_type' 			=> $data['item_type'],
 				'item_source_title'		=> $data['item_source_title'],
 				'item_source_url'		=> $data['item_source_url'],
                 'item_slug'             => $data['item_slug'],
@@ -180,6 +193,7 @@ class ItemModel extends Model
                     SET item_title		= :item_title, 
                     item_content        = :item_content,
 					item_note        	= :item_note,
+					item_type 			= :item_type,
 					item_source_title	= :item_source_title,
 					item_source_url		= :item_source_url,
                     item_slug           = :item_slug,
@@ -242,6 +256,7 @@ class ItemModel extends Model
                     item_title,
                     item_slug,
                     item_date,
+					item_type,
                     item_published,
                     item_user_id,
                     item_ip,

@@ -4,6 +4,12 @@
  * Медиа-запросы
  */
 
+@media (max-width: 880px) {
+	article img {
+	  width: 100%;	
+	}
+}
+
 @media (max-width: 480px) {
 
 	.box {

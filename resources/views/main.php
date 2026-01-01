@@ -19,7 +19,7 @@
   </header>
 
   <div class="content">
-    <div class="flex w-100 gap">
+    <div class="flex w-100 gap-lg">
       <?= $content; ?>
     </div>
   </div>

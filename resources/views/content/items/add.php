@@ -34,6 +34,10 @@
       </div>
     </fieldset>
 
+    <?php if ($container->user()->admin()) : ?>
+		<?= insert('/_block/form/content-type'); ?>
+	<?php endif; ?>
+
     <?= insert('/_block/form/thumb-foto', ['item' => []]); ?>
 
     <?= insert('/_block/form/editor/toolbar-img', ['height' => '300px', 'id' => 0]); ?>
@@ -62,9 +66,11 @@
       </div>
     </fieldset>
 
+    <?php if ($container->user()->admin()) : ?>
     <fieldset>
       <input type="checkbox" name="item_published"> <?= __('app.posted'); ?>
     </fieldset>
+	<?php endif; ?>
 
     <?= Html::sumbit(__('app.add')); ?>
   </form>
