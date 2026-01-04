@@ -7,7 +7,7 @@ namespace App\Controllers\Item;
 use Hleb\Base\Controller;
 
 use Hleb\Static\Request;
-use App\Models\{ItemModel, SearchModel};
+use App\Models\{ItemModel, SearchModel, FacetModel};
 use Meta, Msg, Html, Validator;
 
 use S2\Rose\Entity\ExternalId;
@@ -34,6 +34,12 @@ class ItemController extends Controller
         $storage = SearchModel::PdoStorage();
         $similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
 
+		$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+
+ 		$tree = FacetModel::breadcrumb((int)$dir[0]);
+		$breadcrumb = Html::breadcrumbDir($tree);
+
+
         render(
             '/content/items/view',
             [
@@ -42,6 +48,7 @@ class ItemController extends Controller
                     'sheet'     => 'view',
                     'item'      => $item,
                     'similar'   => $similar,
+					'breadcrumb' => $breadcrumb,
                 ]
             ]
         );

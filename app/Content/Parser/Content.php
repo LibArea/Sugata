@@ -155,6 +155,22 @@ class Content
         return ['content' => $beforeCut, 'button' => $button];
     }
 
+    public static function miniature($markdown)
+    {
+		$pattern = '/!\[(.*?)\]\((.*?)\)/'; // Ищет ![]()
+
+		if (preg_match_all($pattern, $markdown, $matches)) {
+
+			foreach ($matches[0] as $match) {
+				// return htmlspecialchars($match) . "\n"; // Выводит ![]()
+			}
+
+             return $matches[2][0]; 
+
+		}
+       return;
+    }
+
     public static function facets($content)
     {
         preg_match_all('/#([^#,:\s,]+)/i', strip_tags($content), $matchs);

@@ -131,7 +131,7 @@ class ItemModel extends Model
                 'item_title'            => $data['item_title'],
                 'item_content'          => $data['item_content'],
 				'item_note'				=> $data['item_note'],
-				'item_type'				=> $data['item_type'],
+				'item_type'				=> $data['item_type'] ?? 'fact',
 				'item_source_title'		=> $data['item_source_title'],
 				'item_source_url'		=> $data['item_source_url'],
                 'item_slug'             => $data['item_slug'],
@@ -169,23 +169,31 @@ class ItemModel extends Model
 
     public static function edit($data)
     {
-		$item_published = $data['item_published'] == 'on' ? 1 : 0;
+		$item_published = $data['item_published'] ?? 0;
+		$item_published = $item_published == 'on' ? 1 : 0;
 		
-		$user_id = json_decode($data['user_id'], true);
+	//	$user_id = $data['user_id'] ?? self::container()->user()->id();
+		
+		if ($data['user_id']) {
+			$user_id = json_decode($data['user_id'], true);
+			$user_id = (int)$user_id[0]['id'];
+		} else {
+			$user_id = self::container()->user()->id();
+		}	
 		
 		$params =  [
 				'item_id'           	=> $data['item_id'],
                 'item_title'            => $data['item_title'],
                 'item_content'          => $data['item_content'],
 				'item_note'				=> $data['item_note'],
-				'item_type' 			=> $data['item_type'],
+				'item_type' 			=> $data['item_type'] ?? 'fact',
 				'item_source_title'		=> $data['item_source_title'],
 				'item_source_url'		=> $data['item_source_url'],
                 'item_slug'             => $data['item_slug'],
 				'item_thumb_img' 		=> $data['item_thumb_img'] ?? NULL,
 				'item_modified' 		=> date("Y-m-d H:i:s"),
 				'item_published'  		=> $item_published,
-                'item_user_id'          => (int)$user_id[0]['id'],
+                'item_user_id'          => $user_id,
 
             ];
 			

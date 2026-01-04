@@ -26,8 +26,19 @@
         </a>
       </h3>
 
-      <?php $arr = \App\Content\Parser\Content::cut($item['item_content']);
-      echo markdown($arr['content']); ?>
+      <?php if ($img = \App\Content\Parser\Content::miniature($item['item_content'])) : ?>
+
+        <img alt="<?= $item['item_title']; ?>" class="miniature" src="<?= $img; ?>">
+
+        <?php $arr = \App\Content\Parser\Content::cut($item['item_content']);
+        echo markdown($arr['content']); ?>
+
+      <?php else : ?>
+
+        <?php $arr = \App\Content\Parser\Content::cut($item['item_content']);
+        echo markdown($arr['content']); ?>
+
+      <?php endif; ?>
 
       <a class="read_more" href="/<?= Html::facets_puth($item['facet_list']); ?>/<?= $item['item_slug']; ?>.html"><?= __('app.read_more'); ?> →</a>
       <div class="fact_footer">

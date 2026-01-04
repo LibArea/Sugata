@@ -2,25 +2,10 @@
 
 <main class="content">
 
-  <?= insert('/_block/navigation/breadcrumbs', [
-    'list' => [
-      [
-        'name' => __('app.home'),
-        'link' => url('homepage')
-      ],
-      [
-        'name' => $dir[3],
-        'link' => config('general', 'url_html') . $dir[2]
-      ],
-      [
-        'name' => __('app.fact'),
-        'link' => ''
-      ],
-    ],
-    'sheet' =>  'view',
-  ]);
+   <?= insert('/_block/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
-  ?>
+  <b class="uppercase-box"><?= __('app.fact'); ?></b>
+  
   <article>
     <?php if (!empty($item['item_thumb_img'])) : ?>
       <div class="box br-lightgray img-preview">

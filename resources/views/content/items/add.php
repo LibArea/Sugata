@@ -35,7 +35,7 @@
     </fieldset>
 
     <?php if ($container->user()->admin()) : ?>
-		<?= insert('/_block/form/content-type'); ?>
+		<?= insert('/_block/form/content-type', ['tl' => 9]); ?>
 	<?php endif; ?>
 
     <?= insert('/_block/form/thumb-foto', ['item' => []]); ?>

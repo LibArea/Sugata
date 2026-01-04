@@ -1,22 +1,11 @@
 <main>
-  <?= insert('/_block/navigation/breadcrumbs', [
-    'list' => [
-      [
-        'name' => __('app.home'),
-        'link' => url('homepage')
-      ],
-      [
-        'name' => __('app.view'),
-        'link' => ''
-      ],
-    ],
-    'sheet' =>  $data['sheet']
-  ]);
+  
+   <?= insert('/_block/navigation/breadcrumbs', ['list' => $data['breadcrumb']]); 
+	   $item = $data['item'];
+       $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+   ?>
 
-  $item = $data['item'];
-
-  $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
-  ?>
+  <h2 class="uppercase-box"><?= __('app.view'); ?></h2>
 
   <article>
 

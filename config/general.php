@@ -14,7 +14,7 @@ return [
 	'search_engine' => true,
 
 	// To force an update (css)
-	'version'     	=> 27,
+	'version'     	=> 1,
 
 	// Default localization (+ languages represented)
 	// Локализация по умолчанию (+ какие языки есть в системе)
@@ -201,5 +201,19 @@ return [
 	// To check existing facet types
 	// Для проверки существующих типов фасетов
 	'permitted'     => ['category'],
+	
+	// Permitted publication types: fact, page
+	// Разрешенные типы публикаций: fact, page
+	'allowed_types'  => [
+		[
+		  'title' => 'app.fact',
+		  'type' => 'fact',
+		],
+		[
+		  'title' => 'app.page',
+		  'type' => 'page',
+          'tl' => 10
+		]
+	],
 
 ];

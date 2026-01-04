@@ -414,4 +414,27 @@ class Html
         }
         return $tree;
     }
+	
+	public static function breadcrumbDir($arr)
+	{
+		$home = [
+			'name' => __('app.home'),
+			'path' => config('general', 'url'),
+			'home' => true,
+		];
+
+		array_unshift($arr, $home);
+
+		$result = [];
+		foreach ($arr as $row) {
+
+			if (!empty($row['home']) === true) {
+				$result[] = ["name" => $row['name'],  "path" => $row['path'], "link" => '/'];
+			} else {
+				$result[] = ["name" => $row['name'],  "path" => $row['path'], "link" => urlDir($row['path'])];
+			}
+		}
+
+		return $result;
+	}
 }

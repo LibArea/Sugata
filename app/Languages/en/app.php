@@ -68,7 +68,7 @@ return [
 	'link'				=> 'Ссылка',
 	'foto'				=> 'Фото',
 	'switching'			=> 'Переключение',
-	'editing'			=> 'Ищменить',
+	'editing'			=> 'Edit',
 	'fullscreen'		=> 'Полный скрин',
 	'note'				=> 'Заметка',
 	'source'			=> 'Источник',

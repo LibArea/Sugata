@@ -235,9 +235,8 @@ class BuildController extends Controller
 			$childrenForFeed =  FacetModel::childrenForFeed($facet['facet_id']);
 			$items = ItemModel::feedItem($childrenForFeed, $facet['facet_id'], Html::pageNumber(), 20, 'all');
 
-
 			$tree = FacetModel::breadcrumb($facet['facet_id']);
-			$breadcrumb = self::breadcrumbDir($tree);
+			$breadcrumb = Html::breadcrumbDir($tree);
 
 			$childrens = FacetModel::getChildrens($facet['facet_id']);
 
@@ -259,13 +258,13 @@ class BuildController extends Controller
 	{
 		$temp_dit =   '/templates/view.php';
 
-		Html::pageNumber();
+		//Html::pageNumber();
 
 		$items = ItemModel::getItemAll();
 
 		foreach ($items as $item) {
 
-			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+			// $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
 
 
 			/**
@@ -282,12 +281,23 @@ class BuildController extends Controller
 			$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
 
 
+ 
+
+			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+
+			$tree = FacetModel::breadcrumb((int)$dir[0]);
+			$breadcrumb = Html::breadcrumbDir($tree);
+
+
+
 			file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($temp_dit, [
 				'item' =>  $item,
 				'similar' => $similar,
 				//'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
 				'dir' => $dir,
-				'meta' => Meta::view($item, $dir[2])
+				'meta' => Meta::view($item, $dir[2]),
+				'breadcrumb' => $breadcrumb
+				
 			]));
 		}
 
@@ -341,29 +351,6 @@ class BuildController extends Controller
 			}
 		}
 		rmdir($dir);
-	}
-
-	public static function breadcrumbDir($arr)
-	{
-		$home = [
-			'name' => __('app.home'),
-			'path' => config('general', 'url'),
-			'home' => true,
-		];
-
-		array_unshift($arr, $home);
-
-		$result = [];
-		foreach ($arr as $row) {
-
-			if (!empty($row['home']) === true) {
-				$result[] = ["name" => $row['name'],  "path" => $row['path'], "link" => '/'];
-			} else {
-				$result[] = ["name" => $row['name'],  "path" => $row['path'], "link" => urlDir($row['path'])];
-			}
-		}
-
-		return $result;
 	}
 
 	public function copyDirect($source, $dest, $over = false)
