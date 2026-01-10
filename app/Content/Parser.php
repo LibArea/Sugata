@@ -2,54 +2,33 @@
 
 declare(strict_types=1);
 
-namespace App\Content\Parser;
+namespace App\Content;
 
 use App\Content\Parser\{Convert, Filter};
 use App\Models\ParserModel;
 use App\Bootstrap\Services\User\UserData;
 use Img;
 
-class Content
+use Michelf\Markdown;
+use Michelf\MarkdownExtra;
+
+class Parser
 {
     // Content management (Parsedown, Typograf)
     public static function text(string $content, string $type)
     {
-        $text = self::parseUsers($content);
-        $text = self::parse($text);
+        $text = self::parse($content);
         $text = self::details($text);
-        $text = self::facets($text);
-
-        return self::gif($text);
+		
+        return self::facets($text);
     }
 
     public static function parse(string $content)
     {
-        $content = str_replace('{cut}', '', $content);
-
-        $Parsedown = new Convert();
-
-        // !!! Enable by default
-        $Parsedown->setSafeMode(true);
-
-        // New line
-        $Parsedown->setBreaksEnabled(true);
-
-        // Configure
-        $Parsedown->voidElementSuffix = '>'; // HTML5
-
-        $Parsedown->linkAttributes = function ($Text, $Attributes, &$Element, $Internal) {
-            if (!$Internal) {
-                return [
-                    'rel' => 'noopener nofollow ugc',
-                    'target' => '_blank',
-                ];
-            }
-            return [];
-        };
-
-        $Parsedown->abbreviationData = __('abbreviations.words');
-
-        $text = $Parsedown->text($content);
+		$content = str_replace('{cut}', '', $content);
+		
+		// https://michelf.ca/projects/php-markdown/
+		$text = MarkdownExtra::defaultTransform($content);
 
         if (UserData::getUserLang() === 'ru') {
             return self::typograf($text);
@@ -79,37 +58,6 @@ class Content
         $t->disableRule('Html\*');
 
         return $t->apply($text);
-    }
-
-    public static function gif($content)
-    {
-        preg_match_all('/\:(\w+)\:/mUs', strip_tags($content), $matchs);
-
-        if (is_array($matchs[1])) {
-
-            $match_name = [];
-            foreach ($matchs[1] as $name) {
-                if (in_array($name, $match_name)) {
-                    continue;
-                }
-
-                $match_name[] = $name;
-            }
-
-            $match_name = array_unique($match_name);
-
-            arsort($match_name);
-
-            foreach ($match_name as $key => $name) {
-
-                $img = '/assets/images/gif/' . $name . '.gif';
-                if (file_exists('.' . $img)) {
-                    $content = str_replace(':' . $name . ':', '<img class="gif" alt="' . $name . '" src="' . $img . '">', $content);
-                }
-            }
-        }
-
-        return  $content;
     }
 
     public static function details($content)
@@ -144,7 +92,7 @@ class Content
         }
 
         if (!$afterCut) {
-            $beforeCut = Filter::fragment($text, $length);
+            $beforeCut = self::fragment($text, $length);
         }
 
         $button = false;
@@ -200,59 +148,35 @@ class Content
             return $content;
         }
     }
-
-    public static function parseUsers($content, $with_user = false, $to_uid = false)
+	
+    // Content management
+    public static function noHTML(string $content, int $lenght = 150)
     {
-        preg_match_all('/(?<=^|\s|>)@([a-z0-9_]+)/i', strip_tags($content), $matchs);
+        $Parsedown = new Parsedown();
 
-        if (is_array($matchs[1])) {
-            $match_name = [];
-            foreach ($matchs[1] as $key => $login) {
-                if (in_array($login, $match_name)) {
-                    continue;
-                }
+        // Get html with minimal parsing (line = no formatting)
+        // Получим html с минимальным парсингом (line = без форматирования)
+        $content = $Parsedown->line($content);
 
-                $match_name[] = $login;
-            }
+        $content = str_replace(["\r\n", "\r", "\n", "#"], ' ', $content);
 
-            $match_name = array_unique($match_name);
+        $str =  str_replace(['&gt;', '{cut}'], '', strip_tags($content));
 
-            arsort($match_name);
+        return self::fragment($str, $lenght);
+    }
 
-            $all_users = [];
+    public static function fragment(string $text, int $lenght = 150, string $charset = 'UTF-8'): string
+    {
 
-            $content_uid = $content;
+        if (mb_strlen($text, $charset) >= $lenght) {
+            $wrap = wordwrap($text, $lenght, '~');
+            $ret = mb_strpos($wrap, '~', 0, $charset);
 
-            foreach ($match_name as $key => $login) {
-
-                if (preg_match('/^[0-9]+$/', $login)) {
-                    $user_info = ParserModel::getUser($login, 'id');
-                } else {
-                    $user_info = ParserModel::getUser($login, 'slug');
-                }
-
-                if ($user_info) {
-                    $content = str_replace('@' . $login, '[@' . $login . '](/@' .  $login . ')', $content);
-
-                    if ($to_uid) {
-                        $content_uid = str_replace('@' . $login, '@' . $user_info['id'], $content_uid);
-                    }
-
-                    if ($with_user) {
-                        $all_users[] = $user_info['id'];
-                    }
-                }
-            }
+            return  mb_substr($wrap, 0, (int)$ret, $charset) . '...';
         }
 
-        if ($with_user) {
-            return $all_users;
-        }
+        if (empty($text)) $text = '...';
 
-        if ($to_uid) {
-            return $content_uid;
-        }
-
-        return $content;
+        return $text;
     }
 }

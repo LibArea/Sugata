@@ -191,6 +191,11 @@ font-size: .75rem;
  color: var(--gray-600);
 }
 
+.fact_telo {
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
 .fact_footer {
   display: inline-block;
   vertical-align: middle;
@@ -199,13 +204,6 @@ font-size: .75rem;
   color: #666;
   padding: 0 10px;
   border-radius: 5px;
-}
-
-.read_more {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 14px;
-  text-decoration: underline;
 }
 
 .item-categories {
@@ -217,11 +215,9 @@ font-size: .75rem;
 }
 
 .categories-telo {
-  width: 50%;
-  margin-bottom: 20px;
+  width: 33%;
+  margin: 20px 0;
 }
-
-
 
 /* .color-1 {
     background: rgba(255, 229, 179, 0.3);
