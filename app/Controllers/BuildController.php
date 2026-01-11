@@ -355,11 +355,19 @@ class BuildController extends Controller
 
 	public function copyDirect($source, $dest, $over = false)
 	{
+		$filesToProhibit = ['.htaccess', 'index.php']; // Список файлов, которые нужно запретить переносить
+		
 		if (!is_dir($dest))
 			mkdir($dest);
 		if ($handle = opendir($source)) {
 			while (false !== ($file = readdir($handle))) {
 				if ($file != '.' && $file != '..') {
+
+					// Проверяем, есть ли файл в списке "Запретить"
+					if (in_array($file, $filesToProhibit)) {
+						continue; // Если есть, пропускаем его
+					}
+			
 					$path = $source . '/' . $file;
 					if (is_file($path)) {
 						if (!is_file($dest . '/' . $file || $over))

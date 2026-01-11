@@ -86,6 +86,20 @@ video {
   max-width: 560px;
 }
 
+foto {
+  text-align: center;
+  display: block;
+}
+
+foto em {
+  display: block;
+  font-style: italic;
+  color: var(--gray-600);
+}
+
+li:target {
+  background: #eaf3ff;
+}
 
 .content {
   margin: 0 auto;
@@ -93,6 +107,10 @@ video {
   max-width: 1036px;
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+sup:target .footnote-ref {
+  font-weight: bold;
 }
 
 /* См. https://github.com/VKCOM/icons */
@@ -134,7 +152,7 @@ video {
   color: #07f;
 }
 
-.icon.ok {
+/* .icon.ok {
   color: #eb722e;
   height: 47px;
   width: 44px;
@@ -154,7 +172,7 @@ video {
 
 .icon.tw {
   color: #00aced;
-}
+} */
 
 /* end */
 .title {
@@ -207,16 +225,15 @@ font-size: .75rem;
 }
 
 .item-categories {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 20px 0 10px 0;
-    margin-bottom: 25px;
-    border-radius: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px 0 10px 0;
+  border-radius: 5px;
 }
 
 .categories-telo {
   width: 33%;
-  margin: 20px 0;
+  margin: 15px 0;
 }
 
 /* .color-1 {
@@ -279,8 +296,6 @@ a:hover>img {
   max-width: 330px;
 }
 
-
-
 li.zebra {
   padding: 5px;
   list-style: none;
@@ -294,7 +309,6 @@ li.zebra+li {
   display: flex;
   gap: var(--gap-base);
 }
-
 
 .miniature{
   float: left;

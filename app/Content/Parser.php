@@ -27,7 +27,7 @@ class Parser
     {
 		$content = str_replace('{cut}', '', $content);
 		
-		// https://michelf.ca/projects/php-markdown/
+ 		// https://michelf.ca/projects/php-markdown/
 		$text = MarkdownExtra::defaultTransform($content);
 
         if (UserData::getUserLang() === 'ru') {
@@ -67,6 +67,11 @@ class Parser
             $content = preg_replace($regexpSp, "<details><summary>" . __('app.see_more') . "</summary>$2$3</details>", $content);
         }
 
+        $regexpFt = '/\{foto(?!.*\{foto)(\s?)(?(1)(.*?))\}(.*?)\{\/foto\}/is';
+        while (preg_match($regexpFt, $content)) {
+            $content = preg_replace($regexpFt, "<foto>$2$3</foto>", $content);
+        }
+
         $regexpAu = '/\{auth(?!.*\{auth)(\s?)(?(1)(.*?))\}(.*?)\{\/auth\}/is';
         while (preg_match($regexpAu, $content)) {
             if (UserData::checkActiveUser()) {
@@ -99,6 +104,8 @@ class Parser
         if ($afterCut || mb_strlen($text, $charset) > $length) {
             $button = true;
         }
+
+       	$beforeCut =  str_replace('[^1]', '', $beforeCut);
 
         return ['content' => $beforeCut, 'button' => $button];
     }
@@ -152,11 +159,7 @@ class Parser
     // Content management
     public static function noHTML(string $content, int $lenght = 150)
     {
-        $Parsedown = new Parsedown();
-
-        // Get html with minimal parsing (line = no formatting)
-        // Получим html с минимальным парсингом (line = без форматирования)
-        $content = $Parsedown->line($content);
+        $content = Markdown::defaultTransform($content);
 
         $content = str_replace(["\r\n", "\r", "\n", "#"], ' ', $content);
 
