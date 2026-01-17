@@ -4,12 +4,14 @@
   <?= insert('/_block/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
   <?php if ($childrens) : ?>
-    <div class="categories-telo">
-      <?php foreach ($childrens as $lt) : ?>
+    <div class="item-categories wrap">
+    <?php foreach ($childrens as $lt) : ?>
+      <div class="categories-telo">
         <a class="text-xl" href="<?= urlDir($lt['facet_path']); ?>">
           <?= $lt['facet_title']; ?>
         </a>
-      <?php endforeach; ?>
+      </div>
+    <?php endforeach; ?>
     </div>
   <?php endif; ?>
 

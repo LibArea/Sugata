@@ -437,4 +437,33 @@ class Html
 
 		return $result;
 	}
+	
+    public static relatedPost()
+    {
+        $data = Request::allPost();
+        $json_post  = $data['post_select'] ?? false;
+        if ($json_post) {
+            $arr_post   = json_decode($json_post, true);
+            foreach ($arr_post as $value) {
+                $id[]   = $value['id'];
+            }
+            return implode(',', $id ?? []);
+        }
+        return false;
+    }
+	
+    public static selectAuthor(int $user_id, null|string $user_new): int
+    {
+        if (!$user_new) {
+            return $user_id;
+        }
+
+        if (UserData::checkAdmin()) {
+            $user_new = json_decode($user_new, true);
+            return (int)$user_new[0]['id'];
+        }
+		
+        return $user_id;
+    }
+
 }

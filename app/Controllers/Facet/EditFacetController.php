@@ -8,16 +8,13 @@ use Hleb\Static\Request;
 use Hleb\Base\Controller;
 use App\Models\User\UserModel;
 use App\Models\FacetModel;
-use Img, Meta, Msg, Validator;
+use Img, Meta, Msg, Html, Validator;
 
 use App\Traits\Author;
 use App\Traits\Related;
 
 class EditFacetController extends Controller
 {
-    use Author;
-    use Related;
-
     /**
      * Topic or Blog editing form
      * Форма редактирования Topic or Blog
@@ -60,9 +57,9 @@ class EditFacetController extends Controller
 
         // Img::set($_FILES, $facet['facet_id'], 'facet');
 
-        $facet_user_id = $this->selectAuthor($facet['facet_user_id'], Request::post('user_id')->value());
+        $facet_user_id = Html::selectAuthor($facet['facet_user_id'], Request::post('user_id')->value());
 
-        $post_related = $this->relatedPost();
+        $post_related = Html::relatedPost();
 
         $facet_top_level = $data['facet_top_level'] ?? false;
         $facet_is_comments = $data['facet_is_comments'] ?? false;

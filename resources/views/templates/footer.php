@@ -1,8 +1,10 @@
 <br>
-<footer class="content text-sm lowercase">
-  © 2025 sugata — <?= __('app.facts'); ?>
-
-  <span class="right mb-none"><?= __('app.page_rebuilt'); ?> <?= date('d.m.Y H:i:s'); ?></span>
+<footer class="content">
+  <div>
+    © 2026 sugata — <span class="lowercase"><?= __('app.facts'); ?></span><br>
+    <?= __('app.page_rebuilt'); ?> <?= date('d.m.Y H:i:s'); ?>
+  </div>
+  <div class="right mb-none"><a href="/info/">О сайте</a></div>
 </footer>
 
 </body>

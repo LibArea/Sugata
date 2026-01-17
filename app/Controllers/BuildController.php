@@ -256,7 +256,8 @@ class BuildController extends Controller
 
 	public function buildHtmlView(): void
 	{
-		$temp_dit =   '/templates/view.php';
+		$temp_view =   '/templates/view.php';
+		$temp_page =   '/templates/page.php';
 
 		//Html::pageNumber();
 
@@ -280,17 +281,15 @@ class BuildController extends Controller
 			$storage = SearchModel::PdoStorage();
 			$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
 
-
- 
-
 			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
 
 			$tree = FacetModel::breadcrumb((int)$dir[0]);
 			$breadcrumb = Html::breadcrumbDir($tree);
 
+			// Если slug = info (служебная категория) то другой шаблон
+			$tmp = ($dir[2] == 'info') ? $temp_page : $temp_view;
 
-
-			file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($temp_dit, [
+			file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($tmp, [
 				'item' =>  $item,
 				'similar' => $similar,
 				//'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),

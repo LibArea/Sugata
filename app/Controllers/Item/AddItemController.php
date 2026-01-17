@@ -10,12 +10,10 @@ use Hleb\Static\Request;
 use App\Models\ItemModel;
 use Meta, Msg, Validator;
 
-use App\Traits\Slug;
+use Cocur\Slugify\Slugify;
 
 class AddItemController extends Controller
 {
-    use Slug;
-
     /**
      * Add Form
      * Форма добавление 
@@ -45,7 +43,7 @@ class AddItemController extends Controller
 
         Validator::publication($data, url('item.form.add'));
 
-        $data['item_slug'] = $this->getSlug($data['item_title']);
+        $data['item_slug'] = self::getSlug($data['item_title']);
 
         $item_last = ItemModel::add($data);
 
@@ -64,5 +62,13 @@ class AddItemController extends Controller
         }
 
         Msg::redirect(__('app.site_added'), 'success', url('homepage'));
+    }
+	
+    private static function getSlug($title)
+    {
+        $slugify = new Slugify();
+        $uri = $slugify->slugify($title);
+
+        return substr($uri, 0, 90);
     }
 }

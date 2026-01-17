@@ -26,7 +26,10 @@ aside {
 
 footer {
   color: gray;
+  display: flex;
   border-top: 1px solid #ebeaea;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
 }
 
 aside ul {
@@ -227,7 +230,7 @@ font-size: .75rem;
 .item-categories {
   display: flex;
   flex-wrap: wrap;
-  padding: 20px 0 10px 0;
+  padding: 10px 0;
   border-radius: 5px;
 }
 
