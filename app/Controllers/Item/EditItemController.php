@@ -11,17 +11,8 @@ use App\Models\ItemModel;
 use App\Models\User\UserModel;
 use Meta, Msg, Img, Validator;
 
-use App\Traits\Slug;
-use App\Traits\Author;
-use App\Traits\Related;
-
 class EditItemController extends Controller
 {
-
-    use Slug;
-    use Author;
-    use Related;
-
     // Форма редактирование домена
     public function index()
     {

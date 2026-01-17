@@ -438,7 +438,7 @@ class Html
 		return $result;
 	}
 	
-    public static relatedPost()
+    public static function relatedPost()
     {
         $data = Request::allPost();
         $json_post  = $data['post_select'] ?? false;
@@ -452,7 +452,7 @@ class Html
         return false;
     }
 	
-    public static selectAuthor(int $user_id, null|string $user_new): int
+    public static function selectAuthor(int $user_id, null|string $user_new): int
     {
         if (!$user_new) {
             return $user_id;
