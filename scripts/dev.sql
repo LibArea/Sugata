@@ -240,6 +240,7 @@ CREATE TABLE `items` (
   `item_slug` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `item_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `item_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `item_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `item_published` tinyint(1) NOT NULL DEFAULT '1',
   `item_user_id` int UNSIGNED NOT NULL,
   `item_ip` varbinary(16) DEFAULT NULL,
@@ -256,8 +257,8 @@ CREATE TABLE `items` (
 -- Дамп данных таблицы `items`
 --
 
-INSERT INTO `items` (`item_id`, `item_title`, `item_slug`, `item_date`, `item_modified`, `item_published`, `item_user_id`, `item_ip`, `item_content`, `item_note`, `item_source_title`, `item_source_url`, `item_content_img`, `item_thumb_img`, `item_is_deleted`) VALUES
-(1, 'Что такое восстановительный бег?', 'chto-takoe-vosstanovitelnyy-beg', '2025-12-05 10:06:23', '2025-12-05 11:01:53', 1, 1, NULL, '**Восстановительный бег** — это бег с низкой интенсивностью и лёгкими усилиями, который обычно выполняется **в течение 24 часов после соревновательного забега или тяжёлой тренировки**. Также восстановительный бег может использоваться: \r\n\r\n* в период между активными тренировками, чтобы поддержать мышцы в состоянии тонуса;\r\n\r\n* в период восстановления организма после травмы и длительного перерыва между тренировками;\r\n\r\n* в режиме активных нагрузок, если накануне произошло переутомление, и спортсмену на более лёгкой нагрузке необходимо восстановить силы.', '', 'Десять типов тренировок, которые должен знать каждый Бегун', 'https://www.sports.ru/athletics/blogs/3246745.html', NULL, NULL, 0);
+INSERT INTO `items` (`item_id`, `item_title`, `item_slug`, `item_date`, `item_modified`, `item_published`, `item_type`, `item_ip`, `item_content`, `item_note`, `item_source_title`, `item_source_url`, `item_content_img`, `item_thumb_img`, `item_is_deleted`) VALUES
+(1, 'Что такое восстановительный бег?', 'chto-takoe-vosstanovitelnyy-beg', '2025-12-05 10:06:23', '2025-12-05 11:01:53', 1, 'fact', 1, NULL, '**Восстановительный бег** — это бег с низкой интенсивностью и лёгкими усилиями, который обычно выполняется **в течение 24 часов после соревновательного забега или тяжёлой тренировки**. Также восстановительный бег может использоваться: \r\n\r\n* в период между активными тренировками, чтобы поддержать мышцы в состоянии тонуса;\r\n\r\n* в период восстановления организма после травмы и длительного перерыва между тренировками;\r\n\r\n* в режиме активных нагрузок, если накануне произошло переутомление, и спортсмену на более лёгкой нагрузке необходимо восстановить силы.', '', 'Десять типов тренировок, которые должен знать каждый Бегун', 'https://www.sports.ru/athletics/blogs/3246745.html', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 

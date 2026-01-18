@@ -281,7 +281,7 @@ class ItemModel extends Model
 					u.created_at,
 					 rel.*
 
-                        FROM Items
+                        FROM items
 						
                         LEFT JOIN
                         (
