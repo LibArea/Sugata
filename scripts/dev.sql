@@ -240,6 +240,7 @@ CREATE TABLE `items` (
   `item_slug` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `item_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `item_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `item_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `item_published` tinyint(1) NOT NULL DEFAULT '1',
   `item_user_id` int UNSIGNED NOT NULL,
   `item_ip` varbinary(16) DEFAULT NULL,
