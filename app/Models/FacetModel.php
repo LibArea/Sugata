@@ -243,14 +243,14 @@ class FacetModel extends Model
 	
     public static function deleteRelation(int $id, string $type)
     {
-        $sql = "DELETE FROM facets_items_relation WHERE relation_item_id = $id";
+        $sql = "DELETE FROM facets_posts_relation WHERE relation_post_id = :id";
         if ($type == 'topic') {
-            $sql = "DELETE FROM facets_relation WHERE facet_parent_id = $id";
+            $sql = "DELETE FROM facets_relation WHERE facet_parent_id = :id";
         } elseif ($type == 'matching') {
-            $sql = "DELETE FROM facets_matching WHERE matching_parent_id = $id";
+            $sql = "DELETE FROM facets_matching WHERE matching_parent_id = :id";
         }
 
-        return DB::run($sql);
+        return DB::run($sql, ['id' => $id]);
     }
 	
     // Let's check the uniqueness of slug depending on the type of tree
@@ -279,14 +279,14 @@ class FacetModel extends Model
             $facet_id   = $row['id'];
             if ($topic_id == $row['id']) return true;
             $sql = "INSERT INTO facets_relation (facet_parent_id, facet_chaid_id) 
-                        VALUES ($topic_id, $facet_id)";
+                        VALUES (:topic_id, :facet_id)";
 
-            DB::run($sql);
+			DB::run($sql, ['topic_id' => $topic_id, 'facet_id' => $facet_id]);
         }
 
         return true;
     }
-	
+
     // Cross -links
     // Перекрестные связи
     public static function addLowFacetMatching(array $rows, int $topic_id)
@@ -297,9 +297,9 @@ class FacetModel extends Model
             $facet_id   = $row['id'];
             if ($topic_id == $row['id']) return true;
             $sql = "INSERT INTO facets_matching (matching_parent_id, matching_chaid_id) 
-                        VALUES ($topic_id, $facet_id)";
+                        VALUES (:topic_id, :facet_id)";
 
-            DB::run($sql);
+            DB::run($sql, ['topic_id' => $topic_id, 'facet_id' => $facet_id]);
         }
 
         return true;
