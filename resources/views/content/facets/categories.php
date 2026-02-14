@@ -1,4 +1,4 @@
-<div class="item-categories wrap">
+<div class="item-categories">
     <?php foreach (config('general', 'categories') as $cat) : ?>
       <div class="categories-telo">
         <a class="text-xl block" href="<?= urlDir($cat['path']); ?>">

@@ -3,7 +3,6 @@
 </footer>
 
 <script src="/assets/js/common.js?<?= config('general', 'version'); ?>"></script>
-<script src="/assets/js/zooom.js?<?= config('general', 'version'); ?>"></script>
 
 <?php if ($container->user()->active()) : ?>
   <script src="/assets/js/app.js?<?= config('general', 'version'); ?>"></script>
