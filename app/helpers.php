@@ -24,7 +24,7 @@ function __(?string $key, array $params = [])
 
 function fact_slug(string $facet_path, string $slug)
 {
-    return config('general', 'url_html') . $facet_path . '/' . $slug . '.html';
+    return config('general', 'url_html') . '/' . $facet_path . '/' . $slug . '.html';
 }
 
 function is_current($url)
@@ -71,12 +71,12 @@ function closing()
 
 function markdown(string $content, string $type = 'text')
 {
-    return App\Content\Parser::text($content, $type);
+    return Parser::text($content, $type);
 }
 
 function fragment(string $content, int $limit = 0)
 {
-    return \App\Content\Parser::noHTML($content, $limit);
+    return Parser::noHTML($content, $limit);
 }
 
 function notEmptyOrView404($params)

@@ -6,7 +6,7 @@ use Hleb\Base\Controller;
 use MatthiasMullie\Minify;
 use App\Models\{FacetModel, SearchModel};
 use App\Models\ItemModel;
-use Msg, Html, Meta;
+use Msg, Html, Meta, Parser;
 
 use Loupe\Loupe\Config\TypoTolerance;
 use Loupe\Loupe\Configuration;
@@ -195,7 +195,7 @@ class BuildController extends Controller
 
 	public function buildHtmlHome()
 	{
-		$items = ItemModel::feedItem(false, false, 1, 5);
+		$items = ItemModel::feedItem(false, false, 1, 5, 'main');
 		
 		Html::pageNumber();
 
@@ -261,7 +261,7 @@ class BuildController extends Controller
 
 		//Html::pageNumber();
 
-		$items = ItemModel::getItemAll();
+ 		$items = ItemModel::getItemAll();
 
 		foreach ($items as $item) {
 
@@ -289,12 +289,14 @@ class BuildController extends Controller
 			// Если slug = info (служебная категория) то другой шаблон
 			$tmp = ($dir[2] == 'info') ? $temp_page : $temp_view;
 
+			$img_url = Parser::miniature($item['item_content']);
+
 			file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($tmp, [
 				'item' =>  $item,
 				'similar' => $similar,
 				//'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
 				'dir' => $dir,
-				'meta' => Meta::view($item, $dir[2]),
+				'meta' => Meta::view($item, $dir[2], $img_url),
 				'breadcrumb' => $breadcrumb
 				
 			]));

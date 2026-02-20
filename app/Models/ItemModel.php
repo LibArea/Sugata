@@ -17,10 +17,10 @@ class ItemModel extends Model
 		
         switch ($sheet) {
             case 'main':
-                $sort     = "item_is_deleted = 0 AND item_type = 'fact' AND item_published = 1 ORDER BY item_id DESC";
+                $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact' AND item_published = 1 ORDER BY item_id DESC";
                 break;
             case 'all':
-                $sort     = "item_is_deleted = 0 AND item_type = 'fact' ORDER BY item_date DESC";
+                $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact' ORDER BY item_date DESC";
                 break;
             case 'page':
                 $sort     = "item_is_deleted = 0 AND item_type = 'page' ORDER BY item_date DESC";
@@ -329,7 +329,7 @@ class ItemModel extends Model
                         ) AS rel
                             ON rel.relation_item_id = item_id 
     
-                        WHERE item_is_deleted = 0";
+                        WHERE item_published = 1 AND item_is_deleted = 0";
 
         return DB::run($sql)->fetchAll();
     }

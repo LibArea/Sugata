@@ -72,8 +72,9 @@ return [
 
 	/*
 	 * Для построение статики
+	 * Без слеша "/" в конце
 	 */
-	'url_html'	=>  'https://sugata.ru/',
+	'url_html'	=>  'https://sugata.ru',
 
 	/*
 	 * Название сайта

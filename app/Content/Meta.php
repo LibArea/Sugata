@@ -61,13 +61,13 @@ class Meta
         return self::get(config('meta', 'home_title'), config('meta',  'home_desc'), $meta);
     }
 
-    public static function view(array $content, $facet_path): string
+    public static function view(array $content, $facet_path, $img_url): string
     {
             $meta = [
                 'published_time' => $content['item_date'],
                 'type'      => 'article',
                 'og'        => true,
-                'imgurl'    => false,
+                'imgurl'    => config('general', 'url_html') . $img_url,
 				'url'    	=> fact_slug($facet_path, $content['item_slug']),
             ];
   
@@ -79,8 +79,8 @@ class Meta
 
     public static function category(array $facet): string
     {
-		$url    = config('general', 'url_html') . $facet['facet_path'] . '/';
-		$title  = __('app.facts') . ' — ' .  $facet['facet_title'];
+		$url    = config('general', 'url_html') . '/' . $facet['facet_path'] . '/';
+		$title  = $facet['facet_title'] . ' — ' . __('app.facts');
 		$description = __('app.feed_facts') . '.  ' .  $facet['facet_description'];
 
         $meta = [

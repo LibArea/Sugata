@@ -2,12 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Content;
-
-use App\Content\Parser\{Convert, Filter};
 use App\Models\ParserModel;
 use App\Bootstrap\Services\User\UserData;
-use Img;
 
 use Michelf\Markdown;
 use Michelf\MarkdownExtra;

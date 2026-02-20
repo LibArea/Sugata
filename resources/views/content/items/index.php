@@ -80,16 +80,16 @@
               <?php endif; ?>
             </h3>
 
-			<?php if ($img = \App\Content\Parser::miniature($item['item_content'])) : ?>
+			<?php if ($img = Parser::miniature($item['item_content'])) : ?>
 
              <img alt="<?= $item['item_title']; ?>" class="miniature" src="<?= $img; ?>">
 					 
-			<?php $arr = \App\Content\Parser::cut($item['item_content']);
+			<?php $arr = Parser::cut($item['item_content']);
 						echo markdown($arr['content']); ?>
 						
 			 <?php else : ?>
 
-						<?php $arr = \App\Content\Parser::cut($item['item_content']);
+						<?php $arr = Parser::cut($item['item_content']);
 						echo markdown($arr['content']); ?>
 
 			 <?php endif; ?>
