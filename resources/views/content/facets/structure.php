@@ -30,15 +30,15 @@
         <?php endif; ?>
 
         <?php if ($topic['level'] == 0) : ?>
-          <?= Img::image($topic['facet_img'], $topic['facet_title'], 'w20 h20 mr5 br-gray', 'logo', 'max'); ?>
+          <?= Img::image($topic['facet_img'], htmlEncode($topic['facet_title']), 'w20 h20 mr5 br-gray', 'logo', 'max'); ?>
         <?php endif; ?>
 
         <a class="
 		<?php if ($topic['level'] == 0) : ?>relative mt5 text-xl items-center hidden<?php endif; ?> 
 			<?php if ($topic['level'] > 0) : ?> black<?php endif; ?>"
 
-          href="<?= urlDir('dir', 'top', $topic['facet_path']); ?>">
-          <?= $topic['facet_title']; ?></a>
+          href="<?= urlDir($topic['facet_path']); ?>">
+          <?= htmlEncode($topic['facet_title']); ?></a>
 
         <a class="<?php if ($topic['level'] == 0) : ?>relative mt5 text-xl items-center hidden<?php endif; ?> <?php if ($topic['level'] > 0) : ?> black<?php endif; ?>" href="<?= url('facet.form.edit', ['type' => $data['type'], 'id' => $topic['facet_id']]); ?>">
 

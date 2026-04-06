@@ -1,6 +1,6 @@
 <div class="mb20">
 	<?php if (!empty($item['item_thumb_img'])) : ?>
-		<?= Img::image($item['item_thumb_img'], $item['item_title'], 'block br-gray max-w-full mb15'); ?>
+		<?= Img::image($item['item_thumb_img'], htmlEncode($item['item_title']), 'block br-gray max-w-full mb15'); ?>
 		<a class="img-remove text-sm" href="<?= url('delete.item.thumb', ['id' => $item['item_id']]); ?>">
 			<?= __('app.delete'); ?>
 		</a>

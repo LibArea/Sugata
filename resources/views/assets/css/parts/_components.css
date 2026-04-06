@@ -89,17 +89,6 @@ video {
   max-width: 560px;
 }
 
-foto {
-  text-align: center;
-  display: block;
-}
-
-foto em {
-  display: block;
-  font-style: italic;
-  color: var(--gray-600);
-}
-
 li:target {
   background: #eaf3ff;
 }
@@ -116,7 +105,7 @@ sup:target .footnote-ref {
   font-weight: bold;
 }
 
-/* См. https://github.com/VKCOM/icons */
+/* ========== Icons ========== */
 .icon {
   width: 24px;
   height: 24px;
@@ -138,14 +127,6 @@ sup:target .footnote-ref {
   height: 121px;
 }
 
-/* end */
-
-/*
- * Share icons
- *
- * Иконки, поделиться
- */
-
 .icon-share {
   height: 48px;
   width: 48px;
@@ -155,33 +136,33 @@ sup:target .footnote-ref {
   color: #07f;
 }
 
-/* .icon.ok {
-  color: #eb722e;
-  height: 47px;
-  width: 44px;
+[data-icon]::before {
+  content: attr(data-icon);
+  font-family: 'YourIconFontName', sans-serif;
+  margin-left: 0.5em;
+  color: blue;
+  font-size: 1.2em;
+  float: right;
 }
 
-.icon.tg {
-  color: #64a9dc;
+/* end */
+
+.foto {
+  text-align: center;
+  display: block;
 }
 
-.icon.fb {
-  color: #3b5998;
+.foto em {
+  display: block;
+  font-style: italic;
+  color: var(--gray-600);
 }
-
-.icon.lj {
-  color: #0d425a;
-}
-
-.icon.tw {
-  color: #00aced;
-} */
 
 /* end */
 .title {
   margin: 0;
   font-weight: 500;
-  font-size: 1.375rem;
+  font-size: 1.575rem;
 }
 
 .title-dir {
@@ -193,7 +174,7 @@ sup:target .footnote-ref {
 .title-facet {
   color: #444;
   font-weight: 500;
-  font-size: 1.375rem;
+  font-size: 1.575rem;
 }
 
 .title-dir {
@@ -246,11 +227,28 @@ font-size: .75rem;
   margin-bottom: 15px;
 }
 
-.box-info {
+.note {
+  padding: 5px 5px 5px 20px;
+  margin-bottom: 5px;
+  overflow-wrap: break-word;
+  background-color: var(--gray-100);
   border-radius: var(--rounded);
-  padding: 20px 24px;
+}
+
+.tip {
+  padding: 5px 5px 5px 20px;
+  margin-bottom: 5px;
   overflow-wrap: break-word;
   background-color: var(--beige);
+  border-radius: var(--rounded);
+}
+
+.warning {
+  padding: 5px 5px 5px 20px;
+  margin-bottom: 5px;
+  overflow-wrap: break-word;
+  background-color: var(--red-200);
+  border-radius: var(--rounded);
 }
 
 .trigger img,

@@ -11,11 +11,11 @@
 
     <?php if (!empty($item['item_thumb_img'])) : ?>
       <div class="box br-lightgray img-preview">
-        <img class="w-100" src="<?= Img::PATH['thumbs'] . $item['item_thumb_img']; ?>" alt="<?= $item['item_title']; ?>">
+        <img class="w-100" src="<?= Img::PATH['thumbs'] . $item['item_thumb_img']; ?>" alt="<?= htmlEncode($item['item_title']); ?>">
       </div>
     <?php endif; ?>
 
-    <h1 class="title"><?= $item['item_title']; ?>
+    <h1 class="title"><?= htmlEncode($item['item_title']); ?>
       <sup>
         <a class="ml10 gray-600" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
           <svg class="icon text-sm">

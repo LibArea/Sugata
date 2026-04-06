@@ -1,5 +1,5 @@
 <?php if ($type == 'small') : ?>
-  <div class="box-info">
+  <div class="tip">
     <svg class="icon green">
       <use xlink:href="/assets/svg/icons.svg#<?= $icon; ?>"></use>
     </svg>

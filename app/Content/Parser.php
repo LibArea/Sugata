@@ -2,82 +2,106 @@
 
 declare(strict_types=1);
 
-use App\Models\ParserModel;
-use App\Bootstrap\Services\User\UserData;
+use Djot\DjotConverter;
+use Djot\SafeMode;
+use Djot\Node\Inline\Link;
+use Djot\Node\Inline\Text;
+use Djot\Event\RenderEvent;
+use Djot\Node\Block\Div;
 
-use Michelf\Markdown;
-use Michelf\MarkdownExtra;
+use Djot\Extension\AutolinkExtension;
+use Djot\Extension\ExternalLinksExtension;
+use Djot\Extension\SmartQuotesExtension;
+use Djot\Extension\MentionsExtension;
+
+use App\Models\User\UserModel;
 
 class Parser
 {
-    // Content management (Parsedown, Typograf)
     public static function text(string $content, string $type)
     {
-        $text = self::parse($content);
-        $text = self::details($text);
-		
-        return self::facets($text);
+        return self::parse($content);
     }
 
     public static function parse(string $content)
     {
-		$content = str_replace('{cut}', '', $content);
-		
- 		// https://michelf.ca/projects/php-markdown/
-		$text = MarkdownExtra::defaultTransform($content);
+        $content = str_replace('{cut}', '', $content);
+        $content = str_replace('[^1]', '', $content);
 
-        if (UserData::getUserLang() === 'ru') {
-            return self::typograf($text);
-        }
+        // https://github.com/php-collective/djot-php/tree/master
+		$converter = new DjotConverter(
+			safeMode: SafeMode::strict(),
+			significantNewlines: true,
+		);
+
+        self::reminders($converter);
+
+        self::topic($converter);
+
+        $text = $converter
+            ->addExtension(new AutolinkExtension())
+            ->addExtension(new ExternalLinksExtension())
+            ->addExtension(new SmartQuotesExtension(locale: config('general', 'lang')))
+            ->addExtension(new MentionsExtension(urlTemplate: '/@{username}', cssClass: 'green',))
+            ->convert($content);
 
         return $text;
     }
 
-    public static function typograf(string $text)
+    public static function reminders($converter)
     {
-        $t = new \Akh\Typograf\Typograf();
+        $admonitionIcons = [
+            'note' => 'ℹ️',
+            'tip' => '💡',
+            'warning' => '⚠️',
+            'danger' => '🚨',
+            'success' => '✅',
+        ];
 
-        /* $simpleRule = new class extends \Akh\Typograf\Rule\AbstractRule {
-            public $name = 'Пример замены';
-            protected $sort = 1000;
-            public function handler(string $text): string
-            {
-                return str_replace('agouti.ru', '<a href="https://libarea.ru">libarea.ru</a>', $text);
+        $converter->on('render.div', function (RenderEvent $event) use ($admonitionIcons): void {
+            $div = $event->getNode();
+            if (!$div instanceof Div) {
+                return;
             }
-        };
 
-        $t->addRule($simpleRule); */
+            $class = $div->getAttribute('class') ?? '';
+            foreach ($admonitionIcons as $type => $icon) {
+                if (str_contains($class, $type)) {
+                    $div->setAttribute('class', 'admonition ' . $class);
+                    $div->setAttribute('data-icon', $icon);
 
-        // https://github.com/akhx/typograf/blob/master/docs/RULES.md
-        $t->disableRule('Nbsp\*');
-        $t->disableRule('Space\*');
-        $t->disableRule('Html\*');
-
-        return $t->apply($text);
+                    return;
+                }
+            }
+        });
     }
 
-    public static function details($content)
+    public static function topic($converter)
     {
-        $regexpSp = '/\{details(?!.*\{details)(\s?)(?(1)(.*?))\}(.*?)\{\/details\}/is';
-        while (preg_match($regexpSp, $content)) {
-            $content = preg_replace($regexpSp, "<details><summary>" . __('app.see_more') . "</summary>$2$3</details>", $content);
-        }
+        $parser = $converter->getParser()->getInlineParser();
+        $parser->addInlinePattern('/#([a-zA-Z][a-zA-Z0-9_]*)/', function ($match, $groups, $p) {
+            $tag = $groups[1];
+            $link = new Link('/topic/' . strtolower($tag));
+            $link->appendChild(new Text('#' . $tag));
+            $link->setAttribute('class', 'green');
+            return $link;
+        });
+    }
 
-        $regexpFt = '/\{foto(?!.*\{foto)(\s?)(?(1)(.*?))\}(.*?)\{\/foto\}/is';
-        while (preg_match($regexpFt, $content)) {
-            $content = preg_replace($regexpFt, "<foto>$2$3</foto>", $content);
-        }
+    public static function miniature($markdown)
+    {
+		$pattern = '/!\[(.*?)\]\((.*?)\)/'; // Ищет ![]()
 
-        $regexpAu = '/\{auth(?!.*\{auth)(\s?)(?(1)(.*?))\}(.*?)\{\/auth\}/is';
-        while (preg_match($regexpAu, $content)) {
-            if (UserData::checkActiveUser()) {
-                $content = preg_replace($regexpAu, "<dev class=\"txt-closed\">$2$3</dev>", $content);
-            } else {
-                $content = preg_replace($regexpAu, "<dev class=\"txt-closed\">" . __('app.text_closed') . "...</dev>", $content);
-            }
-        }
+		if (preg_match_all($pattern, $markdown, $matches)) {
 
-        return $content;
+			foreach ($matches[0] as $match) {
+				// return htmlspecialchars($match) . "\n"; // Выводит ![]()
+			}
+
+             return $matches[2][0]; 
+
+		}
+       return;
     }
 
     // TODO: Let's check the simple version for now.
@@ -101,63 +125,16 @@ class Parser
             $button = true;
         }
 
-       	$beforeCut =  str_replace('[^1]', '', $beforeCut);
-
         return ['content' => $beforeCut, 'button' => $button];
     }
 
-    public static function miniature($markdown)
-    {
-		$pattern = '/!\[(.*?)\]\((.*?)\)/'; // Ищет ![]()
-
-		if (preg_match_all($pattern, $markdown, $matches)) {
-
-			foreach ($matches[0] as $match) {
-				// return htmlspecialchars($match) . "\n"; // Выводит ![]()
-			}
-
-             return $matches[2][0]; 
-
-		}
-       return;
-    }
-
-    public static function facets($content)
-    {
-        preg_match_all('/#([^#,:\s,]+)/i', strip_tags($content), $matchs);
-
-        if (is_array($matchs[1])) {
-
-            $match_name = [];
-            foreach ($matchs[1] as $key => $slug) {
-                if (in_array($slug, $match_name)) {
-                    continue;
-                }
-
-                $match_name[] = $slug;
-            }
-
-            $match_name = array_unique($match_name);
-
-            arsort($match_name);
-
-            foreach ($match_name as $key => $slug) {
-
-                if ($info = ParserModel::getFacet($slug)) {
-                    $content = str_replace('#' . $slug, '<img class="img-sm emoji mr5" alt="' . $info['facet_title'] . '" src="' . Img::PATH['facets_logo_small'] . $info['facet_img'] . '"><a href="/topic/' . $info['facet_slug'] . '">' . $info['facet_title'] . '</a>', $content);
-                }
-            }
-
-            return $content;
-        }
-    }
-	
     // Content management
     public static function noHTML(string $content, int $lenght = 150)
     {
-        $content = Markdown::defaultTransform($content);
+        $converter = new DjotConverter(safeMode: SafeMode::strict());
+        $text = $converter->convert($content);
 
-        $content = str_replace(["\r\n", "\r", "\n", "#"], ' ', $content);
+        $content = str_replace(["\r\n", "\r", "\n", "#"], ' ', $text);
 
         $str =  str_replace(['&gt;', '{cut}'], '', strip_tags($content));
 
@@ -166,7 +143,6 @@ class Parser
 
     public static function fragment(string $text, int $lenght = 150, string $charset = 'UTF-8'): string
     {
-
         if (mb_strlen($text, $charset) >= $lenght) {
             $wrap = wordwrap($text, $lenght, '~');
             $ret = mb_strpos($wrap, '~', 0, $charset);
@@ -178,4 +154,5 @@ class Parser
 
         return $text;
     }
+
 }

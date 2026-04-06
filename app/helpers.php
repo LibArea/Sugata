@@ -139,5 +139,5 @@ function modeDayNight()
 
 function urlDir($facet_path)
 {
-    return config('general', 'url_bild') .  DIRECTORY_SEPARATOR . $facet_path;
+    return config('general', 'url') .  '/mod/admin/dir/' . $facet_path;
 }

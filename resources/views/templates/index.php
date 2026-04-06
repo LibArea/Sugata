@@ -8,7 +8,7 @@
     <?php foreach ($childrens as $lt) : ?>
       <div class="categories-telo">
         <a class="text-xl" href="<?= urlDir($lt['facet_path']); ?>">
-          <?= $lt['facet_title']; ?>
+          <?= htmlEncode($lt['facet_title']); ?>
         </a>
       </div>
     <?php endforeach; ?>
@@ -16,7 +16,7 @@
   <?php endif; ?>
 
   <div class="flex justify-between mb20">
-    <h2 class="uppercase-box"><?= $facet['facet_title']; ?></h2>
+    <h2 class="uppercase-box"><?= htmlEncode($facet['facet_title']); ?></h2>
     <div class="tag-yellow box mb-none"><?= $facet['facet_info']; ?></div>
   </div>
 
@@ -25,13 +25,13 @@
 	   <div class="fact_telo">
       <h3 class="title">
         <a class="title-fact" href="/<?= Html::facets_puth($item['facet_list']); ?>/<?= $item['item_slug']; ?>.html">
-          <?= $item['item_title']; ?>
+          <?= htmlEncode($item['item_title']); ?>
         </a>
       </h3>
 
       <?php if ($img = Parser::miniature($item['item_content'])) : ?>
 
-        <img alt="<?= $item['item_title']; ?>" class="miniature" src="<?= $img; ?>">
+        <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
 
         <?php $arr = Parser::cut($item['item_content']);
         echo markdown($arr['content']); ?>

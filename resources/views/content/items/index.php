@@ -62,7 +62,7 @@
 		    <div class="fact_telo">
             <h3 class="title">
               <a class="title-fact" href="<?= url('view', ['id' => $item['item_id']]); ?>">
-                <?= $item['item_title']; ?>
+                <?= htmlEncode($item['item_title']); ?>
               </a>
               <?php if ($container->access()->author('item', $item) === true) : ?>
                 <sup>
@@ -82,7 +82,7 @@
 
 			<?php if ($img = Parser::miniature($item['item_content'])) : ?>
 
-             <img alt="<?= $item['item_title']; ?>" class="miniature" src="<?= $img; ?>">
+             <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
 					 
 			<?php $arr = Parser::cut($item['item_content']);
 						echo markdown($arr['content']); ?>
@@ -93,7 +93,6 @@
 						echo markdown($arr['content']); ?>
 
 			 <?php endif; ?>
-
             </div>
             <div class="fact_footer">
               <?= HTML::facetDir($item['facet_list']); ?>

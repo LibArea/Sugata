@@ -35,10 +35,9 @@
 		"respect/validation": "2.4.x-dev",
 		"matthiasmullie/minify": "dev-master",
 		"cocur/slugify": "dev-main",
-		"fastvolt/markdown": "v0.3.0.x-dev",
 		"akh/typograf": "dev-master",
 		"s2/rose": "dev-master",
-		"michelf/php-markdown": "dev-lib"
+		"php-collective/djot": "dev-master"
     },
     "autoload": {
         "classmap": [

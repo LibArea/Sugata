@@ -69,6 +69,8 @@ class Img
 				break;
         }
 		
+		$alt = htmlspecialchars($alt, ENT_QUOTES, null, false);
+		
         return '<img class="' . $style . '" src="' . $path . $file . '" alt="' . $alt . '">';
     }
 

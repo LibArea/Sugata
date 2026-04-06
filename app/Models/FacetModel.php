@@ -353,5 +353,19 @@ class FacetModel extends Model
 
         return DB::run($sql, ['facet_id' => $facet_id])->fetchAll();
     }
-	
+
+	public static function checkSlug(string $slug)
+	{
+        $sql = "SELECT facet_id, 
+						facet_title, 
+						facet_description, 
+						facet_user_id,
+						facet_path, 
+						facet_slug, 
+						facet_info 
+							FROM facets 
+								WHERE facet_type='category' AND facet_slug = :slug";
+
+        return DB::run($sql, ['slug' => $slug])->fetch();
+	}
 }

@@ -105,6 +105,7 @@ Route::toGroup()
 	
 	Route::get('/item/view/{id}')->controller(ItemController::class)->where(['id' => '[0-9]+'])->name('view'); 
 	
+	Route::get('/dir/...0-6')->controller(HomeController::class, 'dir')->name('dir');
  
 		// Отправка на изменение
 	Route::toGroup()->protect();

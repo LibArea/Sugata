@@ -9,6 +9,9 @@ class Meta
 		$url = config('meta', 'url');
 		$name = config('meta', 'name');
 		
+		$title = htmlEncode($title);
+		$description = htmlEncode($description);
+		
         $title = $title ?: config('meta', 'title');
         $description = $description ?: $name;
 

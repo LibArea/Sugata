@@ -14,13 +14,13 @@
 	   <div class="fact_telo">
       <h3 class="title">
         <a class="title-fact" href="<?= $path; ?>">
-          <?= $item['item_title']; ?>
+          <?= htmlEncode($item['item_title']); ?>
         </a>
       </h3>
 
       <?php if ($img = Parser::miniature($item['item_content'])) : ?>
 
-        <img alt="<?= $item['item_title']; ?>" class="miniature" src="<?= $img; ?>">
+        <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
 
         <?php $arr = Parser::cut($item['item_content']);
         echo markdown($arr['content']); ?>
