@@ -22,9 +22,9 @@
         <meta itemprop="position" content="<?= $key + 1; ?>">
       </li>
     <?php elseif ($show_last) :
-		// отобразим последний элемент
+      // отобразим последний элемент
     ?>
-	 <span class="gray-600"><?= $item['name']; ?></span>
+      <span class="gray-600"><?= $item['name']; ?></span>
   <?php endif;
   endforeach; ?>
 </ul>

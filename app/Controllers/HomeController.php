@@ -35,11 +35,11 @@ class HomeController extends Controller
         $pagesCount = ItemModel::feedItemCount(false, false, $type);
 
         render(
-            '/content/items/index',
+            '/content/index',
             [
                 'meta'  => Meta::get(__('app.admin')),
                 'data'  => [
-                    'sheet'         => $type,
+                    'sheet'         => 'view',
                     'items'         => $items,
                     'count'         => $pagesCount,
                     'pagesCount'    => ceil($pagesCount / self::$limit),
@@ -75,7 +75,7 @@ class HomeController extends Controller
             [
                 'meta'  => Meta::category($category),
                 'data'  => [
-					'sheet' 			=> 'dir',
+					'sheet' 			=> 'view',
 
 
                     'count'             => $pagesCount,

@@ -3,22 +3,7 @@ $item = $data['item'];
 ?>
 
 <main>
-  <?= insert('/_block/navigation/breadcrumbs', [
-    'list' => [
-      [
-        'name' => __('app.home'),
-        'link' => url('homepage')
-      ],
-      [
-        'name' => __('app.edit_fact'),
-        'link' => ''
-      ],
-    ],
-    'sheet' =>  $data['sheet']
-  ]);
-  ?>
-
-  <h1 class="uppercase-box"><?= __('app.edit_fact'); ?></h1>
+  <h1 class="title"><?= __('app.edit_fact'); ?></h1>
 
   <fieldset class="gray-600 mt20">
     id: <?= $item['item_id']; ?> - <span class="lowercase"><?= langDate($item['item_date']); ?></span>
@@ -51,8 +36,8 @@ $item = $data['item'];
     </fieldset>
 
     <?php if ($container->user()->admin()) : ?>
-		<?= insert('/_block/form/content-type', ['type' => $item['item_type']]); ?>
-	<?php endif; ?>
+      <?= insert('/_block/form/content-type', ['type' => $item['item_type']]); ?>
+    <?php endif; ?>
 
     <?= insert('/_block/form/thumb-foto', ['item' => $item]); ?>
 
@@ -82,13 +67,13 @@ $item = $data['item'];
       </div>
     </fieldset>
 
-	<?php if ($container->user()->admin()) : ?>
-	  <?= insert('/_block/form/select/user', ['user' => $data['user']]); ?>
+    <?php if ($container->user()->admin()) : ?>
+      <?= insert('/_block/form/select/user', ['user' => $data['user']]); ?>
 
-		<fieldset>
-		  <input type="checkbox" name="item_published" <?php if ($item['item_published'] == 1) : ?>checked <?php endif; ?>> <span class="red"><?= __('app.posted'); ?></span>
-		</fieldset>
-	<?php endif; ?>
+      <fieldset>
+        <input type="checkbox" name="item_published" <?php if ($item['item_published'] == 1) : ?>checked <?php endif; ?>> <span class="red"><?= __('app.posted'); ?></span>
+      </fieldset>
+    <?php endif; ?>
 
     <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
     <?= Html::sumbit(__('app.edit')); ?>

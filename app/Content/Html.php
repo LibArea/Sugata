@@ -7,32 +7,22 @@ use App\Bootstrap\Services\User\UserData;
 
 class Html
 {
-    public static function facets($facet, $type, $css, $sort = 'all')
+    public static function facetDir($facet, $mod = 'dynamics', $css = 'title-dir')
     {
         $facets = preg_split('/(@)/', (string)$facet ?? false);
- 
+
         $result = [];
         foreach (array_chunk($facets, 4) as $row) :
 		
-            if ($row[1] == $type) { 
-           
-                    $result[] = '<a class="' . $css . '" href="' . urlDir($row[2]) . '">' . $row[3] . '</a>';
-      
-            }
-        endforeach;
-
-        return implode($result);
-    }
-
-    public static function facetDir($facet, $css = 'title-dir')
-    {
-        $facets = preg_split('/(@)/', (string)$facet ?? false);
-
-        $result = [];
-        foreach (array_chunk($facets, 4) as $row) :
+		   $url = urlDir($row[2]);
+		   	if ($mod == 'static') {
+				$url = urlDir($row[2], 'static');
+			}
+		
             if ($row[1] == 'category') { 
-                $result[] = '<a class="' . $css . '" href="' . urlDir($row[2]) . '">' . $row[3] . '</a>';
+                $result[] = '<a class="' . $css . '" href="' . $url . '">' . $row[3] . '</a>';
             }
+
         endforeach;
 
         return implode($result);
@@ -46,9 +36,7 @@ class Html
         foreach (array_chunk($facets, 4) as $row) :
 		
             if ($row[1] == $type) { 
-           
                     $result[] = $row[2];
-      
             }
 			
         endforeach;
@@ -415,7 +403,7 @@ class Html
         return $tree;
     }
 	
-	public static function breadcrumbDir($arr)
+	public static function breadcrumbDir($arr, $mod = 'dynamics')
 	{
 		$home = [
 			'name' => __('app.home'),
@@ -431,7 +419,7 @@ class Html
 			if (!empty($row['home']) === true) {
 				$result[] = ["name" => $row['name'],  "path" => $row['path'], "link" => '/'];
 			} else {
-				$result[] = ["name" => $row['name'],  "path" => $row['path'], "link" => urlDir($row['path'])];
+				$result[] = ["name" => $row['name'],  "path" => $row['path'], "link" => urlDir($row['path'], $mod)];
 			}
 		}
 

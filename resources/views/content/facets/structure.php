@@ -1,22 +1,12 @@
-<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>
-
 <main>
-  <?= insert('/_block/navigation/breadcrumbs', [
-    'list' => [
-      [
-        'name' => __('app.home'),
-        'link' => url('homepage')
-      ],
-      [
-        'name' => __('app.structure'),
-        'link' => url('structure')
-      ],
-    ],
-    'sheet' =>  $data['sheet']
-  ]);
-  ?>
 
-  <h1 class="uppercase-box"><?= __('app.structure'); ?> </h1>
+  <div class="nav-bar">
+    <ul class="nav scroll-menu">
+      <?= insert('/_block/navigation/nav', ['sheet' => $data['sheet']]); ?>
+    </ul>
+  </div>
+
+  <h1 class="title"><?= __('app.structure'); ?></h1>
 
   <?php if (!empty($data['nodes'])) : ?>
     <?php foreach ($data['nodes'] as $topic) : ?>
@@ -60,15 +50,6 @@
               </svg></sup>
           </span>
         <?php endif; ?>
-
-        <?php if ($topic['matching_list']) : ?>
-          <div class="ml<?= $topic['level'] * 10; ?>">
-            <svg class="icon gray-600 text-sm mr5 ml5">
-              <use xlink:href="/assets/svg/icons.svg#git-merge"></use>
-            </svg>
-            <?= Html::facets($topic['matching_list'], 'category', 'gray-600 text-sm mr15'); ?>
-          </div>
-        <?php endif; ?>
       </div>
     <?php endforeach; ?>
   <?php else : ?>
@@ -84,4 +65,3 @@
   </a>
 
 </main>
-

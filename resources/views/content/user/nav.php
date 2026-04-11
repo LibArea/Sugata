@@ -15,7 +15,9 @@
               'id'    => 'security',
             ],
           ],
-        ]
+
+          'sheet' =>  $sheet
+        ],
       );
       ?>
    </ul>

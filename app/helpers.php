@@ -137,7 +137,11 @@ function modeDayNight()
     return (config('general', 'night_mode') == 'dark') ? ' dark' : ' light';
 }
 
-function urlDir($facet_path)
+function urlDir($facet_path, $mod = 'dynamics')
 {
+	if ($mod == 'static') {
+		return '/' . $facet_path;
+	}
+	
     return config('general', 'url') .  '/mod/admin/dir/' . $facet_path;
 }

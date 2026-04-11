@@ -141,7 +141,7 @@ return [
 
 				[
 					'title' => 'Фильмы',
-					'path'   => 'culture.arts/movies',
+					'path'   => 'culture-arts/movies',
 					'sub'   => '',
 				],
 			],

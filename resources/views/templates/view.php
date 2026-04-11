@@ -2,10 +2,10 @@
 
 <main class="content">
 
-   <?= insert('/_block/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
+  <?= insert('/_block/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
   <b class="uppercase-box"><?= __('app.fact'); ?></b>
-  
+
   <article>
     <?php if (!empty($item['item_thumb_img'])) : ?>
       <div class="box br-lightgray img-preview">
@@ -51,7 +51,7 @@
           <?= $value['snippet']; ?> <?= $value['snippet2']; ?>
         </div>
         <div class="fact_footer">
-          <?= HTML::facetDir($fields['facets']); ?>
+          <?= HTML::facetDir($fields['facets'], 'static'); ?>
 
           <span class="lowercase"><?= langDate($value['added_at']); ?></span>
         </div>

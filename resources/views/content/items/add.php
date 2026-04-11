@@ -1,22 +1,13 @@
 <main>
-  <?= insert('/_block/navigation/breadcrumbs', [
-    'list' => [
-      [
-        'name' => __('app.home'),
-        'link' => url('homepage')
-      ],
-      [
-        'name' => __('app.add_fact'),
-        'link' => ''
-      ],
-    ],
-    'sheet' =>  $data['sheet']
-  ]);
-  ?>
+  <div class="nav-bar">
+    <ul class="nav scroll-menu">
+      <?= insert('/_block/navigation/nav', ['sheet' => $data['sheet']]); ?>
+    </ul>
+  </div>
 
-  <h1 class="uppercase-box"><?= __('app.add_fact'); ?></h1>
+  <h1 class="title"><?= __('app.add_fact'); ?></h1>
 
-  <form action="<?= url('add.item', method: 'post'); ?>" method="post">
+  <form class="mt20" action="<?= url('add.item', method: 'post'); ?>" method="post">
     <?= $container->csrf()->field(); ?>
 
     <fieldset class="form-big">
@@ -35,8 +26,8 @@
     </fieldset>
 
     <?php if ($container->user()->admin()) : ?>
-		<?= insert('/_block/form/content-type', ['tl' => 9]); ?>
-	<?php endif; ?>
+      <?= insert('/_block/form/content-type', ['tl' => 9]); ?>
+    <?php endif; ?>
 
     <?= insert('/_block/form/thumb-foto', ['item' => []]); ?>
 
@@ -67,10 +58,10 @@
     </fieldset>
 
     <?php if ($container->user()->admin()) : ?>
-    <fieldset>
-      <input type="checkbox" name="item_published"> <?= __('app.posted'); ?>
-    </fieldset>
-	<?php endif; ?>
+      <fieldset>
+        <input type="checkbox" name="item_published"> <?= __('app.posted'); ?>
+      </fieldset>
+    <?php endif; ?>
 
     <?= Html::sumbit(__('app.add')); ?>
   </form>

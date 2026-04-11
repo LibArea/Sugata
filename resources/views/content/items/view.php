@@ -1,9 +1,9 @@
 <main>
-  
-   <?= insert('/_block/navigation/breadcrumbs', ['list' => $data['breadcrumb']]); 
-	   $item = $data['item'];
-       $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
-   ?>
+
+  <?= insert('/_block/navigation/breadcrumbs', ['list' => $data['breadcrumb']]);
+  $item = $data['item'];
+  $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+  ?>
 
   <h2 class="uppercase-box"><?= __('app.view'); ?></h2>
 
@@ -35,7 +35,6 @@
         </div>
       <?php endif; ?>
     </div>
-
   </article>
 
   <fieldset class="copy">

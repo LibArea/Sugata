@@ -1,23 +1,11 @@
-<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>
-
 <main>
+  <div class="nav-bar">
+    <ul class="nav scroll-menu">
+      <?= insert('/_block/navigation/nav', ['sheet' => $data['sheet']]); ?>
+    </ul>
+  </div>
 
-  <?= insert('/_block/navigation/breadcrumbs', [
-    'list' => [
-      [
-        'name' => __('app.home'),
-        'link' => url('homepage')
-      ],
-      [
-        'name' => __('app.tools'),
-        'link' => url('tools')
-      ],
-    ],
-    'sheet' =>  $data['sheet']
-  ]);
-  ?>
-
-  <h1 class="uppercase-box"><?= __('app.tools'); ?> </h1>
+  <h1 class="title"><?= __('app.tools'); ?></h1>
 
   <b><?= __('app.rebuild_resources'); ?></b>
 

@@ -1,24 +1,18 @@
-<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>
-
 <main>
-  <?= insert('/_block/navigation/breadcrumbs', [
-    'list' => [
-      [
-        'name' => __('app.home'),
-        'link' => url('homepage')
-      ],
-      [
-        'name' => __('app.setting'),
-        'link' => ''
-      ],
-    ],
-    'sheet' =>  $data['sheet']
-  ]);
-  ?>
 
-  <?= insert('/content/user/nav'); ?>
+  <div class="nav-bar">
+    <ul class="nav scroll-menu">
+      <?= insert('/_block/navigation/nav', ['sheet' => $data['sheet']]); ?>
+    </ul>
+  </div>
 
-  <form class="max-w-md" action="<?= url('setting.edit.profile', method: 'post'); ?>" method="post">
+  <a class="right" href="<?= url('setting.security'); ?>"><?= __('app.password'); ?></a>
+
+  <h1 class="title"><?= __('app.setting'); ?></h1>
+
+
+
+  <form class="max-w-md mt20" action="<?= url('setting.edit.profile', method: 'post'); ?>" method="post">
     <?= $container->csrf()->field(); ?>
 
     <fieldset>
@@ -49,4 +43,3 @@
     </fieldset>
   </form>
 </main>
-

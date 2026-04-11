@@ -5,13 +5,13 @@
 
   <?php if ($childrens) : ?>
     <div class="item-categories">
-    <?php foreach ($childrens as $lt) : ?>
-      <div class="categories-telo">
-        <a class="text-xl" href="<?= urlDir($lt['facet_path']); ?>">
-          <?= htmlEncode($lt['facet_title']); ?>
-        </a>
-      </div>
-    <?php endforeach; ?>
+      <?php foreach ($childrens as $lt) : ?>
+        <div class="categories-telo">
+          <a class="text-xl" href="<?= urlDir($lt['facet_path'], 'static'); ?>">
+            <?= htmlEncode($lt['facet_title']); ?>
+          </a>
+        </div>
+      <?php endforeach; ?>
     </div>
   <?php endif; ?>
 
@@ -22,30 +22,29 @@
 
   <?php foreach ($items as $item) : ?>
     <article id="<?= $item['item_id']; ?>">
-	   <div class="fact_telo">
-      <h3 class="title">
-        <a class="title-fact" href="/<?= Html::facets_puth($item['facet_list']); ?>/<?= $item['item_slug']; ?>.html">
-          <?= htmlEncode($item['item_title']); ?>
-        </a>
-      </h3>
+      <div class="fact_telo">
+        <h3 class="title">
+          <a class="title-fact" href="/<?= Html::facets_puth($item['facet_list']); ?>/<?= $item['item_slug']; ?>.html">
+            <?= htmlEncode($item['item_title']); ?>
+          </a>
+        </h3>
 
-      <?php if ($img = Parser::miniature($item['item_content'])) : ?>
+        <?php if ($img = Parser::miniature($item['item_content'])) : ?>
 
-        <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
+          <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
 
-        <?php $arr = Parser::cut($item['item_content']);
-        echo markdown($arr['content']); ?>
+          <?php $arr = Parser::cut($item['item_content']);
+          echo markdown($arr['content']); ?>
 
-      <?php else : ?>
+        <?php else : ?>
 
-        <?php $arr = Parser::cut($item['item_content']);
-        echo markdown($arr['content']); ?>
+          <?php $arr = Parser::cut($item['item_content']);
+          echo markdown($arr['content']); ?>
 
-      <?php endif; ?>
-
+        <?php endif; ?>
       </div>
       <div class="fact_footer">
-        <?= HTML::facetDir($item['facet_list']); ?>
+        <?= HTML::facetDir($item['facet_list'], 'static'); ?>
 
         <span class="lowercase"><?= langDate($item['item_date']); ?></span>
       </div>

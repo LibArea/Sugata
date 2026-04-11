@@ -85,7 +85,7 @@ class ConsoleController extends Module
 
     public static function css()
     {
-        (new \App\Controllers\SassController)->collect();
+        // (new \App\Controllers\SassController)->collect();
 
         self::consoleRedirect();
     }

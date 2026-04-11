@@ -50,18 +50,18 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
-    public function tools()
-    {
-        render(
-            '/content/tools',
-            [
-                'meta'  => Meta::get(__('app.tools')),
-                'data'  => [
-                    'sheet'         => 'tools',
-                ]
-            ]
-        );
-    }
+	public function tools()
+	{
+		render(
+			'/content/tools',
+			[
+				'meta'  => Meta::get(__('app.tools')),
+				'data'  => [
+					'sheet'         => 'tools',
+				]
+			]
+		);
+	}
 
 	// Строим CSS для админки
 	protected function buildCss($putch, $key)
@@ -77,7 +77,7 @@ class BuildController extends Controller
 	{
 		$minifier = new Minify\CSS($putch);
 		$minifier->minify($this->path . '/assets/css/style.css');
-		
+
 		return true;
 	}
 
@@ -161,7 +161,7 @@ class BuildController extends Controller
 				//->setUrl($item['facet_list'])
 
 				->setUrl(json_encode([
-					'url' => $item['item_url'],
+					// 'url' => $item['item_url'],
 					'item_id' => $item['item_id'],
 					'slug' => $item['item_slug'],
 					'facets' => $item['facet_list'],
@@ -196,7 +196,7 @@ class BuildController extends Controller
 	public function buildHtmlHome()
 	{
 		$items = ItemModel::feedItem(false, false, 1, 5, 'main');
-		
+
 		Html::pageNumber();
 
 		$temp =   '/templates/home.php';
@@ -236,7 +236,7 @@ class BuildController extends Controller
 			$items = ItemModel::feedItem($childrenForFeed, $facet['facet_id'], Html::pageNumber(), 20, 'all');
 
 			$tree = FacetModel::breadcrumb($facet['facet_id']);
-			$breadcrumb = Html::breadcrumbDir($tree);
+			$breadcrumb = Html::breadcrumbDir($tree, 'static');
 
 			$childrens = FacetModel::getChildrens($facet['facet_id']);
 
@@ -261,7 +261,7 @@ class BuildController extends Controller
 
 		//Html::pageNumber();
 
- 		$items = ItemModel::getItemAll();
+		$items = ItemModel::getItemAll();
 
 		foreach ($items as $item) {
 
@@ -284,7 +284,7 @@ class BuildController extends Controller
 			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
 
 			$tree = FacetModel::breadcrumb((int)$dir[0]);
-			$breadcrumb = Html::breadcrumbDir($tree);
+			$breadcrumb = Html::breadcrumbDir($tree, 'static');
 
 			// Если slug = info (служебная категория) то другой шаблон
 			$tmp = ($dir[2] == 'info') ? $temp_page : $temp_view;
@@ -298,7 +298,7 @@ class BuildController extends Controller
 				'dir' => $dir,
 				'meta' => Meta::view($item, $dir[2], $img_url),
 				'breadcrumb' => $breadcrumb
-				
+
 			]));
 		}
 
@@ -357,7 +357,7 @@ class BuildController extends Controller
 	public function copyDirect($source, $dest, $over = false)
 	{
 		$filesToProhibit = ['.htaccess', 'index.php']; // Список файлов, которые нужно запретить переносить
-		
+
 		if (!is_dir($dest))
 			mkdir($dest);
 		if ($handle = opendir($source)) {
@@ -368,7 +368,7 @@ class BuildController extends Controller
 					if (in_array($file, $filesToProhibit)) {
 						continue; // Если есть, пропускаем его
 					}
-			
+
 					$path = $source . '/' . $file;
 					if (is_file($path)) {
 						if (!is_file($dest . '/' . $file || $over))

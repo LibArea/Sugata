@@ -1,25 +1,13 @@
-<?= insert('/global/aside', ['sheet' => $data['sheet']]); ?>
-
 <main>
+	<div class="nav-bar">
+		<ul class="nav scroll-menu">
+			<?= insert('/_block/navigation/nav', ['sheet' => $data['sheet']]); ?>
+		</ul>
+	</div>
 
-	<?= insert('/_block/navigation/breadcrumbs', [
-		'list' => [
-			[
-				'name' => __('app.home'),
-				'link' => url('homepage')
-			],
-			[
-				'name' => __('app.password'),
-				'link' => ''
-			],
-		],
-		'sheet' =>  $data['sheet']
-	]);
-	?>
+	<h1 class="title"><?= __('app.password'); ?></h1>
 
-	<?= insert('/content/user/nav'); ?>
-
-	<form class="mb20" action="<?= url('setting.edit.security', method: 'post'); ?>" method="post">
+	<form class="mt20" action="<?= url('setting.edit.security', method: 'post'); ?>" method="post">
 		<?= $container->csrf()->field(); ?>
 		<fieldset>
 			<div class="form-label input-label"><label><?= __('app.old_password'); ?></label></div>
