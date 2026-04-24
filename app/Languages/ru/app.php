@@ -28,6 +28,7 @@ return [
 	'viewing' 			=> 'Просмотр',
 	'read_more' 		=> 'Читать далее',
 	'not_published' 	=> 'Не опубликован',
+	'write_text'		=> 'написать текст',
 	'children' 			=> 'Дети',
 	'author' 			=> 'Автор',
 	'recommended' 		=> 'Рекомендовано',

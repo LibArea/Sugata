@@ -160,9 +160,10 @@ sup:target .footnote-ref {
 
 /* end */
 .title {
-  margin: 5px 0 20px 0;
+  margin: 0;
   font-weight: 500;
   font-size: 1.575rem;
+  line-height: 1.9rem;
 }
 
 .title-dir {
@@ -195,7 +196,6 @@ font-size: .75rem;
 
 .fact_telo {
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .fact_footer {

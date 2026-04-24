@@ -193,15 +193,21 @@ class BuildController extends Controller
 		$this->copyDirect($source, $dest, $over = false);
 	}
 
+
+	// Строим центральную страницу и части страниц, например: footer
 	public function buildHtmlHome()
 	{
 		$items = ItemModel::feedItem(false, false, 1, 5, 'main');
 
 		Html::pageNumber();
 
-		$temp =   '/templates/home.php';
-
-		file_put_contents($this->path . '/index.html', view($temp, ['meta' => Meta::home(), 'items' => $items]));
+		$temp_home =  view('/templates/home.php', ['meta' => Meta::home(), 'items' => $items]);
+		file_put_contents($this->path . '/index.html', $temp_home);
+		
+		// Переносим общий подвал
+		$temp_footer = view('/templates/footer.php');
+		file_put_contents($this->path . '/assets/footer.shtml',$temp_footer);
+		
 	}
 
 	public function buildDir()
@@ -294,7 +300,6 @@ class BuildController extends Controller
 			file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($tmp, [
 				'item' =>  $item,
 				'similar' => $similar,
-				//'dir' => Html::facetDir($item['facet_list'], 'tag-clear'),
 				'dir' => $dir,
 				'meta' => Meta::view($item, $dir[2], $img_url),
 				'breadcrumb' => $breadcrumb

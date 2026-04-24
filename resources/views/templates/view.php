@@ -70,4 +70,4 @@
   }
 </script>
 
-<?= insert('/templates/footer'); ?>
+<!--#include virtual="/assets/footer.shtml"-->

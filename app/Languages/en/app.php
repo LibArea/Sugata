@@ -28,6 +28,7 @@ return [
 	'viewing' 			=> 'View',
 	'read_more' 		=> 'Read more',
 	'not_published' 	=> 'Not published',
+	'write_text'		=> 'write text',
 	'children' 			=> 'Children',
 	'author' 			=> 'Author',
 	'recommended' 		=> 'Recommended',

@@ -26,4 +26,4 @@
 
 </main>
 
-<?= insert('/templates/footer'); ?>
+<!--#include virtual="/assets/footer.shtml"-->
