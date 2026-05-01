@@ -87,12 +87,12 @@
                 <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
 
                 <?php $arr = Parser::cut($item['item_content']);
-                echo markdown($arr['content']); ?>
+                echo markdown($arr['content'], 'mini'); ?>
 
               <?php else : ?>
 
                 <?php $arr = Parser::cut($item['item_content']);
-                echo markdown($arr['content']); ?>
+                echo markdown($arr['content'], 'mini'); ?>
 
               <?php endif; ?>
             </div>

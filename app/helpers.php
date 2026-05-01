@@ -71,7 +71,7 @@ function closing()
 
 function markdown(string $content, string $type = 'text')
 {
-    return Parser::text($content, $type);
+    return Parser::parse($content, $type);
 }
 
 function fragment(string $content, int $limit = 0)

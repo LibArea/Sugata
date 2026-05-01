@@ -18,15 +18,13 @@ use App\Models\User\UserModel;
 
 class Parser
 {
-    public static function text(string $content, string $type)
-    {
-        return self::parse($content);
-    }
-
-    public static function parse(string $content)
+    public static function parse(string $content, string $type)
     {
         $content = str_replace('{cut}', '', $content);
-        $content = str_replace('[^1]', '', $content);
+		
+		if ($type == 'mini') {
+          $content = str_replace('[^1]', '', $content);
+		}
 
         // https://github.com/php-collective/djot-php/tree/master
 		$converter = new DjotConverter(
