@@ -27,14 +27,11 @@
 
     <?= markdown($item['item_content']); ?>
 
-    <div class="flex justify-between mb20 gray-600">
       <?php if (!empty($item['item_source_title'])) : ?>
-
-        <div>
+        <div class="mb20 mt20 gray-600">
           <?= __('app.source') ?>: <a class="gray-600" href="<?= $item['item_source_url']; ?>" rel="nofollow"><?= $item['item_source_title']; ?></a>
         </div>
       <?php endif; ?>
-    </div>
   </article>
 
   <fieldset class="copy">
