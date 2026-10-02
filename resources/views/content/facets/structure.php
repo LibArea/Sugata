@@ -10,46 +10,48 @@
 
   <?php if (!empty($data['nodes'])) : ?>
     <?php foreach ($data['nodes'] as $topic) : ?>
-      <div class="w-50 mb5">
-        <?php $topic['level'] = $topic['level'] ?? null; ?>
-        <?php if ($topic['level'] > 0) : ?>
-          <?php $color = true; ?>
-          <svg class="icon gray ml<?= $topic['level'] * 10; ?>">
-            <use xlink:href="/assets/svg/icons.svg#corner-down-right"></use>
-          </svg>
-        <?php endif; ?>
+      <?php $topic['level'] = max(0, (int)($topic['level'] ?? 0)); ?>
+      <div class="w-50 mb5 facet-structure-row" style="margin-inline-start: <?= $topic['level'] * 1.25; ?>rem; width: calc(100% - <?= $topic['level'] * 1.25; ?>rem);">
+        <div class="facet-structure-row__content">
+          <?php if ($topic['level'] > 0) : ?>
+            <?php $color = true; ?>
+            <svg class="icon gray facet-structure-branch" aria-hidden="true">
+              <use xlink:href="/assets/svg/icons.svg#corner-down-right"></use>
+            </svg>
+          <?php endif; ?>
 
-        <?php if ($topic['level'] == 0) : ?>
-          <?= Img::image($topic['facet_img'], htmlEncode($topic['facet_title']), 'w20 h20 mr5 br-gray', 'logo', 'max'); ?>
-        <?php endif; ?>
+          <?php if ($topic['level'] == 0) : ?>
+            <?= Img::image($topic['facet_img'], htmlEncode($topic['facet_title']), 'w20 h20 mr5 br-gray', 'logo', 'max'); ?>
+          <?php endif; ?>
 
-        <a class="
+          <a class="
 		<?php if ($topic['level'] == 0) : ?>relative mt5 text-xl items-center hidden<?php endif; ?> 
 			<?php if ($topic['level'] > 0) : ?> black<?php endif; ?>"
 
-          href="<?= urlDir($topic['facet_path']); ?>">
-          <?= htmlEncode($topic['facet_title']); ?></a>
+            href="<?= urlDir($topic['facet_path']); ?>">
+            <?= htmlEncode($topic['facet_title']); ?></a>
 
-        <a class="<?php if ($topic['level'] == 0) : ?>relative mt5 text-xl items-center hidden<?php endif; ?> <?php if ($topic['level'] > 0) : ?> black<?php endif; ?>" href="<?= url('facet.form.edit', ['type' => $data['type'], 'id' => $topic['facet_id']]); ?>">
+          <a class="<?php if ($topic['level'] == 0) : ?>relative mt5 text-xl items-center hidden<?php endif; ?> <?php if ($topic['level'] > 0) : ?> black<?php endif; ?>" href="<?= url('facet.form.edit', ['type' => $data['type'], 'id' => $topic['facet_id']]); ?>">
 
-          <sup><svg class="icon mr5">
-              <use xlink:href="/assets/svg/icons.svg#edit"></use>
-            </svg></sup>
-        </a>
-
-        <?php if ($topic['facet_is_deleted'] == 1) : ?>
-          <span class="type-ban" data-id="<?= $topic['facet_id']; ?>" data-type="topic">
-            <sup><svg class="icon red">
-                <use xlink:href="/assets/svg/icons.svg#trash-2"></use>
+            <sup><svg class="icon mr5">
+                <use xlink:href="/assets/svg/icons.svg#edit"></use>
               </svg></sup>
-          </span>
-        <?php else : ?>
-          <span class="type-ban" data-id="<?= $topic['facet_id']; ?>" data-type="topic">
-            <sup><svg class="icon gray-600">
-                <use xlink:href="/assets/svg/icons.svg#trash"></use>
-              </svg></sup>
-          </span>
-        <?php endif; ?>
+          </a>
+
+          <?php if ($topic['facet_is_deleted'] == 1) : ?>
+            <span class="type-ban" data-id="<?= $topic['facet_id']; ?>" data-type="topic">
+              <sup><svg class="icon red">
+                  <use xlink:href="/assets/svg/icons.svg#trash-2"></use>
+                </svg></sup>
+            </span>
+          <?php else : ?>
+            <span class="type-ban" data-id="<?= $topic['facet_id']; ?>" data-type="topic">
+              <sup><svg class="icon gray-600">
+                  <use xlink:href="/assets/svg/icons.svg#trash"></use>
+                </svg></sup>
+            </span>
+          <?php endif; ?>
+        </div>
       </div>
     <?php endforeach; ?>
   <?php else : ?>

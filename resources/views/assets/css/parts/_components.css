@@ -168,18 +168,15 @@ sup:target .footnote-ref {
 
 .title-dir {
   font-weight: 500;
-  color: #666;
-  text-decoration: underline;
+  color: var(--link-color);
+  text-decoration: none;
+  margin-right: 15px;
 }
 
 .title-facet {
   color: #444;
   font-weight: 500;
   font-size: 1.575rem;
-}
-
-.title-dir {
-  margin-right: 15px;
 }
 
 .title-fact {

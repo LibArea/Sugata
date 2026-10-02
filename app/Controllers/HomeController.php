@@ -30,7 +30,36 @@ class HomeController extends Controller
 
     public function facts($type): void
     {
-        // $childrens, $category_id, $page, $sort, $limit, $type: all, my, moderation
+        // В админке — всегда админская обёртка и админский дизайн.
+        // Реальный вид сайта (как после сборки) смотрим только в предпросмотре (/mod/admin/preview).
+        if ($type === 'all') {
+            $this->factsAll();
+            return;
+        }
+
+        // $childrens, $category_id, $page, $sort, $limit, $type: my, moderation
+        $items      = ItemModel::feedItem(false, false, Html::pageNumber(), self::$limit, $type);
+        $pagesCount = ItemModel::feedItemCount(false, false, $type);
+
+        render(
+            '/content/index',
+            [
+                'meta'  => Meta::get(__('app.admin')),
+                'data'  => [
+                    'sheet'         => 'view',
+                    'items'         => $items,
+                    'count'         => $pagesCount,
+                    'pagesCount'    => ceil($pagesCount / self::$limit),
+                    'pNum'          => Html::pageNumber(),
+                ]
+            ]
+        );
+    }
+
+    // Каталог фактов в админском виде (вкладка "Все факты")
+    private function factsAll(): void
+    {
+        $type       = 'all';
         $items      = ItemModel::feedItem(false, false, Html::pageNumber(), self::$limit, $type);
         $pagesCount = ItemModel::feedItemCount(false, false, $type);
 
@@ -62,7 +91,6 @@ class HomeController extends Controller
 
 		$childrens = FacetModel::getChildrens($category['facet_id']); // отображение категорий дети 1 уровня
 		
-		$results = [];
 		foreach ($childrens as $id => $row) {
 			$childrenFacet =  FacetModel::childrenForFeed($row['facet_id']);
 			$childrens[$id]['facet_count'] = ItemModel::feedItemCount($childrenFacet,  $row['facet_id']);

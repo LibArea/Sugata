@@ -78,7 +78,14 @@ class Img
     public static function thumbImg($img, $item, $redirect)
     {
 		[$imageInfo, $tempFile] =  Img::createTempImage($img);
-	
+
+		// Валидация типа изображения
+		$allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+		if (!in_array($imageInfo['mime'] ?? '', $allowed, true)) {
+			@unlink($tempFile);
+			return false;
+		}
+
         $path = HLEB_PUBLIC_DIR . Img::PATH['thumbs'];
         $year       = date('Y') . '/';
         $month      = date('n') . '/';
@@ -127,23 +134,36 @@ class Img
         $file       = $img['tmp_name'];
         $filename   = 'post-' . time();
 
+        // Валидация: должен быть реальный файл изображения
+        $imageInfo = @getimagesize($file);
+        if ($imageInfo === false || empty($img['name'])) {
+            return false;
+        }
+
+        $allowed = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/webp' => 'webp',
+            'image/gif'  => 'gif',
+        ];
+
+        $mime = $imageInfo['mime'] ?? '';
+        if (!isset($allowed[$mime])) {
+            return false;
+        }
+
         // For the body of the post, if png then we will not change the file extension
         // Для тела поста, если png то не будем менять расширение файла
-        $file_type = ($img['type'] == 'image/png') ? 'png' : 'webp';
+        $file_type = $allowed[$mime];
 
         self::createDir($path_img . $year . $month);
 
         $image = new SimpleImage();
-
-        $width_h  = getimagesize($file);
-        if ($width_h[0] > 1050) {
-            $image->load($file);
+        $image->load($file);
+        if ($imageInfo[0] > 1050) {
             $image->resizeToWidth(1050);
-            $image->save($path_img . $year . $month . $filename . '.' . $file_type, $file_type, 100);
-        } else {
-            $image->load($file);
-            $image->save($path_img . $year . $month . $filename . '.' . $file_type, $file_type, 100);
         }
+        $image->save($path_img . $year . $month . $filename . '.' . $file_type, $file_type, 100);
 
         $img_post = Img::PATH['item_content'] . $year . $month . $filename . '.' . $file_type;
         FileModel::set(

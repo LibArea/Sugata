@@ -21,6 +21,8 @@ return [
     'info'                  => 'Информация',
     'icon'                  => 'Иконки',
     'change_saved'          => 'Изменение сохранено',
+    'build_incremental'     => 'Пересобрано: {built}, пропущено без изменений: {skipped}',
+    'upload_invalid_image'  => 'Файл не является изображением (jpg, png, webp, gif)',
     'successfully'          => 'Успешно!',
     'yes_repost'            => 'Жалоба отправлена!',
     'post_added'            => 'Пост добавлен!',

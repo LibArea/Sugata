@@ -6,6 +6,7 @@ use Hleb\Base\Controller;
 use MatthiasMullie\Minify;
 use App\Models\{FacetModel, SearchModel};
 use App\Models\ItemModel;
+use App\Content\CatalogService;
 use Msg, Html, Meta, Parser;
 
 use Loupe\Loupe\Config\TypoTolerance;
@@ -238,23 +239,36 @@ class BuildController extends Controller
 
 		foreach ($facets as $facet) {
 
-			$childrenForFeed =  FacetModel::childrenForFeed($facet['facet_id']);
-			$items = ItemModel::feedItem($childrenForFeed, $facet['facet_id'], Html::pageNumber(), 20, 'all');
-
 			$tree = FacetModel::breadcrumb($facet['facet_id']);
 			$breadcrumb = Html::breadcrumbDir($tree, 'static');
-
-			$childrens = FacetModel::getChildrens($facet['facet_id']);
-
 			$meta = Meta::category($facet);
+			$dirPath = $this->path . $facet['facet_path'];
 
-			file_put_contents($this->path . $facet['facet_path'] . '/index.html', view($temp_dit, [
-				'items' =>  $items,
+			// Страница 1 = index.html
+			$catalog = CatalogService::data((int)$facet['facet_id'], 1, 'static');
+			file_put_contents($dirPath . '/index.html', view($temp_dit, [
+				'items' =>  $catalog['items'],
 				'breadcrumb' => $breadcrumb,
-				'childrens' => $childrens,
+				'childrens' => $catalog['childrens'],
 				'facet' => $facet,
-				'meta' => $meta
+				'meta' => $meta,
+				'pNum' => 1,
+				'pagesCount' => $catalog['pagesCount'],
 			]));
+
+			// Страницы 2..N = page-N.html
+			for ($page = 2; $page <= $catalog['pagesCount']; $page++) {
+				$catalog = CatalogService::data((int)$facet['facet_id'], $page, 'static');
+				file_put_contents($dirPath . '/page-' . $page . '.html', view($temp_dit, [
+					'items' =>  $catalog['items'],
+					'breadcrumb' => $breadcrumb,
+					'childrens' => $catalog['childrens'],
+					'facet' => $facet,
+					'meta' => $meta,
+					'pNum' => $page,
+					'pagesCount' => $catalog['pagesCount'],
+				]));
+			}
 		}
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
@@ -262,52 +276,73 @@ class BuildController extends Controller
 
 	public function buildHtmlView(): void
 	{
-		$temp_view =   '/templates/view.php';
-		$temp_page =   '/templates/page.php';
-
-		//Html::pageNumber();
-
 		$items = ItemModel::getItemAll();
 
 		foreach ($items as $item) {
-
-			// $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
-
-
-			/**
-			 * Рекомендованный контент (см. getSimilar())
-			 * @param ExternalId $externalId An id of indexed item to search other similar items
-			 * @param bool       $includeFormatting Switch the snippets to HTML formatting if available
-			 * @param int|null   $instanceId Id of instance where to search these similar items
-			 * @param int        $minCommonWords Lower limit for common words. The less common words,
-			 *                                   the more items are returned, but among them the proportion
-			 *                                   of irrelevant items is increasing.
-			 * @param int        $limit
-			 */
-			$storage = SearchModel::PdoStorage();
-			$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
-
-			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
-
-			$tree = FacetModel::breadcrumb((int)$dir[0]);
-			$breadcrumb = Html::breadcrumbDir($tree, 'static');
-
-			// Если slug = info (служебная категория) то другой шаблон
-			$tmp = ($dir[2] == 'info') ? $temp_page : $temp_view;
-
-			$img_url = Parser::miniature($item['item_content']);
-
-			file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($tmp, [
-				'item' =>  $item,
-				'similar' => $similar,
-				'dir' => $dir,
-				'meta' => Meta::view($item, $dir[2], $img_url),
-				'breadcrumb' => $breadcrumb
-
-			]));
+			$this->renderItemFile($item);
 		}
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
+	}
+
+	// Инкрементальная сборка: перегенерирует только те факты, чей HTML
+	// отсутствует или старше, чем дата изменения записи (item_modified).
+	public function buildHtmlIncremental(): void
+	{
+		$items = ItemModel::getItemAll();
+		$built = 0;
+		$skipped = 0;
+
+		foreach ($items as $item) {
+			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+			$path = $this->path . ($dir[2] ?? '') . '/' . $item['item_slug'] . '.html';
+
+			$modified = strtotime((string)($item['item_modified'] ?? $item['item_date'] ?? 'now'));
+			$fileTime = is_file($path) ? filemtime($path) : 0;
+
+			// Файл есть и он новее записи — пропускаем
+			if ($fileTime && $fileTime >= $modified) {
+				$skipped++;
+				continue;
+			}
+
+			$this->renderItemFile($item);
+			$built++;
+		}
+
+		Msg::redirect(
+			__('msg.build_incremental', ['built' => $built, 'skipped' => $skipped]),
+			'success',
+			url('tools')
+		);
+	}
+
+	// Рендер одного факта/страницы в статический HTML
+	protected function renderItemFile(array $item): void
+	{
+		$temp_view = '/templates/view.php';
+		$temp_page = '/templates/page.php';
+
+		$storage = SearchModel::PdoStorage();
+		$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
+
+		$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
+
+		$tree = FacetModel::breadcrumb((int)$dir[0]);
+		$breadcrumb = Html::breadcrumbDir($tree, 'static');
+
+		// Если slug = info (служебная категория) то другой шаблон
+		$tmp = ($dir[2] == 'info') ? $temp_page : $temp_view;
+
+		$img_url = Parser::miniature($item['item_content']);
+
+		file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($tmp, [
+			'item' =>  $item,
+			'similar' => $similar,
+			'dir' => $dir,
+			'meta' => Meta::view($item, $dir[2], $img_url),
+			'breadcrumb' => $breadcrumb
+		]));
 	}
 
 	public function deletion(): void

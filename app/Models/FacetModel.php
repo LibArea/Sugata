@@ -276,8 +276,8 @@ class FacetModel extends Model
         self::deleteRelation($topic_id, 'topic');
 
         foreach ($rows as $row) {
-            $facet_id   = $row['id'];
-            if ($topic_id == $row['id']) return true;
+            $facet_id   = (int)($row['id'] ?? 0);
+            if ($topic_id == $facet_id || $facet_id <= 0) return true;
             $sql = "INSERT INTO facets_relation (facet_parent_id, facet_chaid_id) 
                         VALUES (:topic_id, :facet_id)";
 
@@ -294,8 +294,8 @@ class FacetModel extends Model
         self::deleteRelation($topic_id, 'matching');
 
         foreach ($rows as $row) {
-            $facet_id   = $row['id'];
-            if ($topic_id == $row['id']) return true;
+            $facet_id   = (int)($row['id'] ?? 0);
+            if ($topic_id == $facet_id || $facet_id <= 0) return true;
             $sql = "INSERT INTO facets_matching (matching_parent_id, matching_chaid_id) 
                         VALUES (:topic_id, :facet_id)";
 
@@ -367,5 +367,26 @@ class FacetModel extends Model
 								WHERE facet_type='category' AND facet_slug = :slug";
 
         return DB::run($sql, ['slug' => $slug])->fetch();
+	}
+
+    public static function getByPath(string $path)
+    {
+        $sql = "SELECT
+                    facet_id,
+                    facet_title,
+                    facet_description,
+                    facet_type,
+                    facet_info,
+                    facet_slug,
+                    facet_path,
+                    facet_img,
+                    facet_cover_art,
+                    facet_seo_title,
+                    facet_is_deleted
+                FROM facets
+                WHERE facet_type = 'category' AND facet_path = :path
+                LIMIT 1";
+
+        return DB::run($sql, ['path' => $path])->fetch();
 	}
 }

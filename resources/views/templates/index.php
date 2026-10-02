@@ -1,55 +1,67 @@
-<?= insert('/templates/header', ['meta' => $meta]); ?>
+<?= insert('/templates/header', ['meta' => $meta, 'preview' => !empty($preview)]); ?>
 
-<main class="content">
-  <?= insert('/_block/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
+<div class="content wiki-content">
+  <div class="wiki-layout">
+    <main class="wiki-layout__main">
+      <?= insert('/_block/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
-  <?php if ($childrens) : ?>
-    <div class="item-categories">
-      <?php foreach ($childrens as $lt) : ?>
-        <div class="categories-telo">
-          <a class="text-xl" href="<?= urlDir($lt['facet_path'], 'static'); ?>">
-            <?= htmlEncode($lt['facet_title']); ?>
-          </a>
-        </div>
-      <?php endforeach; ?>
-    </div>
-  <?php endif; ?>
-
-  <div class="flex justify-between mb20">
-    <h2 class="uppercase-box"><?= htmlEncode($facet['facet_title']); ?></h2>
-    <div class="tag-yellow box mb-none"><?= $facet['facet_info']; ?></div>
-  </div>
-
-  <?php foreach ($items as $item) : ?>
-    <article id="<?= $item['item_id']; ?>">
-      <div class="fact_telo">
-        <h3 class="title">
-          <a class="title-fact" href="/<?= Html::facets_puth($item['facet_list']); ?>/<?= $item['item_slug']; ?>.html">
-            <?= htmlEncode($item['item_title']); ?>
-          </a>
-        </h3>
-
-        <?php if ($img = Parser::miniature($item['item_content'])) : ?>
-
-          <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
-
-          <?php $arr = Parser::cut($item['item_content']);
-          echo markdown($arr['content'], 'mini'); ?>
-
-        <?php else : ?>
-
-          <?php $arr = Parser::cut($item['item_content']);
-          echo markdown($arr['content'], 'mini'); ?>
-
+      <div class="flex justify-between items-center wiki-mb4">
+        <h1 class="wiki-title wiki-mb0"><?= htmlEncode($facet['facet_title']); ?></h1>
+        <?php if (!empty($facet['facet_info'])) : ?>
+          <span class="tag-yellow box mb-none"><?= htmlEncode($facet['facet_info']); ?></span>
         <?php endif; ?>
       </div>
-      <div class="fact_footer">
-        <?= HTML::facetDir($item['facet_list'], 'static'); ?>
 
-        <span class="lowercase"><?= langDate($item['item_date']); ?></span>
+      <?php if ($childrens) : ?>
+        <div class="item-categories wiki-mb4">
+          <?php foreach ($childrens as $lt) : ?>
+            <div class="categories-telo">
+              <a class="text-xl" href="<?= urlDir($lt['facet_path'], !empty($preview) ? 'preview' : 'static'); ?>">
+                <?= htmlEncode($lt['facet_title']); ?>
+              </a>
+              <sup class="gray-600"><?= (int)$lt['facet_count']; ?></sup>
+              <?php if (!empty($preview)) : ?>
+                <a class="ml5 gray-600" href="<?= url('facet.form.edit', ['type' => 'category', 'id' => $lt['facet_id']]); ?>">
+                  <sup><svg class="icon"><use xlink:href="/assets/svg/icons.svg#edit"></use></svg></sup>
+                </a>
+              <?php endif; ?>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
+
+      <div class="wiki-fact-list">
+        <?php foreach ($items as $item) : ?>
+          <?= insert('/templates/components/card-fact', ['item' => $item, 'preview' => !empty($preview)]); ?>
+        <?php endforeach; ?>
       </div>
-    </article>
-  <?php endforeach; ?>
-</main>
 
-<!--#include virtual="/assets/footer.shtml"-->
+      <?php if (($pagesCount ?? 1) > 1) : ?>
+        <?php $baseUrl = ($facet['facet_path'] ?? '') . '/'; ?>
+        <?php $curPage = $pNum ?? 1; ?>
+        <?php $pref = !empty($preview) ? '/mod/admin/preview/' : '/'; ?>
+        <nav class="wiki-pagination">
+          <?php if ($curPage > 1) : ?>
+            <a class="wiki-pagination__link" href="<?= $pref . $baseUrl . (($curPage == 2) ? 'index.html' : 'page-' . ($curPage - 1) . '.html'); ?>">← <?= __('app.page'); ?> <?= $curPage - 1; ?></a>
+          <?php endif; ?>
+
+          <span class="wiki-pagination__current"><?= $curPage; ?> / <?= $pagesCount; ?></span>
+
+          <?php if ($curPage < $pagesCount) : ?>
+            <a class="wiki-pagination__link" href="<?= $pref . $baseUrl; ?>page-<?= $curPage + 1; ?>.html"><?= __('app.page'); ?> <?= $curPage + 1; ?> →</a>
+          <?php endif; ?>
+        </nav>
+      <?php endif; ?>
+    </main>
+
+    <aside class="wiki-layout__sidebar">
+      <?= insert('/templates/layout/sidebar', ['preview' => !empty($preview), 'activePath' => $facet['facet_path'] ?? '']); ?>
+    </aside>
+  </div>
+</div>
+
+<?php if (!empty($preview)) : ?>
+  <?= insert('/templates/footer', ['preview' => true]); ?>
+<?php else : ?>
+  <!--#include virtual="/assets/footer.shtml"-->
+<?php endif; ?>

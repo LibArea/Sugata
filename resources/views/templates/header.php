@@ -14,10 +14,23 @@
   <link rel="stylesheet" href="/assets/css/style.css?<?= config('general', 'version'); ?>" type="text/css">
 </head>
 
-<body>
+<body class="<?= modeDayNight(); ?><?= !empty($preview) ? ' wiki-preview' : ' wiki-site'; ?>">
 
-  <header class="content">
-    <a href="<?= url('homepage'); ?>">
-      <h1 class="logo"><?= config('general', 'site_name'); ?></h1>
-    </a>
+  <header class="wiki-header content wiki-content">
+    <div class="wiki-header__logo">
+      <a href="<?= !empty($preview) ? url('preview.home') : url('homepage'); ?>">
+        <?= htmlEncode(config('general', 'site_name')); ?>
+      </a>
+      <small><?= __('app.facts'); ?></small>
+    </div>
+
+    <div class="wiki-header__search">
+      <form class="m0" method="get" action="<?= !empty($preview) ? url('search.go') : '/search/go'; ?>">
+        <input type="text" name="q" placeholder="<?= __('app.find'); ?>" aria-label="<?= __('app.find'); ?>">
+      </form>
+    </div>
+
+    <nav class="wiki-header__nav" aria-label="<?= __('app.view'); ?>">
+      <a href="<?= !empty($preview) ? url('preview.home') : url('homepage'); ?>"><?= __('app.home'); ?></a>
+    </nav>
   </header>

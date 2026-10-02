@@ -1,15 +1,20 @@
-<main>
+<main class="admin-main admin-list-page">
 
   <?php if ($container->user()->active()) : ?>
 
-    <div class="nav-bar">
-      <ul class="nav scroll-menu">
+    <header class="admin-page-heading">
+      <h1><?= __('app.facts'); ?></h1>
+      <a class="btn btn-primary admin-create-link" href="/mod/admin/add/item"><?= __('app.add_fact'); ?></a>
+    </header>
+
+    <div class="nav-bar admin-nav-bar">
+      <ul class="nav scroll-menu admin-nav">
         <?= insert('/_block/navigation/nav', ['sheet' => $data['sheet']]); ?>
       </ul>
     </div>
 
-    <div class="nav-bar mt20">
-      <ul class="nav scroll-menu">
+    <div class="nav-bar admin-nav-bar">
+      <ul class="nav scroll-menu admin-nav admin-nav--filters">
         <?php
         $list =  [
           [
@@ -60,25 +65,23 @@
       <?php if (!empty($data['items'])) : ?>
 
         <?php foreach ($data['items'] as $item) : ?>
-          <article id="<?= $item['item_id']; ?>">
+          <article class="admin-item-card" id="<?= $item['item_id']; ?>">
             <div class="fact_telo">
-              <h3 class="title">
+              <h3 class="title admin-item-card__title">
                 <a class="title-fact" href="<?= url('view', ['id' => $item['item_id']]); ?>">
                   <?= htmlEncode($item['item_title']); ?>
                 </a>
                 <?php if ($container->access()->author('item', $item) === true) : ?>
-                  <sup>
-                    <a class="ml10 gray-600" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
-                      <svg class="icon text-sm">
-                        <use xlink:href="/assets/svg/icons.svg#edit"></use>
-                      </svg>
-                    </a>
-                  </sup>
+                  <a class="admin-icon-action" aria-label="<?= __('app.edit'); ?>" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
+                    <svg class="icon text-sm" aria-hidden="true">
+                      <use xlink:href="/assets/svg/icons.svg#edit"></use>
+                    </svg>
+                  </a>
                 <?php endif; ?>
                 <?php if (!$item['item_published']) : ?>
-                  <sup class="red text-sm">
+                  <span class="admin-status">
                     <?= __('app.not_published'); ?>
-                  </sup>
+                  </span>
                 <?php endif; ?>
               </h3>
 

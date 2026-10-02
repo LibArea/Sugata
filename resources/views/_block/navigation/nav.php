@@ -2,7 +2,7 @@
 $list = [
   [
     'id'    => 'view',
-    'url'   => url('homepage'),
+    'url'   => url('preview.home'),
     'title' => 'app.view',
   ],
   [

@@ -13,14 +13,11 @@ class Html
 
         $result = [];
         foreach (array_chunk($facets, 4) as $row) :
-		
-		   $url = urlDir($row[2]);
-		   	if ($mod == 'static') {
-				$url = urlDir($row[2], 'static');
-			}
-		
-            if ($row[1] == 'category') { 
-                $result[] = '<a class="' . $css . '" href="' . $url . '">' . $row[3] . '</a>';
+
+            $url = urlDir($row[2], $mod);
+
+            if ($row[1] == 'category') {
+                $result[] = '<a class="' . htmlEncode($css) . '" href="' . htmlEncode($url) . '">' . htmlEncode($row[3]) . '</a>';
             }
 
         endforeach;
@@ -41,7 +38,7 @@ class Html
 			
         endforeach;
 
-        return implode($result);
+        return $result[0] ?? '';
     }
 
     // Blog, topic or category

@@ -51,7 +51,10 @@ class EditItemController extends Controller
         // Post cover
         //$data['fact_content_img'] = $['fact_content_img'];
         if (!empty($data['images'])) {
-            $data['item_thumb_img'] = Img::thumbImg($data['images'], $data, $redirect);
+            $thumb = Img::thumbImg($data['images'], $data, $redirect);
+            if ($thumb !== false) {
+                $data['item_thumb_img'] = $thumb;
+            }
         }
 
         ItemModel::edit($data);
@@ -100,11 +103,15 @@ class EditItemController extends Controller
     {
         $id         = Request::param('id')->asInt();
 
-        $img = $_FILES['file'];
-        if ($_FILES['file']['name']) {
-            return json_encode(['data' => ['filePath' => Img::itemImg($img, 'facet-telo', $id)]]);
+        $img = $_FILES['file'] ?? null;
+        if ($img && !empty($img['name'])) {
+            $path = Img::itemImg($img, 'facet-telo', $id);
+            if ($path === false) {
+                return json_encode(['error' => __('msg.upload_invalid_image')]);
+            }
+            return json_encode(['data' => ['filePath' => $path]]);
         }
 
-        return false;
+        return json_encode(['error' => __('msg.upload_invalid_image')]);
     }
 }

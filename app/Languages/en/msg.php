@@ -21,6 +21,8 @@ return [
     'info'                  => 'Information',
     'icon'                  => 'Icons',
     'change_saved'          => 'Change saved',
+    'build_incremental'     => 'Rebuilt: {built}, skipped unchanged: {skipped}',
+    'upload_invalid_image'  => 'File is not an image (jpg, png, webp, gif)',
     'successfully'          => 'Successfully!',
     'yes_repost'            => 'Complaint sent!',
     'post_added'            => 'Post added!',

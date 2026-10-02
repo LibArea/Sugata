@@ -8,8 +8,8 @@ body.dark {
   --bg-color: #202b38;
   --text-color: #fff;
 
-  --link-color: #118bee;
-  --link-color-hover: #d6d6d6;
+  --link-color: #7fb8f0;
+  --link-color-hover: #a8d1fa;
 
   --nav-bg-active: #161f27;
   --nav-color-active: #fff;
@@ -22,10 +22,10 @@ body.dark {
   --form-border-color: #555;
   --form-text-color: #fff;
 
-  --button-text-color: #bfcad3;
-  --button-bg-color: #202a34;
-  --button-border-color: #1e2226;
-  --button-border-color-hover: #ddd;
+  --button-text-color: #ffffff;
+  --button-bg-color: #1e6fd9;
+  --button-border-color: #1a5fb8;
+  --button-border-color-hover: #3a8ff0;
 
   --button-outline-text-color: #bfcad3;
   --button-outline-bg-color: #3f4851;

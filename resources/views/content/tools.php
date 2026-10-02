@@ -60,6 +60,13 @@
     </div>
   </fieldset>
 
+  <fieldset>
+    <div class="form-label input-label"><label><?= __('app.rebuild_view_incremental'); ?></label></div>
+    <div class="form-element">
+      <a href="<?= url('update.html.incremental'); ?>"><button type="submit" name="action" class="btn btn-primary" value="submit"><?= __('app.rebuild'); ?></button></a>
+    </div>
+  </fieldset>
+
 
   <fieldset>
     <div class="form-label input-label red"><label class="red"><?= __('app.deletion_dir'); ?></label></div>

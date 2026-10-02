@@ -1,66 +1,65 @@
-<?= insert('/templates/header', ['meta' => Meta::home()]); ?>
+<?= insert('/templates/header', ['meta' => $meta, 'preview' => !empty($preview)]); ?>
 
-<main class="content">
+<?php
+$mod     = !empty($preview) ? 'preview' : 'static';
+$featured = $items[0] ?? null;
+$rest     = array_slice($items, 1);
+?>
 
-  <div class="item-categories">
-    <?php foreach (config('general', 'categories') as $cat) : ?>
-      <div class="categories-telo">
-        <a class="text-xl block" href="<?= urlDir($cat['path'], 'static'); ?>">
-          <?= $cat['title']; ?>
-        </a>
-        <?php if (!empty($cat['sub'])) : ?>
-          <div class="flex gap">
-            <?php foreach ($cat['sub'] as $sub) : ?>
-              <a class="text-sm black" href="<?= urlDir($sub['path'], 'static'); ?>">
-                <?= $sub['title']; ?>
-              </a>
-            <?php endforeach; ?>
+<div class="content wiki-content">
+  <main class="wiki-layout__main wiki-home-main">
+
+    <div class="wiki-welcome">
+      <h1 class="wiki-welcome__title"><?= __('app.welcome_title'); ?></h1>
+      <p class="wiki-welcome__text"><?= __('app.home_description'); ?></p>
+    </div>
+
+    <?php if ($featured) : ?>
+      <section class="wiki-featured">
+        <h2 class="wiki-section-title"><?= __('app.featured_fact'); ?></h2>
+
+        <?php
+        $dir  = preg_split('/(@)/', (string)($featured['facet_list'] ?? ''));
+        $path = urlItem(isset($dir[2]) ? trim($dir[2], '/') : '', (string)$featured['item_slug'], $mod);
+        $img  = Parser::miniature($featured['item_content']);
+        ?>
+
+        <article class="wiki-featured__card">
+          <?php if ($img) : ?>
+            <a class="wiki-featured__thumb" href="<?= $path; ?>">
+              <img alt="<?= htmlEncode($featured['item_title']); ?>" src="<?= htmlEncode($img); ?>">
+            </a>
+          <?php endif; ?>
+
+          <div class="wiki-featured__body">
+            <h3><a href="<?= $path; ?>"><?= htmlEncode($featured['item_title']); ?></a></h3>
+            <p><?= htmlEncode(Parser::noHTML($featured['item_content'], 400)); ?></p>
+            <a class="wiki-featured__more" href="<?= $path; ?>"><?= __('app.read_more'); ?> →</a>
           </div>
-        <?php endif; ?>
-        <?php if (!empty($cat['help'])) : ?>
-          <div class="text-sm gray-600 mb-none"><?= $cat['help']; ?>...</div>
-        <?php endif; ?>
+        </article>
+      </section>
+    <?php endif; ?>
+
+    <section class="wiki-sections">
+      <h2 class="wiki-section-title"><?= __('app.category'); ?></h2>
+      <?= insert('/templates/components/categories-list', ['preview' => !empty($preview)]); ?>
+    </section>
+
+    <?php if ($rest) : ?>
+      <h2 class="wiki-section-title"><?= __('app.latest_facts'); ?></h2>
+
+      <div class="wiki-fact-list">
+        <?php foreach ($rest as $item) : ?>
+          <?= insert('/templates/components/card-fact', ['item' => $item, 'preview' => !empty($preview)]); ?>
+        <?php endforeach; ?>
       </div>
-    <?php endforeach; ?>
-  </div>
+    <?php endif; ?>
 
-  <h2 class="uppercase-box"><?= __('app.latest_facts'); ?></h2>
+  </main>
+</div>
 
-  <?php foreach ($items as $item) :
-    $dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
-    $path = '/' . $dir[2] . '/' .  $item['item_slug'] . '.html';
-  ?>
-    <article id="<?= $item['item_id']; ?>">
-      <div class="fact_telo">
-        <h3 class="title">
-          <a class="title-fact" href="<?= $path; ?>">
-            <?= htmlEncode($item['item_title']); ?>
-          </a>
-        </h3>
-
-        <?php if ($img = Parser::miniature($item['item_content'])) : ?>
-
-          <img alt="<?= htmlEncode($item['item_title']); ?>" class="miniature" src="<?= $img; ?>">
-
-          <?php $arr = Parser::cut($item['item_content']);
-          echo markdown($arr['content'], 'mini'); ?>
-
-        <?php else : ?>
-
-          <?php $arr = Parser::cut($item['item_content']);
-          echo markdown($arr['content'], 'mini'); ?>
-
-        <?php endif; ?>
-
-      </div>
-      <div class="fact_footer">
-        <?= HTML::facetDir($item['facet_list'], 'static'); ?>
-
-        <span class="lowercase"><?= langDate($item['item_date']); ?></span>
-      </div>
-    </article>
-  <?php endforeach; ?>
-
-</main>
-
-<!--#include virtual="/assets/footer.shtml"-->
+<?php if (!empty($preview)) : ?>
+  <?= insert('/templates/footer', ['preview' => true]); ?>
+<?php else : ?>
+  <!--#include virtual="/assets/footer.shtml"-->
+<?php endif; ?>

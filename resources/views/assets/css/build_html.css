@@ -21,4 +21,6 @@
 @import './parts/_media.css';
 @import './parts/_code.css';
 
+@import './parts/_wiki.css';
+
 @import 'custom.css';

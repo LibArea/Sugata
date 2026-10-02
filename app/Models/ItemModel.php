@@ -220,7 +220,10 @@ class ItemModel extends Model
         self::deleteRelation($item_id, 'item');
 
         foreach ($rows as $row) {
-            $facet_id   = $row['id'];
+            $facet_id   = (int)($row['id'] ?? 0);
+            if ($facet_id <= 0) {
+                continue;
+            }
             $sql = "INSERT INTO facets_items_relation (relation_facet_id, relation_item_id) 
                         VALUES ($facet_id, $item_id)";
 
@@ -233,14 +236,14 @@ class ItemModel extends Model
 
     public static function deleteRelation(int $id, string $type)
     {
-        $sql = "DELETE FROM facets_items_relation WHERE relation_item_id = $id";
+        $sql = "DELETE FROM facets_items_relation WHERE relation_item_id = :id";
         if ($type == 'topic') {
-            $sql = "DELETE FROM facets_relation WHERE facet_parent_id = $id";
+            $sql = "DELETE FROM facets_relation WHERE facet_parent_id = :id";
         } elseif ($type == 'matching') {
-            $sql = "DELETE FROM facets_matching WHERE matching_parent_id = $id";
+            $sql = "DELETE FROM facets_matching WHERE matching_parent_id = :id";
         }
 
-        return DB::run($sql);
+        return DB::run($sql, ['id' => (int)$id]);
     }
 	
     // Removing the cover
@@ -303,6 +306,40 @@ class ItemModel extends Model
         return DB::run($sql, $data)->fetch();
     }
 	
+    public static function getPublishedByFacetPath(string $facetPath, string $slug)
+    {
+        $sql = "SELECT
+                    i.item_id,
+                    i.item_title,
+                    i.item_content,
+                    i.item_slug,
+                    i.item_published,
+                    i.item_source_title,
+                    i.item_source_url,
+                    i.item_thumb_img,
+                    i.item_date,
+                    rel.facet_list
+                FROM items i
+                INNER JOIN facets_items_relation fir ON fir.relation_item_id = i.item_id
+                INNER JOIN facets f ON f.facet_id = fir.relation_facet_id
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = i.item_id
+                WHERE i.item_slug = :slug
+                    AND i.item_published = 1
+                    AND i.item_is_deleted = 0
+                    AND f.facet_type = 'category'
+                    AND f.facet_path = :facet_path
+                LIMIT 1";
+
+        return DB::run($sql, ['facet_path' => $facetPath, 'slug' => $slug])->fetch();
+    }
+
     public static function getItemAll()
     {
         $sql = "SELECT
