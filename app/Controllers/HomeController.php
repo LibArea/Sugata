@@ -122,6 +122,25 @@ class HomeController extends Controller
         ); 
     }
 	
+	public function random(): void
+	{
+		$item = ItemModel::getRandomFact();
+		if (empty($item)) {
+			notEmptyOrView404([]);
+			return;
+		}
+
+		$dir = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
+		$facetPath = trim($dir[2] ?? '', '/');
+
+		// В предпросмотре — на страницу превью, иначе — на статический URL
+		if (str_contains((string)Request::getUri()->getPath(), '/mod/admin/preview')) {
+			redirect(urlItem($facetPath, $item['item_slug'], 'preview'));
+		}
+
+		redirect('/' . $facetPath . '/' . $item['item_slug'] . '.html');
+	}
+
 	public function checkRoute()
 	{
 		$data = Request::getUri()->getPath();

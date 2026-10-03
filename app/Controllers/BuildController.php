@@ -44,10 +44,6 @@ class BuildController extends Controller
 			$this->buildCss(HLEB_GLOBAL_DIR . $putch, $key);
 		}
 
-		foreach (config('general', 'path_css_build') as $key => $putch) {
-			$this->buildCss_html(HLEB_GLOBAL_DIR . $putch, $key);
-		}
-
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
@@ -64,20 +60,72 @@ class BuildController extends Controller
 		);
 	}
 
+	// Проверка источников фактов (HEAD-запрос). Обрабатывает порцию непроверенных.
+	public function sourceCheck(): void
+	{
+		$sourceModel = new \App\Models\SourceModel();
+		$checked = 0;
+
+		foreach ($sourceModel->unchecked() as $source) {
+			$result = $sourceModel->checkUrl($source['url']);
+			$sourceModel->updateResult((int)$source['id'], $result['status'], $result['code']);
+			$checked++;
+		}
+
+		$stats = $sourceModel->stats();
+
+		Msg::add(
+			__('msg.sources_checked', [
+				'checked' => $checked,
+				'ok' => $stats['ok'],
+				'broken' => $stats['broken'],
+				'timeout' => $stats['timeout'],
+				'left' => $stats['unchecked'],
+			]),
+			'success'
+		);
+
+		redirect(url('tools'));
+	}
+
+	// Генерация sitemap.xml
+	public function buildSitemap(): void
+	{
+		$base = config('general', 'url_html');
+
+		// Категории (главные страницы разделов)
+		$facets = FacetModel::getTree('category', 'all');
+		$urls = '';
+
+		$urls .= "  <url><loc>{$base}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n";
+
+		foreach ($facets as $facet) {
+			$urls .= "  <url><loc>{$base}/" . trim($facet['facet_path'], '/') . "/</loc><priority>0.8</priority></url>\n";
+		}
+
+		// Страницы фактов
+		$items = ItemModel::getItemAll();
+		foreach ($items as $item) {
+			$dir = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
+			$path = trim($dir[2] ?? '', '/');
+			if ($path === '') {
+				continue;
+			}
+			$urls .= "  <url><loc>{$base}/{$path}/" . $item['item_slug'] . ".html</loc></url>\n";
+		}
+
+		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n" . $urls . "</urlset>";
+
+		file_put_contents($this->path . '/sitemap.xml', $xml);
+
+		Msg::redirect(__('msg.sitemap_built', ['total' => count($items) + count($facets) + 1]), 'success', url('tools'));
+	}
+
 	// Строим CSS для админки
 	protected function buildCss($putch, $key)
 	{
 		$minifier = new Minify\CSS($putch);
 		$minifier->minify(HLEB_PUBLIC_DIR . '/assets/css/' . $key . '.css');
-
-		return true;
-	}
-
-	// Строим CSS для статики
-	protected function buildCss_html($putch)
-	{
-		$minifier = new Minify\CSS($putch);
-		$minifier->minify($this->path . '/assets/css/style.css');
 
 		return true;
 	}
@@ -192,6 +240,25 @@ class BuildController extends Controller
 
 		// Пример: copyDirect("dir1 - откуда", "dir2 - куда");
 		$this->copyDirect($source, $dest, $over = false);
+
+		// Убираем из статики админские JS, которые могли остаться от прошлых переносов
+		$old = [
+			$dest . '/assets/js/admin.js',
+			$dest . '/assets/js/app.js',
+			$dest . '/assets/js/common.js',
+			$dest . '/assets/js/la.js',
+			$dest . '/assets/js/tag',
+			$dest . '/assets/js/cropper',
+			$dest . '/assets/js/editor',
+			$dest . '/assets/js/prism',
+		];
+		foreach ($old as $path) {
+			if (is_file($path)) {
+				@unlink($path);
+			} elseif (is_dir($path)) {
+				$this->rmdirRecursive($path);
+			}
+		}
 	}
 
 
@@ -208,7 +275,35 @@ class BuildController extends Controller
 		// Переносим общий подвал
 		$temp_footer = view('/templates/footer.php');
 		file_put_contents($this->path . '/assets/footer.shtml',$temp_footer);
+
+		// Случайные факты для кнопки «Случайный факт»
+		$this->buildRandomFactsFile();
 		
+	}
+
+	// Генерирует assets/js/random-facts.js со случайными URL фактов
+	protected function buildRandomFactsFile(): void
+	{
+		$all = ItemModel::getItemAll();
+		$urls = [];
+		$picked = $all;
+		shuffle($picked);
+		$picked = array_slice($picked, 0, 100);
+
+		foreach ($picked as $item) {
+			$dir = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
+			$path = trim($dir[2] ?? '', '/');
+			if ($path === '') {
+				continue;
+			}
+			$urls[] = '/' . $path . '/' . $item['item_slug'] . '.html';
+		}
+
+		$js = "window.__RANDOM_FACTS__ = " . json_encode($urls, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ";";
+		file_put_contents($this->path . '/assets/js/random-facts.js', $js);
+
+		// Также в public — чтобы админка/предпросмотр не ловили 404
+		file_put_contents(HLEB_PUBLIC_DIR . '/assets/js/random-facts.js', $js);
 	}
 
 	public function buildDir()
@@ -396,7 +491,12 @@ class BuildController extends Controller
 
 	public function copyDirect($source, $dest, $over = false)
 	{
-		$filesToProhibit = ['.htaccess', 'index.php']; // Список файлов, которые нужно запретить переносить
+		// Файлы, которые не должны попадать в статику (служебные и админские).
+		$filesToProhibit = ['.htaccess', 'index.php'];
+
+		// Подпапки public/assets/js, используемые ТОЛЬКО в админке (редактор, теги, кроппер, подсветка).
+		// Статике (сайту посетителя) нужен только theme.js.
+		$adminJsDirs = ['assets/js/tag', 'assets/js/cropper', 'assets/js/editor', 'assets/js/prism'];
 
 		if (!is_dir($dest))
 			mkdir($dest);
@@ -404,12 +504,26 @@ class BuildController extends Controller
 			while (false !== ($file = readdir($handle))) {
 				if ($file != '.' && $file != '..') {
 
-					// Проверяем, есть ли файл в списке "Запретить"
 					if (in_array($file, $filesToProhibit)) {
-						continue; // Если есть, пропускаем его
+						continue;
 					}
 
 					$path = $source . '/' . $file;
+					$rel  = trim(str_replace('\\', '/', str_replace(HLEB_PUBLIC_DIR, '', realpath($path) ?: $path)), '/');
+
+					// Пропускаем админские JS-подпапки
+					foreach ($adminJsDirs as $skip) {
+						if ($rel === $skip || str_starts_with($rel, $skip . '/')) {
+							continue 2;
+						}
+					}
+
+					// Статике не нужны админские скрипты (только theme.js)
+					if ($rel === 'assets/js/admin.js' || $rel === 'assets/js/app.js'
+						|| $rel === 'assets/js/common.js' || $rel === 'assets/js/la.js') {
+						continue;
+					}
+
 					if (is_file($path)) {
 						if (!is_file($dest . '/' . $file || $over))
 							if (!@copy($path, $dest . '/' . $file)) {

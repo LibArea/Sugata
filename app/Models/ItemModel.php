@@ -132,8 +132,6 @@ class ItemModel extends Model
                 'item_content'          => $data['item_content'],
 				'item_note'				=> $data['item_note'],
 				'item_type'				=> $data['item_type'] ?? 'fact',
-				'item_source_title'		=> $data['item_source_title'],
-				'item_source_url'		=> $data['item_source_url'],
                 'item_slug'             => $data['item_slug'],
 				'item_published'  		=> $item_published,
                 'item_user_id'          => self::container()->user()->id(),
@@ -144,8 +142,6 @@ class ItemModel extends Model
                             item_content, 
 							item_note,
 							item_type,
-							item_source_title,
-							item_source_url,
                             item_slug,
                             item_published,
                             item_user_id) 
@@ -154,8 +150,6 @@ class ItemModel extends Model
                        :item_content, 
 					   :item_note,
 					   :item_type,
-					   :item_source_title,
-					   :item_source_url,
                        :item_slug,
                        :item_published,
                        :item_user_id)";
@@ -163,6 +157,11 @@ class ItemModel extends Model
         DB::run($sql, $params);
 
         $item_id =  DB::run("SELECT LAST_INSERT_ID() as item_id")->fetch();
+
+        // Источник — отдельная таблица sources + связь article_sources
+        if (!empty($data['item_source_url'])) {
+            self::setItemSource((int)$item_id['item_id'], $data['item_source_url']);
+        }
 
         return $item_id;
     }
@@ -187,8 +186,6 @@ class ItemModel extends Model
                 'item_content'          => $data['item_content'],
 				'item_note'				=> $data['item_note'],
 				'item_type' 			=> $data['item_type'] ?? 'fact',
-				'item_source_title'		=> $data['item_source_title'],
-				'item_source_url'		=> $data['item_source_url'],
                 'item_slug'             => $data['item_slug'],
 				'item_thumb_img' 		=> $data['item_thumb_img'] ?? NULL,
 				'item_modified' 		=> date("Y-m-d H:i:s"),
@@ -202,8 +199,6 @@ class ItemModel extends Model
                     item_content        = :item_content,
 					item_note        	= :item_note,
 					item_type 			= :item_type,
-					item_source_title	= :item_source_title,
-					item_source_url		= :item_source_url,
                     item_slug           = :item_slug,
 					item_thumb_img 		= :item_thumb_img,
 					item_modified 		= :item_modified,
@@ -211,7 +206,54 @@ class ItemModel extends Model
                     item_user_id        = :item_user_id
                         WHERE item_id   = :item_id";
 
-        return  DB::run($sql, $params);
+        DB::run($sql, $params);
+
+        // Источник — отдельная таблица sources + связь article_sources
+        if (array_key_exists('item_source_url', $data)) {
+            self::setItemSource((int)$data['item_id'], (string)($data['item_source_url'] ?? ''));
+        }
+
+        return true;
+    }
+
+    // Сохранить/заменить источник факта в таблицах sources + article_sources
+    public static function setItemSource(int $item_id, string $url): void
+    {
+        // Удаляем старую связь
+        DB::run("DELETE FROM article_sources WHERE article_id = :id", ['id' => $item_id]);
+
+        $url = trim($url);
+        if ($url === '') {
+            return;
+        }
+
+        // Источник по URL — найти или создать
+        $source = DB::run("SELECT id, title FROM sources WHERE url = :url LIMIT 1", ['url' => $url])->fetch();
+        if (empty($source)) {
+            $domain = parse_url($url, PHP_URL_HOST) ?: '';
+            DB::run("INSERT INTO sources (url, domain) VALUES (:url, :domain)", [
+                'url' => $url,
+                'domain' => $domain,
+            ]);
+            $source = DB::run("SELECT LAST_INSERT_ID() as id")->fetch();
+        }
+
+        DB::run("INSERT INTO article_sources (article_id, source_id) VALUES (:aid, :sid)", [
+            'aid' => $item_id,
+            'sid' => (int)$source['id'],
+        ]);
+
+        self::cleanupOrphanSources();
+    }
+
+    // Удаляет источники, на которые не ссылается ни один факт и которые
+    // ещё не проверялись — чтобы таблица sources не накапливала мусор
+    // после замены ссылки в факте.
+    protected static function cleanupOrphanSources(): void
+    {
+        DB::run("DELETE FROM sources
+                 WHERE last_checked_at IS NULL
+                   AND NOT EXISTS (SELECT 1 FROM article_sources a_s WHERE a_s.source_id = sources.id)");
     }
 
 
@@ -273,8 +315,8 @@ class ItemModel extends Model
                     item_ip,
                     item_content,
 					item_note,
-					item_source_title,
-					item_source_url,
+                    s.title AS item_source_title,
+                    s.url    AS item_source_url,
                     item_content_img,
                     item_thumb_img,
                     item_is_deleted,
@@ -286,6 +328,9 @@ class ItemModel extends Model
 
                         FROM items
 						
+                        LEFT JOIN article_sources a_s ON a_s.article_id = item_id
+                        LEFT JOIN sources s ON s.id = a_s.source_id
+
                         LEFT JOIN
                         (
                             SELECT 
@@ -314,14 +359,16 @@ class ItemModel extends Model
                     i.item_content,
                     i.item_slug,
                     i.item_published,
-                    i.item_source_title,
-                    i.item_source_url,
+                    s.title AS item_source_title,
+                    s.url    AS item_source_url,
                     i.item_thumb_img,
                     i.item_date,
                     rel.facet_list
                 FROM items i
                 INNER JOIN facets_items_relation fir ON fir.relation_item_id = i.item_id
                 INNER JOIN facets f ON f.facet_id = fir.relation_facet_id
+                LEFT JOIN article_sources a_s ON a_s.article_id = i.item_id
+                LEFT JOIN sources s ON s.id = a_s.source_id
                 LEFT JOIN (
                     SELECT
                         relation_item_id,
@@ -348,13 +395,15 @@ class ItemModel extends Model
 					item_content,
                     item_slug,
                     item_published,
-					item_source_title,
-					item_source_url,
+					s.title AS item_source_title,
+					s.url    AS item_source_url,
                     item_user_id,
                     item_modified,
                     item_date,
                     rel.*
                         FROM items
+                        LEFT JOIN article_sources a_s ON a_s.article_id = item_id
+                        LEFT JOIN sources s ON s.id = a_s.source_id
                         LEFT JOIN
                         (
                             SELECT 
@@ -369,6 +418,25 @@ class ItemModel extends Model
                         WHERE item_published = 1 AND item_is_deleted = 0";
 
         return DB::run($sql)->fetchAll();
+    }
+
+    // Один случайный опубликованный факт
+    public static function getRandomFact(): false|array
+    {
+        $sql = "SELECT item_id, item_title, item_slug, rel.*
+                FROM items
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = item_id
+                WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                ORDER BY RAND() LIMIT 1";
+
+        return DB::run($sql)->fetch();
     }
 	
     /**
@@ -389,6 +457,38 @@ class ItemModel extends Model
                             WHERE relation_item_id  = :item_id ";
 
         return DB::run($sql, ['item_id' => $item_id])->fetchAll();
+    }
+
+    // Увеличить счётчик просмотров факта
+    public static function incrementViews(int $item_id): void
+    {
+        DB::run("UPDATE items SET item_views = item_views + 1 WHERE item_id = :id", ['id' => $item_id]);
+    }
+
+    // Самые читаемые факты
+    public static function getPopular(int $limit = 5): false|array
+    {
+        $sql = "SELECT
+                    i.item_id,
+                    i.item_title,
+                    i.item_slug,
+                    i.item_date,
+                    i.item_views,
+                    rel.facet_list
+                FROM items i
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = i.item_id
+                WHERE i.item_published = 1 AND i.item_is_deleted = 0 AND i.item_type = 'fact'
+                ORDER BY i.item_views DESC, i.item_id DESC
+                LIMIT :limit";
+
+        return DB::run($sql, ['limit' => $limit])->fetchAll();
     }
 
 }

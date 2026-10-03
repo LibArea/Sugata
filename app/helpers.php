@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Hleb\Static\Request;
 use Hleb\Static\Container;
-use App\Bootstrap\Services\User\UserData;
 
 /*
  * Global "helper" functions.
@@ -70,16 +69,6 @@ function render(string $name, array $data = [])
     echo view('/main', ['content' => $page_content, 'data' => $data['data'], 'meta' => $data['meta']]);
 }
 
-function closing()
-{
-    if (config('general', 'site_disabled')  && !UserData::checkAdmin()) {
-        insert('site-off');
-        exit();
-    }
-
-    return true;
-}
-
 function markdown(string $content, string $type = 'text')
 {
     return Parser::parse($content, $type);
@@ -97,12 +86,6 @@ function notEmptyOrView404($params)
         exit();
     }
     return true;
-}
-
-function host(string $url)
-{
-    $parse  =  parse_url($url);
-    return $parse['host'] ?? false;
 }
 
 function htmlEncode($text)
@@ -165,61 +148,4 @@ function urlDir($facet_path, $mod = 'dynamics')
     }
 
     return config('general', 'url') . '/mod/admin/dir/' . $path;
-}
-
-
-/*
-
--- Таблица источников
-CREATE TABLE sources (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    url VARCHAR(2048) UNIQUE NOT NULL,
-    normalized_url VARCHAR(2048) NOT NULL, -- для сравнения
-    title VARCHAR(512),
-    domain VARCHAR(255),
-    status ENUM('unchecked', 'ok', 'broken', 'redirect', 'timeout') DEFAULT 'unchecked',
-    http_code INT DEFAULT NULL,
-    last_checked_at DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_status (status),
-    INDEX idx_last_checked (last_checked_at)
-);
-
--- Связь статья ↔ источник (многие-ко-многим)
-CREATE TABLE article_sources (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    article_id INT UNSIGNED NOT NULL,
-    source_id INT UNSIGNED NOT NULL,
-    citation_text TEXT,
-    sort_order TINYINT UNSIGNED DEFAULT 0,
-    UNIQUE KEY uk_article_source (article_id, source_id),
-    FOREIGN KEY (source_id) REFERENCES sources(id) ON DELETE CASCADE
-);
-
-*/
-function checkSourceLink(string $url, array $options = []): array {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_NOBODY => true,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_MAXREDIRS => 5,
-        CURLOPT_TIMEOUT => 15,
-        CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HEADER => true,
-        CURLOPT_USERAGENT => 'WikiBot/1.0 (+https://yourdomain.com/bot)',
-        CURLOPT_SSL_VERIFYPEER => true,
-    ]);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-    $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-    curl_close($ch);
-
-    if ($error) return ['status' => 'timeout', 'code' => 0, 'final_url' => $url];
-    if ($httpCode >= 200 && $httpCode < 400) return ['status' => 'ok', 'code' => $httpCode, 'final_url' => $finalUrl];
-    if ($httpCode == 0) return ['status' => 'timeout', 'code' => 0, 'final_url' => $url];
-    
-    return ['status' => 'broken', 'code' => $httpCode, 'final_url' => $finalUrl];
 }

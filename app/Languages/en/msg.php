@@ -23,6 +23,8 @@ return [
     'change_saved'          => 'Change saved',
     'build_incremental'     => 'Rebuilt: {built}, skipped unchanged: {skipped}',
     'upload_invalid_image'  => 'File is not an image (jpg, png, webp, gif)',
+    'sources_checked'       => 'Sources checked: {checked}. OK: {ok}, broken: {broken}, timeout: {timeout}, left: {left}',
+    'sitemap_built'         => 'Sitemap.xml built: {total} URLs',
     'successfully'          => 'Successfully!',
     'yes_repost'            => 'Complaint sent!',
     'post_added'            => 'Post added!',

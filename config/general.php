@@ -56,9 +56,10 @@ return [
 	],
 
 	// Для статического сайта
-	'path_css_build' => [
-		'style'	=> '/resources/views/assets/css/build_html.css',
-	],
+	// (не используется: сайт и админка собираются единым style.css)
+	//'path_css_build' => [
+	//	'style'	=> '/resources/views/assets/css/build_html.css',
+	//],
 
 	// Base path to js files
 	// Базовый путь к js файлам    
