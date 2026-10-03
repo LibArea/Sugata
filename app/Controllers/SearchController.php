@@ -74,10 +74,13 @@ class SearchController extends Controller
 
             $result = [];
             foreach ($items as $key => $item) {
-                $result[$key]['id'] = $item->getId();
-                $result[$key]['url'] = $item->getUrl();
-                $result[$key]['title'] = $item->getHighlightedTitle($stemmer);
+                $result[$key]['id']      = $item->getId();
+                $result[$key]['url']     = $item->getUrl();
+                $result[$key]['title']   = $item->getHighlightedTitle($stemmer);
                 $result[$key]['content'] = $item->getSnippet();
+
+                // Полноценная ссылка: в админке — предпросмотр, на статике — HTML
+                $result[$key]['link'] = self::resultLink($item->getUrl());
             }
         }
 
@@ -142,4 +145,30 @@ class SearchController extends Controller
     }
 
     public function searchPage() {}
+
+    /**
+     * Строит ссылку на результат поиска.
+     * URL из индекса — JSON: {"item_id":..,"slug":"..","facets":".."}.
+     * В админке ведём на предпросмотр статьи, на статике — на готовый HTML.
+     */
+    protected static function resultLink(string $url): string
+    {
+        $decoded = json_decode($url, true);
+        if (!is_array($decoded) || empty($decoded['slug'])) {
+            return '';
+        }
+
+        $facets    = preg_split('/(@)/', (string)($decoded['facets'] ?? ''));
+        $facetPath = trim($facets[2] ?? '', '/');
+
+        if ($facetPath === '') {
+            return '';
+        }
+
+        $isAdmin = str_contains((string)Request::getUri()->getPath(), '/mod/admin/');
+
+        return $isAdmin
+            ? urlItem($facetPath, $decoded['slug'], 'preview')
+            : '/' . $facetPath . '/' . $decoded['slug'] . '.html';
+    }
 }

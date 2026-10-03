@@ -387,11 +387,16 @@ class Html
         return $data = ['head' => $head, 'text' => $text];
     }
 	
-    public static function builder(int $chaid_id, int $level, array $data, array $tree = []): array
+    public static function builder(?int $chaid_id, int $level, array $data, array $tree = []): array
     {
         $level++;
         foreach ($data as $part) {
-            if ($part['facet_parent_id'] == $chaid_id) {
+            $parent = $part['facet_parent_id'] ?? null;
+            // Корень: facet_parent_id IS NULL (или 0 как legacy-значение)
+            $isRoot = ($chaid_id === null) && ($parent === null || $parent === 0);
+            $isChild = ($chaid_id !== null) && (int)$parent === $chaid_id;
+
+            if ($isRoot || $isChild) {
                 $part['level']  = $level - 1;
                 $tree[]         = $part;
                 $tree           = self::builder($part['facet_id'], $level, $data, $tree);

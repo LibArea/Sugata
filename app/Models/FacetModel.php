@@ -268,6 +268,14 @@ class FacetModel extends Model
 
         return  DB::run($sql, ['facet_id' => $facet_id, 'facet_path' => $facet_path]);
     }	
+
+    // Мягкое удаление фасета (скрывает из дерева и сборки, не удаляя данные)
+    public static function softDelete(int $facet_id, int $flag = 1)
+    {
+        $sql = "UPDATE facets SET facet_is_deleted = :flag WHERE facet_id = :facet_id";
+
+        return  DB::run($sql, ['facet_id' => $facet_id, 'flag' => $flag]);
+    }	
 	
     // Main trees
     // Основные деревья

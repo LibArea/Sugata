@@ -83,8 +83,18 @@ class Meta
     public static function category(array $facet): string
     {
 		$url    = config('general', 'url_html') . '/' . $facet['facet_path'] . '/';
-		$title  = $facet['facet_title'] . ' — ' . __('app.facts');
-		$description = __('app.feed_facts') . '.  ' .  $facet['facet_description'];
+
+		// SEO-title из базы (если заполнен), иначе "Название — Факты"
+		$seoTitle = trim((string)($facet['facet_seo_title'] ?? ''));
+		$title  = $seoTitle !== '' ? $seoTitle : $facet['facet_title'] . ' — ' . __('app.facts');
+
+		// Description: из поля facet_description, иначе — авто-шаблон
+		$descText = trim((string)($facet['facet_description'] ?? ''));
+		if ($descText === '') {
+			$description = __('app.facts') . ' по теме «' . $facet['facet_title'] . '»: проверенные факты, источники и полезные материалы.';
+		} else {
+			$description = $descText;
+		}
 
         $meta = [
             'og'        => true,

@@ -57,7 +57,6 @@ fieldset.error input {
 .form-element input,
 .form-element select,
 .form-element textarea {
-  width: 80%;
   padding: 6px;
   font-size: 16px;
   color: var(--form-text-color);

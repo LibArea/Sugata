@@ -95,6 +95,8 @@ class BuildController extends Controller
 
 		// Категории (главные страницы разделов)
 		$facets = FacetModel::getTree('category', 'all');
+		// Удалённые категории не включаем в sitemap
+		$facets = array_filter($facets, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1);
 		$urls = '';
 
 		$urls .= "  <url><loc>{$base}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>\n";
@@ -269,7 +271,11 @@ class BuildController extends Controller
 
 		Html::pageNumber();
 
-		$temp_home =  view('/templates/home.php', ['meta' => Meta::home(), 'items' => $items]);
+		$temp_home =  view('/templates/home.php', [
+			'meta' => Meta::home(),
+			'items' => $items,
+			'sections' => CatalogService::sections(),
+		]);
 		file_put_contents($this->path . '/index.html', $temp_home);
 		
 		// Переносим общий подвал
@@ -284,6 +290,14 @@ class BuildController extends Controller
 	// Генерирует assets/js/random-facts.js со случайными URL фактов
 	protected function buildRandomFactsFile(): void
 	{
+		// Живые пути категорий (удалённые не строятся → ссылки на них не даём)
+		$livePaths = [];
+		foreach (FacetModel::getTree('category', 'all') as $f) {
+			if ((int)($f['facet_is_deleted'] ?? 0) !== 1) {
+				$livePaths[trim($f['facet_path'], '/')] = true;
+			}
+		}
+
 		$all = ItemModel::getItemAll();
 		$urls = [];
 		$picked = $all;
@@ -291,8 +305,18 @@ class BuildController extends Controller
 		$picked = array_slice($picked, 0, 100);
 
 		foreach ($picked as $item) {
-			$dir = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
-			$path = trim($dir[2] ?? '', '/');
+			$chunks = array_chunk(preg_split('/(@)/', (string)($item['facet_list'] ?? '')), 4);
+
+			// Берём путь первой ЖИВОЙ категории факта
+			$path = '';
+			foreach ($chunks as $chunk) {
+				$p = trim($chunk[2] ?? '', '/');
+				if ($p !== '' && isset($livePaths[$p])) {
+					$path = $p;
+					break;
+				}
+			}
+
 			if ($path === '') {
 				continue;
 			}
@@ -309,6 +333,9 @@ class BuildController extends Controller
 	public function buildDir()
 	{
 		$facets = FacetModel::getTree('category', 'all');
+
+		// Удалённые категории не строим (в базе остаются, но в статику не попадают)
+		$facets = array_filter($facets, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1);
 
 		foreach ($facets as $facet) {
 
@@ -332,12 +359,22 @@ class BuildController extends Controller
 
 		$facets = FacetModel::getTree('category', 'all');
 
+		// Удалённые категории не строим (в базе остаются, но в статику не попадают)
+		$facets = array_filter($facets, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1);
+
+		$sideNav = CatalogService::sidebar();
+
 		foreach ($facets as $facet) {
 
 			$tree = FacetModel::breadcrumb($facet['facet_id']);
 			$breadcrumb = Html::breadcrumbDir($tree, 'static');
 			$meta = Meta::category($facet);
 			$dirPath = $this->path . $facet['facet_path'];
+
+			// Автосоздание папки категории (ранее — отдельная кнопка «Создание DIR»)
+			if (!is_dir($dirPath)) {
+				mkdir($dirPath, 0755, true);
+			}
 
 			// Страница 1 = index.html
 			$catalog = CatalogService::data((int)$facet['facet_id'], 1, 'static');
@@ -349,6 +386,7 @@ class BuildController extends Controller
 				'meta' => $meta,
 				'pNum' => 1,
 				'pagesCount' => $catalog['pagesCount'],
+				'sideNav' => $sideNav,
 			]));
 
 			// Страницы 2..N = page-N.html
@@ -362,6 +400,7 @@ class BuildController extends Controller
 					'meta' => $meta,
 					'pNum' => $page,
 					'pagesCount' => $catalog['pagesCount'],
+					'sideNav' => $sideNav,
 				]));
 			}
 		}
@@ -372,9 +411,10 @@ class BuildController extends Controller
 	public function buildHtmlView(): void
 	{
 		$items = ItemModel::getItemAll();
+		$sideNav = CatalogService::sidebar();
 
 		foreach ($items as $item) {
-			$this->renderItemFile($item);
+			$this->renderItemFile($item, $sideNav);
 		}
 
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
@@ -385,6 +425,7 @@ class BuildController extends Controller
 	public function buildHtmlIncremental(): void
 	{
 		$items = ItemModel::getItemAll();
+		$sideNav = CatalogService::sidebar();
 		$built = 0;
 		$skipped = 0;
 
@@ -401,7 +442,7 @@ class BuildController extends Controller
 				continue;
 			}
 
-			$this->renderItemFile($item);
+			$this->renderItemFile($item, $sideNav);
 			$built++;
 		}
 
@@ -413,7 +454,7 @@ class BuildController extends Controller
 	}
 
 	// Рендер одного факта/страницы в статический HTML
-	protected function renderItemFile(array $item): void
+	protected function renderItemFile(array $item, ?array $sideNav = null): void
 	{
 		$temp_view = '/templates/view.php';
 		$temp_page = '/templates/page.php';
@@ -436,7 +477,8 @@ class BuildController extends Controller
 			'similar' => $similar,
 			'dir' => $dir,
 			'meta' => Meta::view($item, $dir[2], $img_url),
-			'breadcrumb' => $breadcrumb
+			'breadcrumb' => $breadcrumb,
+			'sideNav' => $sideNav ?? CatalogService::sidebar(),
 		]));
 	}
 

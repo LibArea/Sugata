@@ -23,6 +23,7 @@ return [
 	'facts'				=> 'Facts',
 	'latest_facts'		=> 'Latest facts',
 	'add_fact'			=> 'Add fact',
+	'restore'			=> 'Restore',
 	'edit_fact'			=> 'Change fact',
 	'soft'              => 'Software',
 	'viewing' 			=> 'View',

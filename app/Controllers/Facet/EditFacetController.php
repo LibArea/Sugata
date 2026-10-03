@@ -151,4 +151,34 @@ class EditFacetController extends Controller
 
         return true;
     }
+
+    /**
+     * Мягкое удаление категории (возможно только админом).
+     * Фасет помечается facet_is_deleted=1 и исчезает из дерева/сборки.
+     */
+    public function delete()
+    {
+        if (!$this->container->user()->admin()) {
+            return json_encode(['error' => __('msg.went_wrong')]);
+        }
+
+        $facet_id = Request::post('id')->asInt();
+        $restore  = (int)Request::post('restore')->asInt();
+
+        if ($facet_id <= 0) {
+            return json_encode(['error' => __('msg.went_wrong')]);
+        }
+
+        if ($restore) {
+            // Восстановление: снять флаг удаления
+            FacetModel::softDelete($facet_id, 0);
+            return json_encode(['ok' => true, 'restored' => true]);
+        }
+
+        // Открепляем от родителя, чтобы ушёл из дерева
+        FacetModel::deleteRelation($facet_id, 'topic');
+        FacetModel::softDelete($facet_id, 1);
+
+        return json_encode(['ok' => true]);
+    }
 }

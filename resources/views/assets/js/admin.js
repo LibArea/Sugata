@@ -1,4 +1,5 @@
 const ban = queryAll(".type-ban");
+const restoreFacet = queryAll(".type-return");
 const report = queryAll(".report-saw");
 const badge = queryAll(".remove-badge");
 const audit = queryAll(".audit-status");
@@ -6,8 +7,16 @@ const update = queryAll(".update");
 
 ban.forEach((el) =>
   el.addEventListener("click", () =>
-    makeRequest(`/mod/admin/${el.dataset.type}/ban`, {
-      body: buildFormBody({ id: el.dataset.id }),
+    makeRequest("/mod/admin/delete/facet", {
+      body: buildFormBody({ id: el.dataset.id }, getCsrfToken()),
+    })
+  )
+);
+
+restoreFacet.forEach((el) =>
+  el.addEventListener("click", () =>
+    makeRequest("/mod/admin/delete/facet", {
+      body: buildFormBody({ id: el.dataset.id, restore: 1 }, getCsrfToken()),
     })
   )
 );

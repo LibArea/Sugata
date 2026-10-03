@@ -33,6 +33,7 @@ class PreviewController extends Controller
         $this->response()->setBody(view('/templates/home.php', [
             'meta' => Meta::home(),
             'items' => $items,
+            'sections' => \App\Content\CatalogService::sections(),
             'preview' => true,
         ]));
     }
@@ -86,6 +87,7 @@ class PreviewController extends Controller
                 'dir' => $dir,
                 'meta' => Meta::view($item, $facetPath, Parser::miniature($item['item_content'])),
                 'breadcrumb' => $breadcrumb,
+                'sideNav' => \App\Content\CatalogService::sidebar(),
                 'preview' => true,
             ]));
             return;
@@ -115,6 +117,7 @@ class PreviewController extends Controller
             'meta' => Meta::category($facet),
             'pNum' => $catalog['pNum'],
             'pagesCount' => $catalog['pagesCount'],
+            'sideNav' => \App\Content\CatalogService::sidebar(),
             'preview' => true,
         ]));
     }

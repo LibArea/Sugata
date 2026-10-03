@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content;
 
 use App\Models\{FacetModel, ItemModel};
+use Html;
 
 /**
  * Единая логика формирования данных страницы категории (каталога).
@@ -14,6 +15,60 @@ use App\Models\{FacetModel, ItemModel};
 class CatalogService
 {
     public const PER_PAGE = 20;
+
+    /**
+     * Дерево категорий для сайдбара (из базы, только живые).
+     * Подготавливает данные в контроллере — шаблон только рендерит.
+     */
+    public static function sidebar(): array
+    {
+        $tree = FacetModel::getTree('category', 'all');
+        $tree = array_values(array_filter($tree, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1));
+
+        return Html::builder(null, 0, $tree);
+    }
+
+    /**
+     * Категории для центральной страницы (раздел «Категория»): корневые + дети уровня 1.
+     * Из базы, только живые. Похоже на формат config('general','categories').
+     */
+    public static function sections(): array
+    {
+        $tree = FacetModel::getTree('category', 'all');
+        $tree = array_values(array_filter($tree, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1));
+        $nav  = Html::builder(null, 0, $tree);
+
+        $sections = [];
+        foreach ($nav as $i => $cat) {
+            if ($cat['level'] != 0) continue;
+
+            // Служебная категория "info" на главной не выводится
+            if (trim($cat['facet_path'], '/') === 'info') continue;
+
+            $children = [];
+            for ($j = $i + 1; $j < count($nav) && $nav[$j]['level'] > 0; $j++) {
+                if ($nav[$j]['level'] == 1 && $nav[$j]['facet_parent_id'] == $cat['facet_id']) {
+                    $children[] = [
+                        'title' => $nav[$j]['facet_title'],
+                        'path'  => trim($nav[$j]['facet_path'], '/'),
+                    ];
+                }
+            }
+
+            // Описание выводим только если у категории нет подкатегорий,
+            // иначе оно будет дублировать смысл списка разделов.
+            $help = (empty($children)) ? trim((string)($cat['facet_description'] ?? '')) : '';
+
+            $sections[] = [
+                'title' => $cat['facet_title'],
+                'path'  => trim($cat['facet_path'], '/'),
+                'help'  => $help,
+                'sub'   => $children,
+            ];
+        }
+
+        return $sections;
+    }
 
     /**
      * Данные для страницы категории.

@@ -23,7 +23,10 @@ class Parser
         $content = str_replace('{cut}', '', $content);
 		
 		if ($type == 'mini') {
-          $content = str_replace('[^1]', '', $content);
+          // В превью сноски не нужны: убираем определения сносок полностью,
+          // затем маркеры в тексте (сначала определения — иначе паттерн не совпадёт).
+          $content = preg_replace('/^\[\^\d+\]:[^\r\n]*/mi', '', $content);
+          $content = preg_replace('/\[\^\d+\]/', '', $content);
 		}
 
         // https://github.com/php-collective/djot-php/tree/master

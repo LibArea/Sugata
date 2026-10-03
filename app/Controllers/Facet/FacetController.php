@@ -22,7 +22,7 @@ class FacetController extends Controller
                 'data'  => [
                     'type'     => $type,
                     'sheet'    => 'structure',
-                    'nodes'    => Html::builder(0, 0, FacetModel::getTree()),
+                    'nodes'    => Html::builder(null, 0, FacetModel::getTree()),
                 ]
             ]
         );

@@ -51,6 +51,7 @@ class HomeController extends Controller
                     'count'         => $pagesCount,
                     'pagesCount'    => ceil($pagesCount / self::$limit),
                     'pNum'          => Html::pageNumber(),
+                    'paginationUrl' => '/mod/admin/facts/' . $type,
                 ]
             ]
         );
@@ -73,6 +74,7 @@ class HomeController extends Controller
                     'count'         => $pagesCount,
                     'pagesCount'    => ceil($pagesCount / self::$limit),
                     'pNum'          => Html::pageNumber(),
+                    'paginationUrl' => '/mod/admin/facts/all',
                 ]
             ]
         );
