@@ -25,6 +25,7 @@ return [
     'upload_invalid_image'  => 'Файл не является изображением (jpg, png, webp, gif)',
     'sources_checked'       => 'Проверено источников: {checked}. Работают: {ok}, битые: {broken}, таймаут: {timeout}, осталось проверить: {left}',
     'sitemap_built'         => 'Sitemap.xml создан: {total} URL',
+    'broken_links_checked'  => 'Проверено. Найдено битых ссылок: {count}',
     'successfully'          => 'Успешно!',
     'yes_repost'            => 'Жалоба отправлена!',
     'post_added'            => 'Пост добавлен!',

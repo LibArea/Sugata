@@ -39,13 +39,13 @@
           </a>
 
           <?php if ($topic['facet_is_deleted'] == 1) : ?>
-            <span class="type-ban" data-id="<?= $topic['facet_id']; ?>" data-type="topic">
+            <span class="type-return" data-id="<?= $topic['facet_id']; ?>" title="<?= __('app.restore'); ?>">
               <sup><svg class="icon red">
                   <use xlink:href="/assets/svg/icons.svg#trash-2"></use>
                 </svg></sup>
             </span>
           <?php else : ?>
-            <span class="type-ban" data-id="<?= $topic['facet_id']; ?>" data-type="topic">
+            <span class="type-ban" data-id="<?= $topic['facet_id']; ?>" data-type="topic" title="<?= __('app.delete'); ?>">
               <sup><svg class="icon gray-600">
                   <use xlink:href="/assets/svg/icons.svg#trash"></use>
                 </svg></sup>

@@ -1,14 +1,16 @@
 <?php
 /*
  * Compact category navigation (Wikipedia portal style)
- * Компактная навигация по разделам
+ * Компактная навигация по разделам на главной
  *
- * Expects: $preview (bool)
+ * Expects: $sections (array — категории из базы, подготовлены контроллером),
+ *          $preview (bool)
  */
-$mod = !empty($preview) ? 'preview' : 'static';
+$mod      = !empty($preview) ? 'preview' : 'static';
+$sections = $sections ?? [];
 ?>
 <div class="wiki-sections__grid">
-  <?php foreach (config('general', 'categories') as $cat) : ?>
+  <?php foreach ($sections as $cat) : ?>
     <div class="wiki-sections__item">
       <h3><a href="<?= urlDir($cat['path'], $mod); ?>"><?= htmlEncode($cat['title']); ?></a></h3>
 

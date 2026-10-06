@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use Hleb\Base\Controller;
 use MatthiasMullie\Minify;
-use App\Models\{FacetModel, SearchModel};
+use App\Models\{FacetModel, SearchModel, BrokenLinkModel};
 use App\Models\ItemModel;
 use App\Content\CatalogService;
 use Msg, Html, Meta, Parser;
@@ -256,7 +256,7 @@ class BuildController extends Controller
 		];
 		foreach ($old as $path) {
 			if (is_file($path)) {
-				@unlink($path);
+				unlink($path);
 			} elseif (is_dir($path)) {
 				$this->rmdirRecursive($path);
 			}
@@ -290,33 +290,14 @@ class BuildController extends Controller
 	// Генерирует assets/js/random-facts.js со случайными URL фактов
 	protected function buildRandomFactsFile(): void
 	{
-		// Живые пути категорий (удалённые не строятся → ссылки на них не даём)
-		$livePaths = [];
-		foreach (FacetModel::getTree('category', 'all') as $f) {
-			if ((int)($f['facet_is_deleted'] ?? 0) !== 1) {
-				$livePaths[trim($f['facet_path'], '/')] = true;
-			}
-		}
-
-		$all = ItemModel::getItemAll();
 		$urls = [];
-		$picked = $all;
-		shuffle($picked);
-		$picked = array_slice($picked, 0, 100);
 
-		foreach ($picked as $item) {
+		// Случайные факты из живых категорий — без перебора всего каталога в PHP
+		foreach (ItemModel::getRandomFacts(100) as $item) {
 			$chunks = array_chunk(preg_split('/(@)/', (string)($item['facet_list'] ?? '')), 4);
 
-			// Берём путь первой ЖИВОЙ категории факта
-			$path = '';
-			foreach ($chunks as $chunk) {
-				$p = trim($chunk[2] ?? '', '/');
-				if ($p !== '' && isset($livePaths[$p])) {
-					$path = $p;
-					break;
-				}
-			}
-
+			// Путь первой категории факта (все они уже живые — фильтр в SQL)
+			$path = trim($chunks[0][2] ?? '', '/');
 			if ($path === '') {
 				continue;
 			}
@@ -417,6 +398,8 @@ class BuildController extends Controller
 			$this->renderItemFile($item, $sideNav);
 		}
 
+		$this->scanBrokenLinks();
+
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
@@ -445,6 +428,8 @@ class BuildController extends Controller
 			$this->renderItemFile($item, $sideNav);
 			$built++;
 		}
+
+		$this->scanBrokenLinks();
 
 		Msg::redirect(
 			__('msg.build_incremental', ['built' => $built, 'skipped' => $skipped]),
@@ -478,6 +463,7 @@ class BuildController extends Controller
 			'dir' => $dir,
 			'meta' => Meta::view($item, $dir[2], $img_url),
 			'breadcrumb' => $breadcrumb,
+			'faq' => \App\Models\FaqModel::forItem((int)$item['item_id']),
 			'sideNav' => $sideNav ?? CatalogService::sidebar(),
 		]));
 	}
@@ -568,7 +554,7 @@ class BuildController extends Controller
 
 					if (is_file($path)) {
 						if (!is_file($dest . '/' . $file || $over))
-							if (!@copy($path, $dest . '/' . $file)) {
+							if (!copy($path, $dest . '/' . $file)) {
 								echo "('.$path.') Ошибка!!! ";
 							}
 					} elseif (is_dir($path)) {
@@ -580,5 +566,72 @@ class BuildController extends Controller
 			}
 			closedir($handle);
 		}
+	}
+
+	/**
+	 * Проверка битых внутренних ссылок между фактами.
+	 * Сканирует item_content всех статей, находит ссылки вида /path/slug.html
+	 * и сверяет с реально существующими URL. Результат — в таблицу broken_links.
+	 * Возвращает количество найденных битых ссылок.
+	 */
+	public function scanBrokenLinks(): int
+	{
+		// Существующие URL: /path/slug.html для всех опубликованных фактов
+		$existing = [];
+		foreach (ItemModel::getItemAll() as $item) {
+			$dir = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
+			$path = trim($dir[2] ?? '', '/');
+			if ($path === '') {
+				continue;
+			}
+			$existing['/' . $path . '/' . $item['item_slug'] . '.html'] = true;
+		}
+
+		$broken = [];
+
+		// Сканируем все статьи
+		$items = ItemModel::getItemAll();
+		foreach ($items as $item) {
+			// Ссылки [text](/path/slug.html)
+			if (preg_match_all('/\[([^\]]*)\]\((\/[^)\s]+\.html)\)/u', (string)$item['item_content'], $m, PREG_SET_ORDER)) {
+				foreach ($m as $match) {
+					$url = $match[2] ?? '';
+					// Только внутренние (не http/https)
+					if (!str_starts_with($url, '/')) {
+						continue;
+					}
+					// Уже есть в списке битых — не дублируем
+					$key = (int)$item['item_id'] . '|' . $url;
+					if (isset($broken[$key])) {
+						continue;
+					}
+					$broken[$key] = [
+						'item_id'       => (int)$item['item_id'],
+						'article_title' => $item['item_title'],
+						'link'          => $url,
+						'word'          => trim((string)($match[1] ?? '')),
+					];
+				}
+			}
+		}
+
+		// Оставляем только битые (нет в existing)
+		$broken = array_filter($broken, fn($b) => !isset($existing[$b['link']]));
+
+		BrokenLinkModel::replace(array_values($broken));
+
+		return count($broken);
+	}
+
+	// Отдельная проверка по кнопке на странице битых ссылок (с редиректом)
+	public function checkBrokenLinks(): void
+	{
+		$count = $this->scanBrokenLinks();
+
+		Msg::redirect(
+			__('msg.broken_links_checked', ['count' => $count]),
+			'success',
+			url('broken.links')
+		);
 	}
 }

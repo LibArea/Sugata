@@ -55,7 +55,7 @@
     </main>
 
     <aside class="wiki-layout__sidebar">
-      <?= insert('/templates/layout/sidebar', ['preview' => !empty($preview), 'activePath' => $facet['facet_path'] ?? '']); ?>
+      <?= insert('/templates/layout/sidebar', ['sideNav' => $sideNav ?? [], 'preview' => !empty($preview), 'activePath' => $facet['facet_path'] ?? '']); ?>
     </aside>
   </div>
 </div>

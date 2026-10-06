@@ -42,7 +42,7 @@ $rest     = array_slice($items, 1);
 
     <section class="wiki-sections">
       <h2 class="wiki-section-title"><?= __('app.category'); ?></h2>
-      <?= insert('/templates/components/categories-list', ['preview' => !empty($preview)]); ?>
+      <?= insert('/templates/components/categories-list', ['sections' => $sections ?? [], 'preview' => !empty($preview)]); ?>
     </section>
 
     <?php if ($rest) : ?>

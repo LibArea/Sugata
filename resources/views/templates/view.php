@@ -28,6 +28,18 @@
           <span class="lowercase"><?= langDate($item['item_date']); ?></span>
         </div>
 
+        <?php if (!empty($faq)) : ?>
+          <section class="wiki-faq" aria-label="FAQ">
+            <h2 class="wiki-section-title"><?= __('app.faq'); ?></h2>
+            <?php foreach ($faq as $qa) : ?>
+              <details class="wiki-faq__item">
+                <summary><?= htmlEncode($qa['question']); ?></summary>
+                <div class="wiki-faq__answer"><?= markdown($qa['answer']); ?></div>
+              </details>
+            <?php endforeach; ?>
+          </section>
+        <?php endif; ?>
+
         <?= insert('/templates/components/toc', ['item' => $item]); ?>
 
         <div class="wiki-fact-body">
@@ -45,6 +57,29 @@
           </div>
         <?php endif; ?>
       </article>
+
+      <?php if (empty($preview)) : ?>
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": <?= json_encode($item['item_title'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
+        "datePublished": <?= json_encode($item['item_date'], JSON_UNESCAPED_SLASHES); ?>,
+        "dateModified": <?= json_encode($item['item_modified'] ?? $item['item_date'], JSON_UNESCAPED_SLASHES); ?>,
+        "url": <?= json_encode(config('general', 'url_html') . '/' . trim($dir[2] ?? '', '/') . '/' . $item['item_slug'] . '.html', JSON_UNESCAPED_SLASHES); ?>
+        <?php if (!empty($item['item_thumb_img'])) : ?>
+        ,"image": <?= json_encode(config('general', 'url_html') . '/' . $item['item_thumb_img'], JSON_UNESCAPED_SLASHES); ?>
+        <?php endif; ?>
+        <?php if (!empty($item['item_source_url'])) : ?>
+        ,"citation": <?= json_encode($item['item_source_url'], JSON_UNESCAPED_SLASHES); ?>
+        <?php endif; ?>
+        ,"publisher": {
+          "@type": "Organization",
+          "name": <?= json_encode(config('general', 'site_name'), JSON_UNESCAPED_UNICODE); ?>
+        }
+      }
+      </script>
+      <?php endif; ?>
 
       <fieldset class="copy">
         <input id="inputText" value="<?= isset($dir[2]) ? fact_slug($dir[2], $item['item_slug']) : ''; ?>">
@@ -83,7 +118,7 @@
     </main>
 
     <aside class="wiki-layout__sidebar">
-      <?= insert('/templates/layout/sidebar', ['preview' => !empty($preview), 'activePath' => $dir[2] ?? '']); ?>
+      <?= insert('/templates/layout/sidebar', ['sideNav' => $sideNav ?? [], 'preview' => !empty($preview), 'activePath' => $dir[2] ?? '']); ?>
     </aside>
   </div>
 </div>

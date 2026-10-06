@@ -38,7 +38,7 @@
     </main>
 
     <aside class="wiki-layout__sidebar">
-      <?= insert('/templates/layout/sidebar', ['preview' => !empty($preview), 'activePath' => 'info']); ?>
+      <?= insert('/templates/layout/sidebar', ['sideNav' => $sideNav ?? [], 'preview' => !empty($preview), 'activePath' => 'info']); ?>
     </aside>
   </div>
 </div>

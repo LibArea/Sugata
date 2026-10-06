@@ -42,18 +42,10 @@
     </fieldset>
 
     <fieldset class="form-big">
-      <div class="form-label input-label"><label><?= __('app.source_title'); ?> </label></div>
-      <div class="form-element">
-        <input minlength="11" id="source_title" name="item_source_title" type="text" value="">
-        <div class="help">11 - 250 <?= __('app.characters'); ?></div>
-      </div>
-    </fieldset>
-
-    <fieldset class="form-big">
       <div class="form-label input-label"><label><?= __('app.source_url'); ?> </label></div>
       <div class="form-element">
-        <input minlength="11" id="source_url" name="item_source_url" type="text" value="">
-        <div class="help">11 - 250 <?= __('app.characters'); ?></div>
+        <input id="source_url" name="item_source_url" type="url" value="" placeholder="https://...">
+        <div class="help"><?= __('app.source_url_help'); ?></div>
       </div>
     </fieldset>
 

@@ -82,7 +82,9 @@ class Img
 		// Валидация типа изображения
 		$allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 		if (!in_array($imageInfo['mime'] ?? '', $allowed, true)) {
-			@unlink($tempFile);
+			if (is_file($tempFile)) {
+				unlink($tempFile);
+			}
 			return false;
 		}
 
@@ -107,7 +109,10 @@ class Img
         if ($item_thumb_img != $item_img) {
 
             if ($item_thumb_img != false) {
-                @unlink($path . $item_thumb_img);
+                $oldPath = $path . $item_thumb_img;
+                if (is_file($oldPath)) {
+                    unlink($oldPath);
+                }
             }
 
             FileModel::removal($item_thumb_img);

@@ -36,7 +36,6 @@
         enabled: 0, // <- показывать предложения по фокусировке
         closeOnSelect: false // <- не скрывайте раскрывающийся список "Предложения" после выбора элемента
       },
-      maxTags: 1, // <- ограничим выбор фасетов
       callbacks: {
         "dropdown:show": async (e) => await focus_search(),
       },

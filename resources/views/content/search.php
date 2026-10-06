@@ -23,14 +23,16 @@ $sw = $sw ?? '?';
       <span><?= round($data['time'], 3); ?> мс.</span>
     </div>
 
-    <?php foreach ($data['results'] as $result) :
-      $url_content = '';
-    ?>
+    <?php foreach ($data['results'] as $result) : ?>
 
       <div class="mb20">
-        <a class="text-xl" target="_blank" rel="nofollow noreferrer" href="<?= $url_content; ?>">
-          <?= $result['title']; ?>
-        </a>
+        <?php if (!empty($result['link'])) : ?>
+          <a class="text-xl" href="<?= htmlEncode($result['link']); ?>">
+            <?= $result['title']; ?>
+          </a>
+        <?php else : ?>
+          <span class="text-xl"><?= $result['title']; ?></span>
+        <?php endif; ?>
         <?php if ($type == 'comment') : ?>
           <?= fragment($result['comment_content'], 250); ?>
         <?php else : ?>

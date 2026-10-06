@@ -63,11 +63,10 @@ $url = url('redirect.facet', ['id' => $fs['facet_id']]);
       <div class="mb20 help">Markdown, > 14 <?= __('app.characters'); ?></div>
 
       <?= insert('/_block/form/select/user', ['user' => $data['user']]); ?>
+    </fieldset>
 
-      <fieldset>
-        <input type="hidden" name="facet_id" value="<?= $fs['facet_id']; ?>">
-        <?= Html::sumbit(__('app.edit')); ?>
-      </fieldset>
+    <input type="hidden" name="facet_id" value="<?= $fs['facet_id']; ?>">
+    <?= Html::sumbit(__('app.edit')); ?>
   </form>
 </main>
 

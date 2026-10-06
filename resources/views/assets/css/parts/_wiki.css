@@ -258,6 +258,16 @@ body.wiki-preview aside {
   margin-bottom: 0.15rem;
 }
 
+.wiki-toc__link {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.wiki-toc__link:hover {
+  color: var(--link-color-hover);
+  text-decoration: underline;
+}
+
 /* ========== Welcome (home hero) ========== */
 .wiki-welcome {
   margin-bottom: var(--space-6);
@@ -515,6 +525,50 @@ body.wiki-preview aside {
   color: var(--nav-color-active);
 }
 
+/* ========== FAQ accordion ========== */
+.wiki-faq {
+  margin-bottom: var(--space-6);
+}
+
+.wiki-faq__item {
+  border: 1px solid var(--form-border-color);
+  border-radius: var(--rounded);
+  background-color: var(--white);
+  margin-bottom: var(--space-2);
+}
+
+.wiki-faq__item summary {
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--black);
+  border-radius: var(--rounded);
+  list-style-position: inside;
+}
+
+.wiki-faq__item summary:hover {
+  background-color: var(--gray-100);
+}
+
+.wiki-faq__item[open] summary {
+  border-bottom: 1px solid var(--form-border-color);
+}
+
+.wiki-faq__answer {
+  padding: var(--space-3) var(--space-4);
+  color: var(--gray);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+}
+
+.wiki-faq__answer p:first-child {
+  margin-top: 0;
+}
+
+.wiki-faq__answer p:last-child {
+  margin-bottom: 0;
+}
+
 /* ========== Page title (Wikipedia "firstHeading") ========== */
 .wiki-title {
   margin: 0 0 var(--space-4);
@@ -560,12 +614,17 @@ body.wiki-preview aside {
 
   .wiki-header {
     flex-wrap: wrap;
+    gap: var(--space-2);
   }
 
   .wiki-header__search {
     order: 3;
     max-width: 100%;
     flex-basis: 100%;
+  }
+
+  .wiki-header__search input {
+    min-height: 40px;
   }
 
   .wiki-fact-item__thumb {
@@ -586,5 +645,31 @@ body.wiki-preview aside {
 
   .wiki-sections__grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Шапка на узких экранах: логотип + кнопки компактно, поиск на всю ширину */
+  .wiki-header {
+    gap: var(--space-2);
+    padding: 0.5rem 0.75rem;
+  }
+
+  .wiki-header__logo a {
+    font-size: var(--font-size-xl);
+  }
+
+  .wiki-header__logo small {
+    display: none;
+  }
+
+  .wiki-theme-toggle {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    font-size: 1rem;
+  }
+
+  .wiki-random-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: var(--font-size-sm);
   }
 }

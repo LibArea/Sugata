@@ -54,18 +54,27 @@ $item = $data['item'];
     </fieldset>
 
     <fieldset class="form-big">
-      <div class="form-label input-label"><label for="item_source_title"><?= __('app.source_title'); ?> </label></div>
+      <div class="form-label input-label"><label for="item_source_url"><?= __('app.source_url'); ?> </label></div>
       <div class="form-element">
-        <input minlength="11" id="item_source_title" name="item_source_title" type="text" value="<?= $item['item_source_title']; ?>">
-        <div class="help">11 - 250 <?= __('app.characters'); ?></div>
+        <input id="item_source_url" name="item_source_url" type="url" value="<?= htmlEncode($item['item_source_url'] ?? ''); ?>" placeholder="https://...">
+        <div class="help"><?= __('app.source_url_help'); ?></div>
       </div>
     </fieldset>
 
     <fieldset class="form-big">
-      <div class="form-label input-label"><label for="item_source_url"><?= __('app.source_url'); ?> </label></div>
+      <div class="form-label input-label"><label><?= __('app.faq'); ?></label></div>
       <div class="form-element">
-        <input minlength="11" id="item_source_url" name="item_source_url" type="text" value="<?= $item['item_source_url']; ?>">
-        <div class="help">11 - 250 <?= __('app.characters'); ?></div>
+        <div id="faq-items">
+          <?php foreach ($data['faq'] ?? [] as $i => $qa) : ?>
+            <div class="faq-row">
+              <input class="faq-q mb5" type="text" name="faq_question[]" placeholder="<?= __('app.faq_question'); ?>" value="<?= htmlEncode($qa['question']); ?>">
+              <textarea class="faq-a mb5" name="faq_answer[]" rows="3" placeholder="<?= __('app.faq_answer'); ?>"><?= htmlEncode($qa['answer']); ?></textarea>
+              <div><button type="button" class="btn btn-small faq-row-del"><?= __('app.faq_remove'); ?></button></div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <button type="button" class="btn btn-primary" id="faq-add">+ <?= __('app.faq_add'); ?></button>
+        <div class="help"><?= __('app.faq_help'); ?></div>
       </div>
     </fieldset>
 
@@ -90,3 +99,37 @@ $item = $data['item'];
 <link rel="stylesheet" href="/assets/js/tag/tagify.css" type="text/css">
 <script src="/assets/js/cropper/cropper.min.js"></script>
 <link rel="stylesheet" href="/assets/js/cropper/cropper.min.css" type="text/css">
+
+<script nonce="<?= config('main', 'nonce'); ?>">
+  (function () {
+    var wrap = document.getElementById('faq-items');
+    var addBtn = document.getElementById('faq-add');
+    if (!wrap || !addBtn) return;
+
+    function makeRow(q, a) {
+      var row = document.createElement('div');
+      row.className = 'faq-row';
+      row.innerHTML =
+        '<input class="faq-q mb5" type="text" name="faq_question[]" placeholder="' + '<?= __('app.faq_question'); ?>' + '" value="' + (q || '') + '">' +
+        '<textarea class="faq-a mb5" name="faq_answer[]" rows="3" placeholder="' + '<?= __('app.faq_answer'); ?>' + '">' + (a || '') + '</textarea>' +
+        '<div><button type="button" class="btn btn-small faq-row-del">' + '<?= __('app.faq_remove'); ?>' + '</button></div>';
+      row.querySelector('.faq-row-del').addEventListener('click', function () {
+        row.remove();
+      });
+      return row;
+    }
+
+    addBtn.addEventListener('click', function () {
+      wrap.appendChild(makeRow('', ''));
+    });
+
+    wrap.querySelectorAll('.faq-row').forEach(function (row) {
+      var del = row.querySelector('.faq-row-del');
+      if (del) {
+        del.addEventListener('click', function () {
+          row.remove();
+        });
+      }
+    });
+  })();
+</script>

@@ -420,9 +420,25 @@ class ItemModel extends Model
         return DB::run($sql)->fetchAll();
     }
 
-    // Один случайный опубликованный факт
+    // Один случайный опубликованный факт.
+    // Без ORDER BY RAND() (тяжёлый на больших таблицах):
+    // берём случайный id из диапазона MIN..MAX и подтягиваем ближайший факт.
     public static function getRandomFact(): false|array
     {
+        $range = DB::run(
+            "SELECT MIN(item_id) AS min_id, MAX(item_id) AS max_id
+             FROM items
+             WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'"
+        )->fetch();
+
+        $min = (int)($range['min_id'] ?? 0);
+        $max = (int)($range['max_id'] ?? 0);
+        if ($max <= $min) {
+            return false;
+        }
+
+        $rand = random_int($min, $max);
+
         $sql = "SELECT item_id, item_title, item_slug, rel.*
                 FROM items
                 LEFT JOIN (
@@ -433,10 +449,81 @@ class ItemModel extends Model
                     LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
                     GROUP BY relation_item_id
                 ) AS rel ON rel.relation_item_id = item_id
-                WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
-                ORDER BY RAND() LIMIT 1";
+                WHERE item_id >= :rand
+                  AND item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                ORDER BY item_id ASC
+                LIMIT 1";
 
-        return DB::run($sql)->fetch();
+        $fact = DB::run($sql, ['rand' => $rand])->fetch();
+
+        // Если за случайным id не оказалось факта (дыра) — берём ближайший снизу
+        if (empty($fact)) {
+            $sqlDown = str_replace('item_id >= :rand', 'item_id <= :rand', $sql);
+            $sqlDown = str_replace('ORDER BY item_id ASC', 'ORDER BY item_id DESC', $sqlDown);
+            $fact = DB::run($sqlDown, ['rand' => $rand])->fetch();
+        }
+
+        return $fact;
+    }
+
+    // N случайных фактов из ЖИВЫХ категорий (для random-facts.js).
+    // Без ORDER BY RAND(): выбираем диапазон случайных id и подтягиваем факты,
+    // добирая короткими запросами, пока не наберём $limit уникальных.
+    public static function getRandomFacts(int $limit): false|array
+    {
+        $range = DB::run(
+            "SELECT MIN(item_id) AS min_id, MAX(item_id) AS max_id
+             FROM items
+             WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'"
+        )->fetch();
+
+        $min = (int)($range['min_id'] ?? 0);
+        $max = (int)($range['max_id'] ?? 0);
+        if ($max <= $min) {
+            return [];
+        }
+
+        $result = [];
+        $attempts = 0;
+        $maxRounds = $limit * 4 + 10; // предохранитель от бесконечного цикла
+
+        while (count($result) < $limit && $attempts < $maxRounds) {
+            $attempts++;
+
+            // Случайная точка в диапазоне id
+            $rand = random_int($min, $max);
+
+            $sql = "SELECT DISTINCT i.item_id, i.item_title, i.item_slug, rel.facet_list
+                    FROM items i
+                    INNER JOIN facets_items_relation fir ON fir.relation_item_id = i.item_id
+                    INNER JOIN facets f ON f.facet_id = fir.relation_facet_id
+                    LEFT JOIN (
+                        SELECT
+                            relation_item_id,
+                            GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                        FROM facets
+                        LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                        GROUP BY relation_item_id
+                    ) AS rel ON rel.relation_item_id = i.item_id
+                    WHERE i.item_id >= :rand
+                      AND i.item_published = 1 AND i.item_is_deleted = 0 AND i.item_type = 'fact'
+                      AND f.facet_type = 'category' AND f.facet_is_deleted = 0
+                    ORDER BY i.item_id ASC
+                    LIMIT 1";
+
+            $fact = DB::run($sql, ['rand' => $rand])->fetch();
+            if (empty($fact)) {
+                continue;
+            }
+
+            if (isset($result[$fact['item_id']])) {
+                continue;
+            }
+
+            $result[$fact['item_id']] = $fact;
+        }
+
+        return array_values($result);
     }
 	
     /**

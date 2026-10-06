@@ -12,9 +12,20 @@
   <link rel="icon" sizes="120x120" href="/favicon-120.png" type="image/png">
   <link rel="icon" sizes="144x144" href="/favicon-144.png" type="image/png">
   <link rel="stylesheet" href="/assets/css/style.css?<?= config('general', 'version'); ?>" type="text/css">
+  <script src="/assets/js/random-facts.js?<?= config('general', 'version'); ?>"></script>
+  <script src="/assets/js/theme.js?<?= config('general', 'version'); ?>"></script>
 </head>
 
-<body class="<?= modeDayNight(); ?><?= !empty($preview) ? ' wiki-preview' : ' wiki-site'; ?>">
+<body class="<?= !empty($preview) ? 'light wiki-preview' : 'wiki-site'; ?>">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('wiki-theme');
+      if (t === 'dark') document.body.classList.add('dark');
+      else if (!t && window.matchMedia('(prefers-color-scheme: dark)').matches) document.body.classList.add('dark');
+    } catch (e) {}
+  })();
+</script>
 
   <header class="wiki-header content wiki-content">
     <div class="wiki-header__logo">
@@ -30,7 +41,7 @@
       </form>
     </div>
 
-    <nav class="wiki-header__nav" aria-label="<?= __('app.view'); ?>">
-      <a href="<?= !empty($preview) ? url('preview.home') : url('homepage'); ?>"><?= __('app.home'); ?></a>
-    </nav>
+    <button type="button" class="wiki-theme-toggle" data-theme-toggle aria-label="Тёмная тема">🌙</button>
+
+    <a class="wiki-random-btn" href="<?= !empty($preview) ? url('random') : '/random'; ?>" data-random-fact><?= __('app.random_fact'); ?></a>
   </header>

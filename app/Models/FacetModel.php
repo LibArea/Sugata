@@ -18,7 +18,7 @@ class FacetModel extends Model
      * @param string $name
      * @return mixed
      */
-    public static function get(string|int $params, string $name, string $type = 'category')
+    public static function get(string|int $params, string $name, string $type = 'category'): false|array
     {
        // Except for the staff and if it is not allowed in the catalog
         // Кроме персонала и если он не разрешен в каталоге
@@ -55,7 +55,7 @@ class FacetModel extends Model
 	
     // All facets
     // Все фасеты
-    public static function getFacetsAll(int $page = 1, int $limit = 1000, string $type = 'category')
+    public static function getFacetsAll(int $page = 1, int $limit = 1000, string $type = 'category'): false|array
     {
         $start  = ($page - 1) * $limit;
         $sql    = "SELECT 
@@ -124,7 +124,7 @@ class FacetModel extends Model
         return DB::run($sql, ['type' => $type])->fetchAll();
     }
 
-    public static function breadcrumb(int $facet_id)
+    public static function breadcrumb(int $facet_id): false|array
     {
         $sql = "with recursive
             n (facet_id, facet_path, facet_slug, facet_title, lvl) as (
@@ -172,7 +172,7 @@ class FacetModel extends Model
      * @param  int $facet_id
      * @internal
      */
-    public static function getLowLevelList(int $facet_id)
+    public static function getLowLevelList(int $facet_id): false|array
     {
         $sql = "SELECT 
                     facet_id id,
@@ -190,21 +190,21 @@ class FacetModel extends Model
         return DB::run($sql, ['facet_id' => $facet_id])->fetchAll();
     }
 	
-    public static function types()
+    public static function types(): false|array
     {
         return  DB::run('SELECT type_id, type_code, type_lang FROM facets_types')->fetchAll();
     }
 	
     // Let's check the uniqueness of id
     // Проверим уникальность id
-    public static function uniqueById(int $facet_id)
+    public static function uniqueById(int $facet_id): false|array
     {
         $sql = "SELECT facet_id, facet_slug, facet_type, facet_user_id, facet_is_deleted FROM facets WHERE facet_id = :id";
 
         return DB::run($sql, ['id' => $facet_id])->fetch();
     }
 	
-    public static function edit(array $params)
+    public static function edit(array $params): void
     {
         $sql = "UPDATE facets 
                     SET facet_title         = :facet_title,  
@@ -218,10 +218,10 @@ class FacetModel extends Model
 					facet_is_comments 		= :facet_is_comments
                         WHERE facet_id      = :facet_id";
 
-        return  DB::run($sql, $params);
+        DB::run($sql, $params);
     }
 	
-    public static function add(array $params)
+    public static function add(array $params): false|array
     {
         $sql = "INSERT INTO facets(facet_title, 
                         facet_description, 
@@ -241,7 +241,7 @@ class FacetModel extends Model
         return  DB::run("SELECT LAST_INSERT_ID() as facet_id")->fetch();
     }
 	
-    public static function deleteRelation(int $id, string $type)
+    public static function deleteRelation(int $id, string $type): void
     {
         $sql = "DELETE FROM facets_posts_relation WHERE relation_post_id = :id";
         if ($type == 'topic') {
@@ -250,31 +250,31 @@ class FacetModel extends Model
             $sql = "DELETE FROM facets_matching WHERE matching_parent_id = :id";
         }
 
-        return DB::run($sql, ['id' => $id]);
+        DB::run($sql, ['id' => $id]);
     }
 	
     // Let's check the uniqueness of slug depending on the type of tree
     // Проверим уникальность slug в зависимости от типа дерева
-    public static function uniqueSlug(string $facet_slug, string $facet_type)
+    public static function uniqueSlug(string $facet_slug, string $facet_type): false|array
     {
         $sql = "SELECT facet_slug, facet_type FROM facets WHERE facet_slug = :slug AND facet_type = :type";
 
         return DB::run($sql, ['slug' => $facet_slug, 'type' => $facet_type])->fetch();
     }
 
-    public static function rebuildPath(int $facet_id, string $facet_path)
+    public static function rebuildPath(int $facet_id, string $facet_path): void
     {
         $sql = "UPDATE facets SET facet_path = :facet_path WHERE facet_id = :facet_id";
 
-        return  DB::run($sql, ['facet_id' => $facet_id, 'facet_path' => $facet_path]);
+        DB::run($sql, ['facet_id' => $facet_id, 'facet_path' => $facet_path]);
     }	
 
     // Мягкое удаление фасета (скрывает из дерева и сборки, не удаляя данные)
-    public static function softDelete(int $facet_id, int $flag = 1)
+    public static function softDelete(int $facet_id, int $flag = 1): void
     {
         $sql = "UPDATE facets SET facet_is_deleted = :flag WHERE facet_id = :facet_id";
 
-        return  DB::run($sql, ['facet_id' => $facet_id, 'flag' => $flag]);
+        DB::run($sql, ['facet_id' => $facet_id, 'flag' => $flag]);
     }	
 	
     // Main trees
@@ -362,7 +362,7 @@ class FacetModel extends Model
         return DB::run($sql, ['facet_id' => $facet_id])->fetchAll();
     }
 
-	public static function checkSlug(string $slug)
+	public static function checkSlug(string $slug): false|array
 	{
         $sql = "SELECT facet_id, 
 						facet_title, 
@@ -377,7 +377,7 @@ class FacetModel extends Model
         return DB::run($sql, ['slug' => $slug])->fetch();
 	}
 
-    public static function getByPath(string $path)
+    public static function getByPath(string $path): false|array
     {
         $sql = "SELECT
                     facet_id,

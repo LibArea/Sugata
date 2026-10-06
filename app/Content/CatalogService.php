@@ -16,16 +16,31 @@ class CatalogService
 {
     public const PER_PAGE = 20;
 
+    /** Кэш дерева на время одного запроса/запуска (sidebar + sections используют один getTree). */
+    private static ?array $treeCache = null;
+
+    /**
+     * Дерево категорий из базы (только живые), с кэшем на запрос.
+     */
+    private static function tree(): array
+    {
+        if (self::$treeCache !== null) {
+            return self::$treeCache;
+        }
+
+        $tree = FacetModel::getTree('category', 'all');
+        $tree = array_values(array_filter($tree, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1));
+
+        return self::$treeCache = $tree;
+    }
+
     /**
      * Дерево категорий для сайдбара (из базы, только живые).
      * Подготавливает данные в контроллере — шаблон только рендерит.
      */
     public static function sidebar(): array
     {
-        $tree = FacetModel::getTree('category', 'all');
-        $tree = array_values(array_filter($tree, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1));
-
-        return Html::builder(null, 0, $tree);
+        return Html::builder(null, 0, self::tree());
     }
 
     /**
@@ -34,9 +49,7 @@ class CatalogService
      */
     public static function sections(): array
     {
-        $tree = FacetModel::getTree('category', 'all');
-        $tree = array_values(array_filter($tree, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1));
-        $nav  = Html::builder(null, 0, $tree);
+        $nav  = Html::builder(null, 0, self::tree());
 
         $sections = [];
         foreach ($nav as $i => $cat) {

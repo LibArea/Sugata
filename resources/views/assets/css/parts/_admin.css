@@ -319,6 +319,27 @@ body.admin-mode > .admin-topbar {
 }
 
 /* Список фактов под URL источника в таблице источников */
+.faq-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: var(--admin-surface);
+}
+
+.faq-row input,
+.faq-row textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-canvas);
+  color: var(--admin-ink);
+  font-size: 0.9rem;
+}
 .source-title {
   font-weight: 600;
   color: var(--admin-ink);

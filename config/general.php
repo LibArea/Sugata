@@ -26,7 +26,11 @@ return [
 
 	// Email of the site administration
 	// Email администрации сайта
-	'email'             => 'libarea@yandex.ru',
+	'email'             => 'lib@yandex.ru',
+	
+	// Yandex.Metrika counter ID (0 — отключена)
+	// Счётчик Яндекс.Метрики (0 — выключен)
+	'metrika_id'        => 0,
 
 	// Confirm sender (email must be configured on the server).
 	// Подтвердить отправителя (email должен быть настроен на сервере).

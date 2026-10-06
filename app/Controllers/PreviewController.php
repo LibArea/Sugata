@@ -87,6 +87,7 @@ class PreviewController extends Controller
                 'dir' => $dir,
                 'meta' => Meta::view($item, $facetPath, Parser::miniature($item['item_content'])),
                 'breadcrumb' => $breadcrumb,
+                'faq' => \App\Models\FaqModel::forItem((int)$item['item_id']),
                 'sideNav' => \App\Content\CatalogService::sidebar(),
                 'preview' => true,
             ]));

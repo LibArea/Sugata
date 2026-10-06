@@ -46,7 +46,45 @@ class Parser
             ->addExtension(new MentionsExtension(urlTemplate: '/@{username}', cssClass: 'green',))
             ->convert($content);
 
+        // Проставляем id заголовкам h2/h3 — для якорей в оглавлении
+        if ($type !== 'mini') {
+            $text = self::addHeadingAnchors($text);
+        }
+
         return $text;
+    }
+
+    /**
+     * Добавляет id = slug заголовкам h2/h3, если его ещё нет.
+     * Slug строится так же, как в toc.php (Slugify), чтобы якоря совпадали.
+     */
+    public static function addHeadingAnchors(string $html): string
+    {
+        $slugify = new \Cocur\Slugify\Slugify();
+
+        return preg_replace_callback(
+            '/<(h2|h3)([^>]*)>(.*?)<\/\1>/si',
+            function ($m) use ($slugify) {
+                $tag  = $m[1];
+                $attr = $m[2];
+                $body = $m[3];
+
+                // Уже есть id — не трогаем
+                if (preg_match('/\bid=/i', $attr)) {
+                    return $m[0];
+                }
+
+                $text = trim(html_entity_decode(strip_tags($body), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $slug = $slugify->slugify($text);
+
+                if ($slug === '') {
+                    return $m[0];
+                }
+
+                return '<' . $tag . $attr . ' id="' . $slug . '">' . $body . '</' . $tag . '>';
+            },
+            $html
+        );
     }
 
     public static function reminders($converter)

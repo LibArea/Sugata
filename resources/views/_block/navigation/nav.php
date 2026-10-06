@@ -17,6 +17,18 @@ $list = [
     'title' => 'app.structure',
   ],
   [
+    'id'    => 'sources',
+    'url'   => url('sources'),
+    'title' => 'app.sources',
+    'tl'    => 10,
+  ],
+  [
+    'id'    => 'broken_links',
+    'url'   => url('broken.links'),
+    'title' => 'app.broken_links',
+    'tl'    => 10,
+  ],
+  [
     'id'    => 'setting',
     'url'   => url('setting'),
     'title' => 'app.setting',

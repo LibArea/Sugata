@@ -34,6 +34,7 @@ class EditItemController extends Controller
                     'type'          => 'item.edit',
                     'user'          => UserModel::get($item['item_user_id'], 'id'),
                     'category_arr'  => ItemModel::getItemTopic($item['item_id']),
+                    'faq'           => \App\Models\FaqModel::forItem((int)$item['item_id']),
 
                 ]
             ],
@@ -58,6 +59,19 @@ class EditItemController extends Controller
         }
 
         ItemModel::edit($data);
+
+        // FAQ: пары вопрос/ответ из формы
+        $faqRows = [];
+        $questions = $data['faq_question'] ?? [];
+        $answers   = $data['faq_answer'] ?? [];
+        foreach ($questions as $i => $q) {
+            $faqRows[] = [
+                'question'   => trim((string)$q),
+                'answer'     => trim((string)($answers[$i] ?? '')),
+                'sort_order' => $i,
+            ];
+        }
+        \App\Models\FaqModel::replace((int)$data['item_id'], $faqRows);
 
         $facet_item = $data['facet_select'] ?? [];
         $topics     = json_decode($facet_item, true);

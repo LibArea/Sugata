@@ -113,7 +113,7 @@
         <?= insert('/_block/no-content', ['type' => 'small', 'text' => __('app.no_content'), 'icon' => 'info']); ?>
       <?php endif; ?>
 
-      <?= Html::pagination($data['pNum'], $data['pagesCount'], false, '/'); ?>
+      <?= Html::pagination($data['pNum'], $data['pagesCount'], false, $data['paginationUrl'] ?? '/mod/admin/facts/all'); ?>
     </div>
 
   <?php else : ?>

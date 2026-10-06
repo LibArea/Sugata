@@ -25,6 +25,7 @@ return [
     'upload_invalid_image'  => 'File is not an image (jpg, png, webp, gif)',
     'sources_checked'       => 'Sources checked: {checked}. OK: {ok}, broken: {broken}, timeout: {timeout}, left: {left}',
     'sitemap_built'         => 'Sitemap.xml built: {total} URLs',
+    'broken_links_checked'  => 'Checked. Broken links found: {count}',
     'successfully'          => 'Successfully!',
     'yes_repost'            => 'Complaint sent!',
     'post_added'            => 'Post added!',
