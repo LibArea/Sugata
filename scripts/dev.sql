@@ -165,6 +165,30 @@ CREATE TABLE `article_sources` (
   UNIQUE KEY `uk_article_source` (`article_id`,`source_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+DROP TABLE IF EXISTS `broken_links`;
+CREATE TABLE `broken_links` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `item_id` int unsigned NOT NULL DEFAULT '0',
+  `article_title` varchar(250) COLLATE utf8mb4_general_ci DEFAULT '',
+  `link` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
+  `word` varchar(250) COLLATE utf8mb4_general_ci DEFAULT '',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_item` (`item_id`),
+  KEY `idx_link` (`link`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DROP TABLE IF EXISTS `item_faq`;
+CREATE TABLE `item_faq` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `item_id` int unsigned NOT NULL,
+  `question` text COLLATE utf8mb4_general_ci NOT NULL,
+  `answer` text COLLATE utf8mb4_general_ci NOT NULL,
+  `sort_order` tinyint unsigned DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_item` (`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 DROP TABLE IF EXISTS `search_logs`;
 CREATE TABLE `search_logs` (
   `id` int NOT NULL AUTO_INCREMENT,
