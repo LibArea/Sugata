@@ -29,7 +29,11 @@ class CatalogService
         }
 
         $tree = FacetModel::getTree('category', 'all');
-        $tree = array_values(array_filter($tree, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1));
+        $tree = array_values(array_filter(
+            $tree,
+            fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1
+                && trim($f['facet_path'] ?? '', '/') !== 'info' // служебная — не показываем
+        ));
 
         return self::$treeCache = $tree;
     }
@@ -54,9 +58,6 @@ class CatalogService
         $sections = [];
         foreach ($nav as $i => $cat) {
             if ($cat['level'] != 0) continue;
-
-            // Служебная категория "info" на главной не выводится
-            if (trim($cat['facet_path'], '/') === 'info') continue;
 
             $children = [];
             for ($j = $i + 1; $j < count($nav) && $nav[$j]['level'] > 0; $j++) {

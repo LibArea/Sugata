@@ -47,6 +47,24 @@ class FormModel extends Model
                 }
                 break;
 
+            case 'fact':
+                $field_id = 'item_id';
+                $field_name = 'item_title';
+                $sql = "SELECT i.item_id, i.item_title, i.item_slug, rel.facet_list
+                        FROM items i
+                        LEFT JOIN (
+                            SELECT
+                                relation_item_id,
+                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                            FROM facets
+                            LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                            GROUP BY relation_item_id
+                        ) AS rel ON rel.relation_item_id = i.item_id
+                        WHERE i.item_title LIKE :item_title
+                          AND i.item_published = 1 AND i.item_is_deleted = 0 AND i.item_type = 'fact'
+                        ORDER BY i.item_id DESC LIMIT 200";
+                break;
+
             case 'association':
 				$field_id = 'id';
                 $field_name = 'name';
@@ -104,10 +122,21 @@ class FormModel extends Model
 
         $response = [];
         foreach ($lists as $list) {
-            $response[] = array(
+            $row = array(
                 "id"    => $list[$field_id],
                 "value" => $list[$field_name],
             );
+
+            // Для фактов добавляем готовый URL: /path/slug.html
+            if ($type == 'fact' && !empty($list['facet_list']) && !empty($list['item_slug'])) {
+                $chunks = array_chunk(preg_split('/(@)/', (string)$list['facet_list']), 4);
+                $path = trim($chunks[0][2] ?? '', '/');
+                if ($path !== '') {
+                    $row['url'] = '/' . $path . '/' . $list['item_slug'] . '.html';
+                }
+            }
+
+            $response[] = $row;
         }
 
         return json_encode($response);

@@ -32,6 +32,10 @@ return [
 	// Счётчик Яндекс.Метрики (0 — выключен)
 	'metrika_id'        => 0,
 
+	// Минимальная длина контента (символов) для «Темы дня»
+	// Minimum content length (chars) for "Fact of the Day"
+	'fact_day_min_length' => 1000,
+
 	// Confirm sender (email must be configured on the server).
 	// Подтвердить отправителя (email должен быть настроен на сервере).
 	'confirm_sender'    =>  false,

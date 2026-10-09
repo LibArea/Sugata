@@ -24,6 +24,16 @@ class EditItemController extends Controller
             $this->container->redirect()->to(url('homepage'), status: 303);
         }
 
+        // Готовый URL факта (для копирования и вставки в другие статьи)
+        $facetPath = '';
+        if (!empty($item['facet_list'])) {
+            $chunks = array_chunk(preg_split('/(@)/', (string)$item['facet_list']), 4);
+            $facetPath = trim($chunks[0][2] ?? '', '/');
+        }
+        $itemUrl = ($facetPath !== '' && !empty($item['item_slug']))
+            ? '/' . $facetPath . '/' . $item['item_slug'] . '.html'
+            : '';
+
         render(
             '/content/items/edit',
             [
@@ -35,6 +45,7 @@ class EditItemController extends Controller
                     'user'          => UserModel::get($item['item_user_id'], 'id'),
                     'category_arr'  => ItemModel::getItemTopic($item['item_id']),
                     'faq'           => \App\Models\FaqModel::forItem((int)$item['item_id']),
+                    'item_url'      => $itemUrl,
 
                 ]
             ],

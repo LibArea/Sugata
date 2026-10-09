@@ -525,7 +525,130 @@ class ItemModel extends Model
 
         return array_values($result);
     }
-	
+
+    /**
+     * «Тема дня»: большой факт (контент >= минимальной длины) с фото.
+     * Выбирается случайно из подходящих; фото — миниатюра или первая картинка контента.
+     */
+    public static function getFeaturedBig(): false|array
+    {
+        $minLength = (int)config('general', 'fact_day_min_length');
+        if ($minLength <= 0) {
+            $minLength = 1000;
+        }
+
+        $range = DB::run(
+            "SELECT MIN(item_id) AS min_id, MAX(item_id) AS max_id
+             FROM items
+             WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+               AND CHAR_LENGTH(item_content) >= :min",
+            ['min' => $minLength]
+        )->fetch();
+
+        $min = (int)($range['min_id'] ?? 0);
+        $max = (int)($range['max_id'] ?? 0);
+        if ($max <= $min) {
+            // Нет «больших» — любой с фото, затем любой опубликованный
+            return static::featuredFallback(100000);
+        }
+
+        for ($i = 0; $i < 40; $i++) {
+            $rand = random_int($min, $max);
+
+            $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
+                           item_date, item_modified, rel.facet_list
+                    FROM items
+                    LEFT JOIN (
+                        SELECT
+                            relation_item_id,
+                            GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                        FROM facets
+                        LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                        GROUP BY relation_item_id
+                    ) AS rel ON rel.relation_item_id = item_id
+                    WHERE item_id >= :rand
+                      AND item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                      AND CHAR_LENGTH(item_content) >= :min
+                      AND (item_thumb_img IS NOT NULL AND item_thumb_img <> '')
+                    ORDER BY item_id ASC
+                    LIMIT 1";
+
+            $fact = DB::run($sql, ['rand' => $rand, 'min' => $minLength])->fetch();
+            if (!empty($fact)) {
+                return $fact;
+            }
+        }
+
+        // Перебрали случайные точки — берём любой большой (первый попавшийся)
+        return static::featuredFallback($minLength);
+    }
+
+    // Подстраховка: если нет больших с фото — любой большой, затем любой с фото
+    protected static function featuredFallback(int $minLength): false|array
+    {
+        $types = [
+            "CHAR_LENGTH(item_content) >= :min AND (item_thumb_img IS NOT NULL AND item_thumb_img <> '')",
+            "CHAR_LENGTH(item_content) >= :min",
+            "(item_thumb_img IS NOT NULL AND item_thumb_img <> '')",
+            "1",
+        ];
+
+        foreach ($types as $cond) {
+            $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
+                           item_date, item_modified, rel.facet_list
+                    FROM items
+                    LEFT JOIN (
+                        SELECT
+                            relation_item_id,
+                            GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                        FROM facets
+                        LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                        GROUP BY relation_item_id
+                    ) AS rel ON rel.relation_item_id = item_id
+                    WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                      AND $cond
+                    ORDER BY item_id DESC
+                    LIMIT 1";
+
+            $params = str_contains($cond, ':min') ? ['min' => $minLength] : [];
+            $fact = DB::run($sql, $params)->fetch();
+            if (!empty($fact)) {
+                return $fact;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * «Знаете ли вы?»: несколько коротких фактов (контент < минимальной длины),
+     * случайные, для аккордеона на главной.
+     */
+    public static function getFactsDidYouKnow(int $limit = 5): false|array
+    {
+        $minLength = (int)config('general', 'fact_day_min_length');
+        if ($minLength <= 0) {
+            $minLength = 1000;
+        }
+
+        $sql = "SELECT item_id, item_title, item_slug, item_content, rel.facet_list
+                FROM items
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = item_id
+                WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                  AND CHAR_LENGTH(item_content) < :min
+                ORDER BY RAND()
+                LIMIT :limit";
+
+        return DB::run($sql, ['min' => $minLength, 'limit' => $limit])->fetchAll();
+    }
+
     /**
      * Topics by reference 
      * Темы по ссылке

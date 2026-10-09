@@ -33,6 +33,8 @@ class PreviewController extends Controller
         $this->response()->setBody(view('/templates/home.php', [
             'meta' => Meta::home(),
             'items' => $items,
+            'featuredBig' => ItemModel::getFeaturedBig(),
+            'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
             'sections' => \App\Content\CatalogService::sections(),
             'preview' => true,
         ]));

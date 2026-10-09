@@ -68,7 +68,7 @@ class BuildController extends Controller
 
 		foreach ($sourceModel->unchecked() as $source) {
 			$result = $sourceModel->checkUrl($source['url']);
-			$sourceModel->updateResult((int)$source['id'], $result['status'], $result['code']);
+			$sourceModel->updateResult((int)$source['id'], $result['status'], $result['code'], (string)($result['title'] ?? ''));
 			$checked++;
 		}
 
@@ -274,6 +274,8 @@ class BuildController extends Controller
 		$temp_home =  view('/templates/home.php', [
 			'meta' => Meta::home(),
 			'items' => $items,
+			'featuredBig' => ItemModel::getFeaturedBig(),
+			'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
 			'sections' => CatalogService::sections(),
 		]);
 		file_put_contents($this->path . '/index.html', $temp_home);
