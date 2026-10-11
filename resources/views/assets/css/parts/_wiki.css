@@ -404,6 +404,82 @@ body.wiki-preview aside {
   text-decoration: underline;
 }
 
+/* ========== Best fact (large hero card) ========== */
+.wiki-best {
+  margin-bottom: var(--space-6);
+}
+
+.wiki-best__wrap {
+  display: flex;
+  gap: var(--space-5);
+  align-items: stretch;
+  border: 0;
+  border-radius: var(--rounded);
+  overflow: hidden;
+  background-color: var(--white);
+}
+
+.wiki-best__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.wiki-best__label {
+  display: inline-block;
+  align-self: flex-start;
+  margin-bottom: var(--space-2);
+  padding: 0.15rem 0.6rem;
+  background-color: var(--nav-bg-active);
+  border-radius: var(--rounded-full);
+  color: var(--nav-color-active);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.wiki-best__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-2xl);
+  line-height: 1.25;
+}
+
+.wiki-best__title a {
+  color: var(--black);
+  text-decoration: none;
+}
+
+.wiki-best__title a:hover {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+.wiki-best__text {
+  color: var(--gray);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+.wiki-best__text > :first-child {
+  margin-top: 0;
+}
+
+.wiki-best__text p {
+  margin: 0 0 var(--space-2);
+}
+
+.wiki-best .wiki-featured__more {
+  margin-top: auto;
+}
+
+@media (max-width: 700px) {
+  .wiki-best__wrap {
+    flex-direction: column;
+  }
+}
+
 /* ========== Section heading (home, lists) ========== */
 .wiki-section-title {
   margin: var(--space-6) 0 var(--space-4);
@@ -452,6 +528,15 @@ body.wiki-preview aside {
   gap: var(--space-4);
   padding: var(--space-4) 0;
   border-bottom: 1px solid var(--form-border-color);
+}
+
+/* Связанные факты/статьи: акцентный цветной бордюр слева */
+.wiki-fact-item--related {
+  padding-left: var(--space-4);
+  border-left: 4px solid var(--green);
+}
+.wiki-fact-item--related:hover {
+  border-left-color: var(--blue);
 }
 
 .wiki-fact-item__body {
@@ -504,6 +589,75 @@ body.wiki-preview aside {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ========== Admin preview bar ========== */
+.wiki-admin-preview-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 8px 16px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  color: #5b3a00;
+  background: linear-gradient(90deg, #ffe08a, #ffd166);
+  border-bottom: 2px solid #f0b429;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+body.dark .wiki-admin-preview-bar {
+  color: #ffe9b8;
+  background: linear-gradient(90deg, #7a5a10, #8a6a16);
+  border-bottom-color: #f0b429;
+}
+
+/* ========== Article list (journal style) ========== */
+.wiki-article-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.wiki-article-item {
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--form-border-color);
+}
+
+.wiki-article-item:first-child {
+  padding-top: var(--space-4);
+}
+
+.wiki-article-item__title {
+  margin: 0 0 var(--space-2);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.wiki-article-item__title a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.wiki-article-item__title a:hover {
+  color: var(--link-color-hover);
+  text-decoration: underline;
+}
+
+.wiki-article-item__excerpt {
+  margin: 0 0 var(--space-3);
+  color: var(--gray);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+.wiki-article-item__meta {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
 }
 
 /* ========== Tag (category label) ========== */
@@ -599,6 +753,19 @@ body.wiki-preview aside {
 .wiki-mb0 { margin-bottom: 0; }
 .wiki-mb2 { margin-bottom: var(--space-2); }
 .wiki-mb4 { margin-bottom: var(--space-4); }
+
+/* Визуально скрытый, но доступный скринридеру элемент (аналог sr-only) */
+.wiki-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 /* ========== Responsive ========== */
 @media (max-width: 900px) {

@@ -33,6 +33,7 @@ return [
     'command_executed'      => 'Command completed',
     'cover_removed'         => 'Cover removed',
     'select_topic'          => 'Choose a theme',
+    'facet_kind_mismatch'   => 'Category does not match the selected type: facts go to "Facts", articles go to "Articles"',
     'repeat_url'            => 'The theme URL already exists',
     'url_gaps'              => 'Spaces are not allowed in the URL',
     'pass_match_err'        => 'Passwords do not match',

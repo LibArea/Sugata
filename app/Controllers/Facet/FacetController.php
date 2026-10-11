@@ -16,7 +16,7 @@ class FacetController extends Controller
         $type = 'category';
 
         render(
-            '/content/facets/structure',
+            '/admin/pages/facets/structure',
             [
                 'meta'  => Meta::get(__('app.structure')),
                 'data'  => [

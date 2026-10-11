@@ -318,6 +318,64 @@ body.admin-mode > .admin-topbar {
   word-break: break-word;
 }
 
+/* Модалка поиска факта для вставки ссылки */
+.fact-search-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  align-items: start;
+  justify-content: center;
+  padding: 10vh 1rem 1rem;
+  background: rgb(0 0 0 / 0.4);
+}
+
+.fact-search-modal.block {
+  display: flex;
+}
+
+.fact-search-modal__box {
+  width: 100%;
+  max-width: 560px;
+  padding: 1rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 13px;
+  box-shadow: var(--admin-shadow);
+}
+
+.fact-search-modal__box input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 9px;
+  background: var(--admin-canvas);
+  color: var(--admin-ink);
+}
+
+.fact-search-results {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.fact-search-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.25rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--admin-ink);
+  cursor: pointer;
+}
+
+.fact-search-item:hover {
+  background: var(--admin-accent-soft);
+  color: var(--admin-accent);
+}
+
 /* Список фактов под URL источника в таблице источников */
 .faq-row {
   display: flex;
@@ -516,6 +574,72 @@ body.dark.admin-mode .admin-status {
   height: 18px;
   margin: 0;
   accent-color: var(--admin-accent);
+}
+
+/* Переключатель «Факт / Статья» — компактный segmented control */
+.kind-toggle {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: color-mix(in srgb, var(--admin-ink) 6%, transparent);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  max-width: 100%;
+}
+
+.kind-toggle__item {
+  margin: 0;
+  padding: 0;
+}
+
+.kind-toggle__item input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kind-toggle__label {
+  display: inline-block;
+  padding: 0.45rem 1.1rem;
+  border-radius: 7px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--admin-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.kind-toggle__item input[type="radio"]:checked + .kind-toggle__label {
+  background: var(--admin-canvas);
+  color: var(--admin-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.kind-toggle__item input[type="radio"]:focus-visible + .kind-toggle__label {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 1px;
+}
+
+.kind-toggle__item input[type="radio"]:disabled + .kind-toggle__label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kind-static {
+  display: inline-block;
+  padding: 0.45rem 1.1rem;
+  background: color-mix(in srgb, var(--admin-accent) 12%, transparent);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  color: var(--admin-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
 .admin-edit-form button[type="submit"] {

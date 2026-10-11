@@ -48,20 +48,34 @@ class CatalogService
     }
 
     /**
-     * Категории для центральной страницы (раздел «Категория»): корневые + дети уровня 1.
-     * Из базы, только живые. Похоже на формат config('general','categories').
+     * Категории для центральной страницы (раздел «Категория»).
+     * Основной контейнер — facts (его дети = темы уровня 1).
+     * Статьи (articles) на главной не выводим — у них свой корень.
      */
     public static function sections(): array
     {
         $nav  = Html::builder(null, 0, self::tree());
 
+        // Определяем корень-контейнер
+        $rootPath = null;
+        foreach ($nav as $c) {
+            if ($c['level'] == 0 && ($c['facet_path'] === 'facts' || trim($c['facet_path'], '/') === 'facts')) {
+                $rootPath = 'facts';
+                break;
+            }
+        }
+
+        // Если корня-контейнера нет — секции = все корни
+        $sectionLevel = ($rootPath === null) ? 0 : 1;
+
         $sections = [];
         foreach ($nav as $i => $cat) {
-            if ($cat['level'] != 0) continue;
+            if ($cat['level'] != $sectionLevel) continue;
 
+            // Подкатегории — прямые дети уровня sectionLevel+1
             $children = [];
-            for ($j = $i + 1; $j < count($nav) && $nav[$j]['level'] > 0; $j++) {
-                if ($nav[$j]['level'] == 1 && $nav[$j]['facet_parent_id'] == $cat['facet_id']) {
+            for ($j = $i + 1; $j < count($nav) && $nav[$j]['level'] > $sectionLevel; $j++) {
+                if ($nav[$j]['level'] == $sectionLevel + 1 && $nav[$j]['facet_parent_id'] == $cat['facet_id']) {
                     $children[] = [
                         'title' => $nav[$j]['facet_title'],
                         'path'  => trim($nav[$j]['facet_path'], '/'),
@@ -69,8 +83,6 @@ class CatalogService
                 }
             }
 
-            // Описание выводим только если у категории нет подкатегорий,
-            // иначе оно будет дублировать смысл списка разделов.
             $help = (empty($children)) ? trim((string)($cat['facet_description'] ?? '')) : '';
 
             $sections[] = [
@@ -98,11 +110,11 @@ class CatalogService
 
         foreach ($childrens as $id => $row) {
             $childrenFacet = FacetModel::childrenForFeed($row['facet_id']);
-            $childrens[$id]['facet_count'] = ItemModel::feedItemCount($childrenFacet, $row['facet_id']);
+            $childrens[$id]['facet_count'] = ItemModel::feedItemCount($childrenFacet, $row['facet_id'], 'all_site');
         }
 
-        $items = ItemModel::feedItem($childrenForFeed, $facetId, $page, self::PER_PAGE, 'all');
-        $total = ItemModel::feedItemCount($childrenForFeed, $facetId, 'all');
+        $items = ItemModel::feedItem($childrenForFeed, $facetId, $page, self::PER_PAGE, 'all_site');
+        $total = ItemModel::feedItemCount($childrenForFeed, $facetId, 'all_site');
 
         // Служебные страницы (item_type = page) выводим наравне с фактами,
         // иначе раздел "Информация" (info) останется пустым.

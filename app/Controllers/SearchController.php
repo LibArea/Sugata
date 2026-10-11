@@ -126,7 +126,7 @@ class SearchController extends Controller
         }
 
         return render(
-            '/content/search',
+            '/admin/pages/search',
             [
                 'meta'  => Meta::get(__('search.title')),
                 'data'  => [

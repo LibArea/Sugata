@@ -206,6 +206,11 @@ class FacetModel extends Model
 	
     public static function edit(array $params): void
     {
+        $pathSet = '';
+        if (array_key_exists('facet_path', $params)) {
+            $pathSet = ', facet_path = :facet_path';
+        }
+
         $sql = "UPDATE facets 
                     SET facet_title         = :facet_title,  
                     facet_description       = :facet_description, 
@@ -216,29 +221,56 @@ class FacetModel extends Model
                     facet_post_related      = :facet_post_related, 
                     facet_type              = :facet_type,
 					facet_is_comments 		= :facet_is_comments
+					$pathSet
                         WHERE facet_id      = :facet_id";
+
+        if (!array_key_exists('facet_path', $params)) {
+            unset($params['facet_path']);
+        }
 
         DB::run($sql, $params);
     }
 	
     public static function add(array $params): false|array
     {
+        $parentId = (int)($params['facet_parent_id'] ?? 0);
+
         $sql = "INSERT INTO facets(facet_title, 
                         facet_description, 
                         facet_slug, 
                         facet_img,
                         facet_user_id,
-                        facet_type) 
+                        facet_type,
+                        facet_path) 
                             VALUES(:facet_title, 
                                 :facet_description, 
                                 :facet_slug, 
                                 :facet_img, 
                                 :facet_user_id,
-                                :facet_type)";
+                                :facet_type,
+                                :facet_path)";
 
-        DB::run($sql, $params);
+        DB::run($sql, [
+            'facet_title'       => $params['facet_title'],
+            'facet_description' => $params['facet_description'],
+            'facet_slug'        => $params['facet_slug'],
+            'facet_img'         => $params['facet_img'],
+            'facet_user_id'     => $params['facet_user_id'],
+            'facet_type'        => $params['facet_type'],
+            'facet_path'        => $params['facet_path'],
+        ]);
 
-        return  DB::run("SELECT LAST_INSERT_ID() as facet_id")->fetch();
+        $id = DB::run("SELECT LAST_INSERT_ID() as facet_id")->fetch()['facet_id'];
+
+        // Связь с родителем (если задан)
+        if ($parentId > 0) {
+            DB::run(
+                "INSERT INTO facets_relation (facet_parent_id, facet_chaid_id) VALUES (:p, :c)",
+                ['p' => $parentId, 'c' => (int)$id]
+            );
+        }
+
+        return ['facet_id' => $id];
     }
 	
     public static function deleteRelation(int $id, string $type): void
@@ -260,6 +292,58 @@ class FacetModel extends Model
         $sql = "SELECT facet_slug, facet_type FROM facets WHERE facet_slug = :slug AND facet_type = :type";
 
         return DB::run($sql, ['slug' => $facet_slug, 'type' => $facet_type])->fetch();
+    }
+
+    // Путь родителя (facet_path), пусто если нет родителя
+    public static function getParentPath(?int $parent_id): string
+    {
+        if (!$parent_id) {
+            return '';
+        }
+        $row = DB::run("SELECT facet_path FROM facets WHERE facet_id = :id", ['id' => $parent_id])->fetch();
+        return trim((string)($row['facet_path'] ?? ''), '/');
+    }
+
+    // ID родителя фасета (0 если корень)
+    public static function getParentId(int $facet_id): int
+    {
+        $row = DB::run("SELECT facet_parent_id FROM facets_relation WHERE facet_chaid_id = :id LIMIT 1", ['id' => $facet_id])->fetch();
+        return (int)($row['facet_parent_id'] ?? 0);
+    }
+
+    // Смена родителя фасета: базовая (родитель=0) — убираем связь, иначе обновляем/создаём
+    public static function setParent(int $facet_id, int $parent_id): void
+    {
+        if ($parent_id === $facet_id) {
+            return; // нельзя сделать себя своим родителем
+        }
+
+        DB::run("DELETE FROM facets_relation WHERE facet_chaid_id = :id", ['id' => $facet_id]);
+
+        if ($parent_id > 0) {
+            DB::run(
+                "INSERT INTO facets_relation (facet_parent_id, facet_chaid_id) VALUES (:p, :c)",
+                ['p' => $parent_id, 'c' => $facet_id]
+            );
+        }
+    }
+
+    // Уникальность по полному пути (ветвь + slug) — одинаковый slug в разных ветках допустим
+    public static function uniquePath(string $facet_path, string $facet_type = 'category'): false|array
+    {
+        $sql = "SELECT facet_path FROM facets WHERE facet_path = :path AND facet_type = :type AND facet_is_deleted = 0 LIMIT 1";
+
+        return DB::run($sql, ['path' => trim($facet_path, '/'), 'type' => $facet_type])->fetch();
+    }
+
+    // Уникальность пути, исключая сам фасет (для редактирования)
+    public static function uniquePathExcept(string $facet_path, string $facet_type, int $exclude_id): false|array
+    {
+        $sql = "SELECT facet_id FROM facets
+                WHERE facet_path = :path AND facet_type = :type AND facet_is_deleted = 0 AND facet_id <> :id
+                LIMIT 1";
+
+        return DB::run($sql, ['path' => trim($facet_path, '/'), 'type' => $facet_type, 'id' => $exclude_id])->fetch();
     }
 
     public static function rebuildPath(int $facet_id, string $facet_path): void
@@ -397,4 +481,24 @@ class FacetModel extends Model
 
         return DB::run($sql, ['path' => $path])->fetch();
 	}
+
+    /**
+     * Получить выбранные категории по id (для проверки соответствия типу).
+     *
+     * @param int[] $ids
+     */
+    public static function getFacetsByIds(array $ids): false|array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (empty($ids)) {
+            return [];
+        }
+
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "SELECT facet_id, facet_path, facet_type, facet_is_deleted
+                FROM facets
+                WHERE facet_type = 'category' AND facet_id IN ($in)";
+
+        return DB::run($sql, $ids)->fetchAll();
+    }
 }

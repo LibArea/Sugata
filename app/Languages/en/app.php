@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /*
 * The following language strings are used to translate the site core 
@@ -23,6 +23,9 @@ return [
 	'facts'				=> 'Facts',
 	'latest_facts'		=> 'Latest facts',
 	'add_fact'			=> 'Add fact',
+	'article'			=> 'Article',
+	'articles'			=> 'Articles',
+	'add_article'		=> 'Add article',
 	'restore'			=> 'Restore',
 	'edit_fact'			=> 'Change fact',
 	'soft'              => 'Software',
@@ -104,6 +107,9 @@ return [
 	'faq_remove'	 => 'Remove',
 	'faq_help'		 => 'Question-answer pairs are shown on the fact page as a collapsible list.',
 	'item_url_copy'	 => 'Link to this fact',
+	'parent_category'	 => 'Parent category',
+	'parent_category_help' => 'Where to place the new category in the tree',
+	'root'			 => 'Root',
 	'copy'			 => 'Copy',
 	'item_url_copy_help' => 'Copy and paste into another article: [text](...)',
 	'fact_link'		 => 'Link to fact',
@@ -137,24 +143,39 @@ return [
 	'featured_fact'		=> 'Featured fact',
 	'fact_of_the_day'	=> 'Fact of the day',
 	'did_you_know'		=> 'Did you know?',
+	'best_fact'			=> 'Best fact',
+	'best_facts'		=> 'Best facts',
+	'best_facts_page'	=> 'Best facts',
 	'welcome_title'		=> 'Welcome to the Fact Archive',
 	'random_fact'		=> 'Random fact',
 	'home_description'	=> 'An archive of verified facts across fields of knowledge: science, technology, history, culture and more.',
 	'no_thumb' 			=> 'There is no photo to prove the fact',
 
 	'no_content' 		=> 'There is no content...',
-	'all_facts' 		=> 'Все',
+	'all_facts' 		=> 'All facts',
 	'my_facts' 			=> 'Мои факты',
 	'moderation'		=> 'Moderation',
 	'page'				=> 'Page',
 	'pages'				=> 'Pages',
+	'articles'			=> 'Articles',
 	'type'				=> 'Type',
+	'fact_kind_help'	=> 'Short fact in the "Facts" section.',
+	'article_kind_help'	=> 'Full article in the "Articles" section.',
+	'related_items'		=> 'Related',
+	'related_items_help'=> 'Start typing an article title to link',
+	'related_articles'	=> 'Related articles',
+	'related_facts'		=> 'Related facts',
 
 	/* Date and time + events */
 	'months'        => ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+	'categories_home' => 'Categories of facts',
+	'admin_preview_bar' => 'Admin preview',
+	'view_site' => 'View site',
+	'static_site' => 'Static site',
 	'today'         => 'Today',
 	'yesterday'     => 'Yesterday',
 	
 	'meta_description'	=> 'Description for search engines...',
 	'information' 		=> 'Short description...',
 ];
+

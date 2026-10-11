@@ -50,7 +50,7 @@ class BuildController extends Controller
 	public function tools()
 	{
 		render(
-			'/content/tools',
+			'/admin/pages/tools',
 			[
 				'meta'  => Meta::get(__('app.tools')),
 				'data'  => [
@@ -119,6 +119,19 @@ class BuildController extends Controller
 		$xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n" . $urls . "</urlset>";
 
 		file_put_contents($this->path . '/sitemap.xml', $xml);
+
+		// без редиректа — вызывается и из инкрементальной сборки
+	}
+
+	// Кнопка в админке: пересобрать sitemap и показать сообщение
+	public function sitemapAction(): void
+	{
+		$base = config('general', 'url_html');
+		$facets = FacetModel::getTree('category', 'all');
+		$facets = array_filter($facets, fn($f) => (int)($f['facet_is_deleted'] ?? 0) !== 1);
+		$items = ItemModel::getItemAll();
+
+		$this->buildSitemap();
 
 		Msg::redirect(__('msg.sitemap_built', ['total' => count($items) + count($facets) + 1]), 'success', url('tools'));
 	}
@@ -264,6 +277,35 @@ class BuildController extends Controller
 	}
 
 
+	// Страница «Лучшие факты» (/best/index.html) с пагинацией
+	public function buildBestPage(): void
+	{
+		$sideNav = CatalogService::sidebar();
+		$limit   = 20;
+		$total   = ItemModel::countBest();
+		$pages   = max(1, (int)ceil($total / $limit));
+		$dirPath = $this->path . 'best';
+
+		if (!is_dir($dirPath)) {
+			mkdir($dirPath, 0755, true);
+		}
+
+		for ($page = 1; $page <= $pages; $page++) {
+			$items = ItemModel::getBestFacts($page, $limit);
+			$file  = ($page === 1) ? $dirPath . '/index.html' : $dirPath . '/page-' . $page . '.html';
+
+			file_put_contents($file, view('/site/pages/best.php', [
+				'items'      => $items,
+				'total'      => $total,
+				'pagesCount' => $pages,
+				'pNum'       => $page,
+				'sideNav'    => $sideNav,
+				'meta'       => Meta::get(__('app.best_facts_page')),
+				'preview'    => false,
+			]));
+		}
+	}
+
 	// Строим центральную страницу и части страниц, например: footer
 	public function buildHtmlHome()
 	{
@@ -271,17 +313,18 @@ class BuildController extends Controller
 
 		Html::pageNumber();
 
-		$temp_home =  view('/templates/home.php', [
+		$temp_home =  view('/site/pages/home.php', [
 			'meta' => Meta::home(),
 			'items' => $items,
 			'featuredBig' => ItemModel::getFeaturedBig(),
+			'bestFact' => ItemModel::getBestFact(),
 			'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
 			'sections' => CatalogService::sections(),
 		]);
 		file_put_contents($this->path . '/index.html', $temp_home);
 		
 		// Переносим общий подвал
-		$temp_footer = view('/templates/footer.php');
+		$temp_footer = view('/site/layouts/footer.php');
 		file_put_contents($this->path . '/assets/footer.shtml',$temp_footer);
 
 		// Случайные факты для кнопки «Случайный факт»
@@ -338,8 +381,6 @@ class BuildController extends Controller
 		// Создает домашнюю страницу и css
 		$this->buildHtmlHome();
 
-		$temp_dit =   '/templates/index.php';
-
 		$facets = FacetModel::getTree('category', 'all');
 
 		// Удалённые категории не строим (в базе остаются, но в статику не попадают)
@@ -348,47 +389,67 @@ class BuildController extends Controller
 		$sideNav = CatalogService::sidebar();
 
 		foreach ($facets as $facet) {
+			$this->rebuildCategory((int)$facet['facet_id'], $sideNav);
+		}
 
-			$tree = FacetModel::breadcrumb($facet['facet_id']);
-			$breadcrumb = Html::breadcrumbDir($tree, 'static');
-			$meta = Meta::category($facet);
-			$dirPath = $this->path . $facet['facet_path'];
+		// Отдельные страницы-подборки
+		$this->buildBestPage();
 
-			// Автосоздание папки категории (ранее — отдельная кнопка «Создание DIR»)
-			if (!is_dir($dirPath)) {
-				mkdir($dirPath, 0755, true);
-			}
+		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
+	}
 
-			// Страница 1 = index.html
-			$catalog = CatalogService::data((int)$facet['facet_id'], 1, 'static');
-			file_put_contents($dirPath . '/index.html', view($temp_dit, [
+	// Пересборка одной категории: index.html + page-N.html (+ автосоздание папки)
+	protected function rebuildCategory(int $facetId, array $sideNav): void
+	{
+		$facet = FacetModel::get($facetId, 'id');
+		if (empty($facet) || (int)($facet['facet_is_deleted'] ?? 0) === 1) {
+			return;
+		}
+
+		$temp_dit = '/site/pages/facts/index.php';
+
+		$tree = FacetModel::breadcrumb($facetId);
+		$breadcrumb = Html::breadcrumbDir($tree, 'static');
+		$meta = Meta::category($facet);
+		$dirPath = $this->path . $facet['facet_path'];
+
+		// Категория статей (корень articles) — свой шаблон списка
+		if (str_starts_with(trim((string)$facet['facet_path'], '/'), 'articles/') || trim((string)$facet['facet_path'], '/') === 'articles') {
+			$temp_dit = '/site/pages/articles/index.php';
+		}
+
+		// Автосоздание папки категории
+		if (!is_dir($dirPath)) {
+			mkdir($dirPath, 0755, true);
+		}
+
+		// Страница 1 = index.html
+		$catalog = CatalogService::data($facetId, 1, 'static');
+		file_put_contents($dirPath . '/index.html', view($temp_dit, [
+			'items' =>  $catalog['items'],
+			'breadcrumb' => $breadcrumb,
+			'childrens' => $catalog['childrens'],
+			'facet' => $facet,
+			'meta' => $meta,
+			'pNum' => 1,
+			'pagesCount' => $catalog['pagesCount'],
+			'sideNav' => $sideNav,
+		]));
+
+		// Страницы 2..N = page-N.html
+		for ($page = 2; $page <= $catalog['pagesCount']; $page++) {
+			$catalog = CatalogService::data($facetId, $page, 'static');
+			file_put_contents($dirPath . '/page-' . $page . '.html', view($temp_dit, [
 				'items' =>  $catalog['items'],
 				'breadcrumb' => $breadcrumb,
 				'childrens' => $catalog['childrens'],
 				'facet' => $facet,
 				'meta' => $meta,
-				'pNum' => 1,
+				'pNum' => $page,
 				'pagesCount' => $catalog['pagesCount'],
 				'sideNav' => $sideNav,
 			]));
-
-			// Страницы 2..N = page-N.html
-			for ($page = 2; $page <= $catalog['pagesCount']; $page++) {
-				$catalog = CatalogService::data((int)$facet['facet_id'], $page, 'static');
-				file_put_contents($dirPath . '/page-' . $page . '.html', view($temp_dit, [
-					'items' =>  $catalog['items'],
-					'breadcrumb' => $breadcrumb,
-					'childrens' => $catalog['childrens'],
-					'facet' => $facet,
-					'meta' => $meta,
-					'pNum' => $page,
-					'pagesCount' => $catalog['pagesCount'],
-					'sideNav' => $sideNav,
-				]));
-			}
 		}
-
-		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
 	public function buildHtmlView(): void
@@ -405,14 +466,15 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
-	// Инкрементальная сборка: перегенерирует только те факты, чей HTML
-	// отсутствует или старше, чем дата изменения записи (item_modified).
+	// Инкрементальная сборка: перегенерирует изменённые факты и всё, что от них зависит
+	// (категории, главная, sitemap, random-facts).
 	public function buildHtmlIncremental(): void
 	{
 		$items = ItemModel::getItemAll();
 		$sideNav = CatalogService::sidebar();
 		$built = 0;
 		$skipped = 0;
+		$affectedFacets = [];
 
 		foreach ($items as $item) {
 			$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
@@ -429,6 +491,26 @@ class BuildController extends Controller
 
 			$this->renderItemFile($item, $sideNav);
 			$built++;
+
+			// Категории, к которым привязан изменённый факт — их тоже пересобрать
+			$chunks = array_chunk(preg_split('/(@)/', (string)($item['facet_list'] ?? '')), 4);
+			foreach ($chunks as $chunk) {
+				$fid = (int)($chunk[0] ?? 0);
+				if ($fid > 0) {
+					$affectedFacets[$fid] = $fid;
+				}
+			}
+		}
+
+		// Пересборка зависимых категорий
+		if ($affectedFacets) {
+			foreach ($affectedFacets as $fid) {
+				$this->rebuildCategory($fid, $sideNav);
+			}
+
+			// Изменились факты → обновляем главную, sitemap и случайные факты
+			$this->buildHtmlHome();
+			$this->buildSitemap();
 		}
 
 		$this->scanBrokenLinks();
@@ -443,8 +525,9 @@ class BuildController extends Controller
 	// Рендер одного факта/страницы в статический HTML
 	protected function renderItemFile(array $item, ?array $sideNav = null): void
 	{
-		$temp_view = '/templates/view.php';
-		$temp_page = '/templates/page.php';
+		$temp_view = '/site/pages/facts/view.php';
+		$temp_page = '/site/pages/page.php';
+		$temp_article = '/site/pages/articles/view.php';
 
 		$storage = SearchModel::PdoStorage();
 		$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
@@ -455,13 +538,18 @@ class BuildController extends Controller
 		$breadcrumb = Html::breadcrumbDir($tree, 'static');
 
 		// Если slug = info (служебная категория) то другой шаблон
-		$tmp = ($dir[2] == 'info') ? $temp_page : $temp_view;
+		$tmp = match (($item['item_type'] ?? 'fact')) {
+			'article' => $temp_article,
+			'page'    => $temp_page,
+			default   => ($dir[2] == 'info') ? $temp_page : $temp_view,
+		};
 
 		$img_url = Parser::miniature($item['item_content']);
 
 		file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($tmp, [
 			'item' =>  $item,
 			'similar' => $similar,
+			'related' => ItemModel::getRelatedItems((int)$item['item_id'], 'article'),
 			'dir' => $dir,
 			'meta' => Meta::view($item, $dir[2], $img_url),
 			'breadcrumb' => $breadcrumb,

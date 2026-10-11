@@ -18,7 +18,7 @@ use App\Models\User\UserModel;
 
 class Parser
 {
-    public static function parse(string $content, string $type)
+    public static function parse(string $content, string $type = 'text', bool $preview = false)
     {
         $content = str_replace('{cut}', '', $content);
 		
@@ -51,7 +51,33 @@ class Parser
             $text = self::addHeadingAnchors($text);
         }
 
+        // В предпросмотре (админка) внутренние ссылки ведём на превью-страницы
+        if ($preview) {
+            $text = self::rewriteInternalLinks($text);
+        }
+
         return $text;
+    }
+
+    /**
+     * Переписывает внутренние ссылки вида "/path/slug.html" на
+     * "/mod/admin/preview/path/slug.html" — чтобы в админке можно было
+     * ходить между статьями по внутренним ссылкам.
+     */
+    public static function rewriteInternalLinks(string $html): string
+    {
+        return preg_replace_callback(
+            '/(href|src)="(\/[^"\s]*\.html)"/i',
+            function ($m) {
+                $url = $m[2];
+                // Не трогаем те, что уже под preview
+                if (str_starts_with($url, '/mod/admin/preview/')) {
+                    return $m[0];
+                }
+                return $m[1] . '="' . rtrim(config('general', 'url'), '/') . '/mod/admin/preview' . $url . '"';
+            },
+            $html
+        );
     }
 
     /**

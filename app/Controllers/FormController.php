@@ -14,10 +14,13 @@ class FormController extends Controller
     // Связанные посты, изменение автора контента, фасеты
     public function index()
     {
-        $type       = $this->validateInput(Request::param('type'));
-        $search     = Request::post('q')->value();
+        $type   = $this->validateInput(Request::param('type'));
+        $input  = Request::input();
+        $search = $input['q'] ?? '';
+        $root   = trim((string)($input['root'] ?? ''));
+        $excludeId = (int)($input['exclude_id'] ?? 0);
 
-        return FormModel::get($search, $type);
+        return FormModel::get((string)$search, $type, $root !== '' ? $root : null, $excludeId);
     }
 
     private function validateInput($input)

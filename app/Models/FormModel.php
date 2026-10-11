@@ -16,7 +16,7 @@ class FormModel extends Model
      * @param null|string $search
      * @param string $type
      */
-    public static function get(null|string $search, string $type)
+    public static function get(null|string $search, string $type, null|string $root = null, int $excludeId = 0)
     {
         $field_id   = $type . '_id';
         $field_name = '';
@@ -50,7 +50,7 @@ class FormModel extends Model
             case 'fact':
                 $field_id = 'item_id';
                 $field_name = 'item_title';
-                $sql = "SELECT i.item_id, i.item_title, i.item_slug, rel.facet_list
+                $sql = "SELECT i.item_id, i.item_title, i.item_slug, i.item_type, rel.facet_list
                         FROM items i
                         LEFT JOIN (
                             SELECT
@@ -63,6 +63,44 @@ class FormModel extends Model
                         WHERE i.item_title LIKE :item_title
                           AND i.item_published = 1 AND i.item_is_deleted = 0 AND i.item_type = 'fact'
                         ORDER BY i.item_id DESC LIMIT 200";
+                break;
+
+            // Поиск для поля «Связанное»: у факта — статьи, у статьи — факты.
+            // Целевой тип приходит в $root ('fact'|'article'); без него — оба типа.
+            case 'item':
+			
+			
+			
+ 	
+                $field_id = 'item_id';
+                $field_name = 'item_title';
+                // Поле «Связанное»: целевой тип приходит в $root (article — для факта, fact — для статьи)
+                $kindCondition = '';
+                if ($root === 'fact' || $root === 'article') {
+                    $kindCondition = "AND i.item_type = :item_kind";
+                }
+                // Исключаем текущую запись (саму статью/факт) из выдачи
+                $excludeCondition = $excludeId > 0 ? " AND i.item_id != :exclude_id" : '';
+                $sql = "SELECT i.item_id, i.item_title, i.item_slug, i.item_type, rel.facet_list
+                        FROM items i
+                        LEFT JOIN (
+                            SELECT
+                                relation_item_id,
+                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                            FROM facets
+                            LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                            GROUP BY relation_item_id
+                        ) AS rel ON rel.relation_item_id = i.item_id
+                        WHERE i.item_title LIKE :item_title
+                          AND i.item_published = 1 AND i.item_is_deleted = 0 $kindCondition$excludeCondition
+                        ORDER BY i.item_id DESC LIMIT 200";
+                $bind = [$field_name => "%" . $search . "%"];
+                if ($kindCondition !== '') {
+                    $bind['item_kind'] = $root;
+                }
+                if ($excludeId > 0) {
+                    $bind['exclude_id'] = $excludeId;
+                }
                 break;
 
             case 'association':
@@ -112,13 +150,27 @@ class FormModel extends Model
                     $condition =  "AND facet_id IN(" . implode(',', $resultUsers ?? []) . ")";
                 }
 
-                $tl = self::container()->user()->tl();
-                $sql = "SELECT facet_id, facet_title, facet_type FROM facets 
-					WHERE facet_title LIKE :facet_title AND facet_tl <= $tl AND facet_is_deleted = 0 AND facet_type = '$type' $condition ORDER BY facet_count DESC LIMIT 200";
+                // Фильтр по корню дерева категорий: факты (facts) или статьи (articles)
+                $rootCondition = '';
+                if ($type === 'category' && $root) {
+                    $root = trim($root, '/');
+                    if ($root !== '') {
+                        $rootCondition = "AND (facet_path = :root OR facet_path LIKE :root_like) ";
+                    }
+                }
+
+      $tl = self::container()->user()->tl();
+      $sql = "SELECT facet_id, facet_title, facet_type, facet_path FROM facets 
+              WHERE facet_title LIKE :facet_title AND facet_tl <= $tl AND facet_is_deleted = 0 AND facet_type = '$type' $rootCondition $condition ORDER BY facet_count DESC LIMIT 200";
+      $bind = [$field_name => "%" . $search . "%"];
+      if ($rootCondition !== '') {
+          $bind['root']      = $root;
+          $bind['root_like'] = $root . '/%';
+      }
                 break;
         }
 
-        $lists = DB::run($sql, [$field_name => "%" . $search . "%"])->fetchAll();
+        $lists = DB::run($sql, $bind ?? [$field_name => "%" . $search . "%"])->fetchAll();
 
         $response = [];
         foreach ($lists as $list) {
@@ -126,6 +178,11 @@ class FormModel extends Model
                 "id"    => $list[$field_id],
                 "value" => $list[$field_name],
             );
+
+            // Показываем полный путь категории, чтобы различать факты/статьи
+            if ($type == 'category' && !empty($list['facet_path'])) {
+                $row['value'] = $list['facet_path'] . ' / ' . $list[$field_name];
+            }
 
             // Для фактов добавляем готовый URL: /path/slug.html
             if ($type == 'fact' && !empty($list['facet_list']) && !empty($list['item_slug'])) {

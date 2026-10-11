@@ -37,7 +37,7 @@ class SourceController extends Controller
         }
 
         render(
-            '/content/sources',
+            '/admin/pages/sources',
             [
                 'meta'  => Meta::get(__('app.sources')),
                 'data'  => [

@@ -12,28 +12,14 @@ use Html, Meta, Parser;
 
 class PreviewController extends Controller
 {
-    public function home(): void
-    {
-        // Админская страница: общая шапка/навигация + iframe с реальным видом сайта.
-        render(
-            '/content/preview',
-            [
-                'meta'  => Meta::get(__('app.view')),
-                'data'  => [
-                    'sheet' => 'view',
-                ]
-            ]
-        );
-    }
-
-    // Рендер сайта для iframe (как после сборки)
-    public function site(): void
+public function site(): void
     {
         $items = ItemModel::feedItem(false, false, 1, 5, 'main');
-        $this->response()->setBody(view('/templates/home.php', [
+        $this->response()->setBody(view('/site/pages/home.php', [
             'meta' => Meta::home(),
             'items' => $items,
             'featuredBig' => ItemModel::getFeaturedBig(),
+            'bestFact' => ItemModel::getBestFact(),
             'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
             'sections' => \App\Content\CatalogService::sections(),
             'preview' => true,
@@ -81,11 +67,16 @@ class PreviewController extends Controller
             $dir = [$facet['facet_id'], 'category', $facetPath];
             $breadcrumb = Html::breadcrumbDir(FacetModel::breadcrumb((int)$facet['facet_id']), 'preview');
             $similar = SearchModel::PdoStorage()->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
-            $template = $facetPath === 'info' ? '/templates/page.php' : '/templates/view.php';
+            $template = match (($item['item_type'] ?? 'fact')) {
+                'article' => '/site/pages/articles/view.php',
+                'page'    => '/site/pages/page.php',
+                default   => $facetPath === 'info' ? '/site/pages/page.php' : '/site/pages/facts/view.php',
+            };
 
             $this->response()->setBody(view($template, [
                 'item' => $item,
                 'similar' => $similar,
+                'related' => ItemModel::getRelatedItems((int)$item['item_id'], 'article'),
                 'dir' => $dir,
                 'meta' => Meta::view($item, $facetPath, Parser::miniature($item['item_content'])),
                 'breadcrumb' => $breadcrumb,
@@ -112,7 +103,11 @@ class PreviewController extends Controller
 
         $catalog = \App\Content\CatalogService::data((int)$facet['facet_id'], $pNum, 'preview');
 
-        $this->response()->setBody(view('/templates/index.php', [
+        // Категория статей (корень articles) — свой шаблон списка
+        $isArticles = str_starts_with(trim($facetPath, '/'), 'articles/') || trim($facetPath, '/') === 'articles';
+        $indexTemplate = $isArticles ? '/site/pages/articles/index.php' : '/site/pages/facts/index.php';
+
+        $this->response()->setBody(view($indexTemplate, [
             'items' => $catalog['items'],
             'breadcrumb' => Html::breadcrumbDir(FacetModel::breadcrumb((int)$facet['facet_id']), 'preview'),
             'childrens' => $catalog['childrens'],

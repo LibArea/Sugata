@@ -16,7 +16,7 @@ class BrokenLinkController extends Controller
         $total  = BrokenLinkModel::count();
 
         render(
-            '/content/broken-links',
+            '/admin/pages/broken-links',
             [
                 'meta'  => Meta::get(__('app.broken_links')),
                 'data'  => [

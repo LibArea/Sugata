@@ -35,7 +35,7 @@ class EditItemController extends Controller
             : '';
 
         render(
-            '/content/items/edit',
+            '/admin/pages/items/edit',
             [
                 'meta'  => Meta::get(__('app.edit_fact')),
                 'data'  => [
@@ -44,6 +44,7 @@ class EditItemController extends Controller
                     'type'          => 'item.edit',
                     'user'          => UserModel::get($item['item_user_id'], 'id'),
                     'category_arr'  => ItemModel::getItemTopic($item['item_id']),
+                    'related_arr'   => self::relatedArr((int)$item['item_id']),
                     'faq'           => \App\Models\FaqModel::forItem((int)$item['item_id']),
                     'item_url'      => $itemUrl,
 
@@ -52,11 +53,15 @@ class EditItemController extends Controller
         );
     }
 
-    public function edit()
+public function edit()
     {
         $data = Request::getParsedBody(); // allPost()
 
         Validator::publication($data, url('item.form.edit', ['id' => $data['item_id']]));
+
+        // Тип контента: селект «Факт / Статья / Страница» (поле content_kind)
+        $kind = (string)($data['content_kind'] ?? $data['item_type'] ?? 'fact');
+        $data['item_type'] = in_array($kind, ['fact', 'article', 'page'], true) ? $kind : 'fact';
 
         $redirect = url('item.form.edit', ['id' => (int)$data['item_id']]);
 
@@ -84,16 +89,20 @@ class EditItemController extends Controller
         }
         \App\Models\FaqModel::replace((int)$data['item_id'], $faqRows);
 
-        $facet_item = $data['facet_select'] ?? [];
-        $topics     = json_decode($facet_item, true);
-        if (!empty($topics)) {
+        // Категории: зависимый селект присылает массив id (facet_select[])
+        $facetIds = facetIdsFromInput($data['facet_select'] ?? []);
+        if ($facetIds) {
             $arr = [];
-            foreach ($topics as $row) {
-                $arr[] = $row;
+            foreach ($facetIds as $id) {
+                $arr[] = ['id' => $id];
             }
-
             ItemModel::addItemFacets($arr, (int)$data['item_id']);
         }
+
+        // Связанные статьи (поле related_ids). Отбираем только статьи (факты нельзя связать).
+        $relatedIds = facetIdsFromInput($data['related_ids'] ?? []);
+        $relatedIds = \App\Models\ItemModel::filterIdsByType($relatedIds, 'article');
+        ItemModel::setRelations((int)$data['item_id'], $relatedIds);
 
         Msg::redirect(__('msg.change_saved'), 'success', $redirect);
     }
@@ -101,6 +110,21 @@ class EditItemController extends Controller
     public static function toggle($value): ?int
     {
         return $value === 'on' ? 1 : null;
+    }
+
+    // Связанные элементы в формате для Tagify: [['id'=>..,'value'=>..,'item_type'=>..], ...]
+    protected static function relatedArr(int $item_id): array
+    {
+        $list = ItemModel::getRelatedItems($item_id, 'article');
+        $out = [];
+        foreach ($list as $r) {
+            $out[] = [
+                'id'        => (int)$r['item_id'],
+                'value'     => $r['item_title'],
+                'item_type' => $r['item_type'],
+            ];
+        }
+        return $out;
     }
 
     /**

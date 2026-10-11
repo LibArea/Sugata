@@ -38,6 +38,29 @@ class Validator
             Msg::redirect(__('msg.select_topic'), 'error', $redirect);
         }
 
+        // Выбранные категории не должны противоречить типу контента:
+        // факт → ветка facts, статья → ветка articles, страница → ветка info.
+        $kind = $data['content_kind'] ?? $data['item_type'] ?? 'fact';
+        $kind = in_array($kind, ['fact', 'article', 'page'], true) ? $kind : 'fact';
+
+        $expectRoot = match ($kind) {
+            'article' => 'articles',
+            'page'    => 'info',
+            default   => 'facts',
+        };
+
+        $facetIds = facetIdsFromInput($data['facet_select'] ?? []);
+
+        if ($facetIds) {
+            $rows = FacetModel::getFacetsByIds($facetIds);
+            foreach ($rows as $f) {
+                $path = trim((string)($f['facet_path'] ?? ''), '/');
+                if ($path !== $expectRoot && !str_starts_with($path, $expectRoot . '/')) {
+                    Msg::redirect(__('msg.facet_kind_mismatch'), 'error', $redirect);
+                }
+            }
+        }
+
         return true;
     }
 
@@ -83,10 +106,6 @@ class Validator
 
         if (v::slug()->length(3, 43)->validate($data['facet_slug']) === false) {
             Msg::redirect(__('msg.string_length', ['name' => '«' . __('msg.slug') . '»']), 'error', $redirect);
-        }
-
-        if (FacetModel::uniqueSlug($data['facet_slug'], $facet_type)) {
-            Msg::redirect(__('msg.repeat_url'), 'error', $redirect);
         }
 
         if (preg_match('/\s/', $data['facet_slug']) || strpos($data['facet_slug'], ' ')) {
@@ -135,11 +154,14 @@ class Validator
             Msg::redirect(__('msg.string_length', ['name' => '«' . __('msg.slug') . '»']), 'error', $redirect);
         }
 
-        // Проверим повтор URL                       
-        if ($data['facet_slug'] != $facet['facet_slug']) {
-            if (FacetModel::uniqueSlug($data['facet_slug'], $new_type)) {
-                Msg::redirect(__('msg.repeat_url'), 'error', $redirect);
-            }
+        // Проверим уникальность полного пути (родитель + slug),
+        // одинаковый slug в разных ветках допустим
+        $parentId   = (int)($data['facet_parent_id'] ?? FacetModel::getParentId((int)$facet['facet_id']));
+        $parentPath = FacetModel::getParentPath($parentId);
+        $newPath    = $parentPath !== '' ? $parentPath . '/' . strtolower($data['facet_slug']) : strtolower($data['facet_slug']);
+
+        if (FacetModel::uniquePathExcept($newPath, $new_type, (int)$facet['facet_id'])) {
+            Msg::redirect(__('msg.repeat_url'), 'error', $redirect);
         }
 
         return $new_type;

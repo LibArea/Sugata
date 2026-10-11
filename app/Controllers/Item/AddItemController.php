@@ -21,7 +21,7 @@ class AddItemController extends Controller
     public function index()
     {
         render(
-            '/content/items/add',
+            '/admin/pages/items/add',
             [
                 'meta'  => Meta::get(__('app.add_fact')),
                 'data'  => [
@@ -43,22 +43,33 @@ class AddItemController extends Controller
 
         Validator::publication($data, url('item.form.add'));
 
+        // Тип контента: селект «Факт / Статья / Страница» (поле content_kind)
+        $kind = (string)($data['content_kind'] ?? $data['item_type'] ?? 'fact');
+        $data['item_type'] = in_array($kind, ['fact', 'article', 'page'], true) ? $kind : 'fact';
+
+        error_log('[ADDBUG] content_kind=' . var_export($data['content_kind'] ?? null, true)
+            . ' item_type после=' . $data['item_type']
+            . ' facet_select=' . var_export($data['facet_select'] ?? null, true));
+
         $data['item_slug'] = self::getSlug($data['item_title']);
 
         $item_last = ItemModel::add($data);
 
-        // Facets (categories are called here) for the site 
-        // Фасеты (тут называются категории) для сайта
-        $post_fields    = Request::getParsedBody() ?? [];
-        $facet_post     = $post_fields['facet_select'] ?? [];
-        $topics         = json_decode($facet_post, true);
+        // Категории: зависимый селект присылает массив id (facet_select[])
+        $facetIds = facetIdsFromInput($data['facet_select'] ?? []);
 
-        if (!empty($topics)) {
+        if ($facetIds) {
             $arr = [];
-            foreach ($topics as $row) {
-                $arr[] = $row;
+            foreach ($facetIds as $id) {
+                $arr[] = ['id' => $id];
             }
-            ItemModel::addItemFacets($arr, $item_last['item_id']);
+            ItemModel::addItemFacets($arr, (int)$item_last['item_id']);
+        }
+
+        // Связанные факты/статьи (поле related_ids)
+        $relatedIds = facetIdsFromInput($data['related_ids'] ?? []);
+        if ($relatedIds) {
+            ItemModel::setRelations((int)$item_last['item_id'], $relatedIds);
         }
 
         Msg::redirect(__('app.site_added'), 'success', url('homepage'));

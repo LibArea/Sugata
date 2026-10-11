@@ -26,6 +26,29 @@ function fact_slug(string $facet_path, string $slug)
     return config('general', 'url_html') . '/' . $facet_path . '/' . $slug . '.html';
 }
 
+/**
+ * Нормализует выбранные категории из формы в список id.
+ * Поддерживает как массив (facet_select[]), так и JSON-строку (старый формат Tagify).
+ */
+function facetIdsFromInput(mixed $value): array
+{
+    if (is_array($value)) {
+        return array_values(array_unique(array_filter(array_map('intval', $value))));
+    }
+
+    $ids = [];
+    $topics = json_decode((string)$value, true);
+    if (is_array($topics)) {
+        foreach ($topics as $t) {
+            if (is_array($t) && !empty($t['id'])) {
+                $ids[] = (int)$t['id'];
+            }
+        }
+    }
+
+    return array_values(array_unique(array_filter($ids)));
+}
+
 function urlItem(string $facet_path, string $slug, string $mod = 'static'): string
 {
     $path = trim($facet_path, '/');
@@ -66,12 +89,12 @@ function render(string $name, array $data = [])
 {
     $page_content = view($name, ['data' => $data['data']]);
 
-    echo view('/main', ['content' => $page_content, 'data' => $data['data'], 'meta' => $data['meta']]);
+    echo view('/admin/layout/main', ['content' => $page_content, 'data' => $data['data'], 'meta' => $data['meta']]);
 }
 
-function markdown(string $content, string $type = 'text')
+function markdown(string $content, string $type = 'text', bool $preview = false)
 {
-    return Parser::parse($content, $type);
+    return Parser::parse($content, $type, $preview);
 }
 
 function fragment(string $content, int $limit = 0)

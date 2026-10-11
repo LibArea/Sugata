@@ -22,8 +22,14 @@ class ItemModel extends Model
             case 'all':
                 $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact' ORDER BY item_date DESC";
                 break;
+            case 'all_site':
+                $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type IN ('fact','article') ORDER BY item_date DESC";
+                break;
             case 'page':
                 $sort     = "item_is_deleted = 0 AND item_type = 'page' ORDER BY item_date DESC";
+                break;
+            case 'articles':
+                $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'article' ORDER BY item_date DESC";
                 break;
             case 'moderation':
                 $sort     = "item_published = 0 AND item_type = 'fact' ORDER BY item_date DESC";
@@ -107,12 +113,13 @@ class ItemModel extends Model
         $facets = self::facets($childrens, $category_id);
         $sort   = $facets . self::sorts($sort);
 
-        $sql = "SELECT item_id	
+        $sql = "SELECT COUNT(DISTINCT item_id) AS cnt
 							FROM facets_items_relation 
 								LEFT JOIN items ON relation_item_id = item_id 
 									WHERE $sort ";
 
-        return DB::run($sql)->rowCount();
+        $row = DB::run($sql)->fetch();
+        return (int)($row['cnt'] ?? 0);
     }
 
     /**
@@ -173,9 +180,12 @@ class ItemModel extends Model
 		
 	//	$user_id = $data['user_id'] ?? self::container()->user()->id();
 		
-		if ($data['user_id']) {
+		if (!empty($data['user_id'])) {
 			$user_id = json_decode($data['user_id'], true);
-			$user_id = (int)$user_id[0]['id'];
+			$user_id = (int)($user_id[0]['id'] ?? 0);
+			if ($user_id <= 0) {
+				$user_id = self::container()->user()->id();
+			}
 		} else {
 			$user_id = self::container()->user()->id();
 		}	
@@ -191,6 +201,7 @@ class ItemModel extends Model
 				'item_modified' 		=> date("Y-m-d H:i:s"),
 				'item_published'  		=> $item_published,
                 'item_user_id'          => $user_id,
+                'item_best'             => (!empty($data['item_best'])) ? 1 : 0,
 
             ];
 			
@@ -203,7 +214,8 @@ class ItemModel extends Model
 					item_thumb_img 		= :item_thumb_img,
 					item_modified 		= :item_modified,
                     item_published      = :item_published,
-                    item_user_id        = :item_user_id
+                    item_user_id        = :item_user_id,
+                    item_best           = :item_best
                         WHERE item_id   = :item_id";
 
         DB::run($sql, $params);
@@ -276,6 +288,122 @@ class ItemModel extends Model
         return true;
     }
 
+    /**
+     * Сохранить связи "факт ↔ статья" для элемента.
+     * Пишет обе направленные строки (зеркалирование), чтобы запрос был тривиальным.
+     *
+     * @param int   $item_id    id владельца связи
+     * @param int[] $relatedIds массив id связанных элементов
+     * @param string $relType  тип связи (по умолчанию 'related')
+     */
+    public static function setRelations(int $item_id, array $relatedIds, string $relType = 'related'): void
+    {
+        $item_id = (int)$item_id;
+        $relatedIds = array_values(array_unique(array_filter(array_map('intval', $relatedIds))));
+        $relatedIds = array_diff($relatedIds, [$item_id]); // нельзя связать с самим собой
+
+        // Удаляем старые связи в обе стороны
+        self::deleteItemRelations($item_id);
+
+        foreach ($relatedIds as $rid) {
+            if ($rid <= 0) {
+                continue;
+            }
+            $rows = [
+                ['item_id' => $item_id, 'related_item_id' => $rid],
+                ['item_id' => $rid, 'related_item_id' => $item_id],
+            ];
+            foreach ($rows as $row) {
+                DB::run(
+                    "INSERT IGNORE INTO item_relations (item_id, related_item_id, relation_type, sort_order)
+                     VALUES (:item_id, :related_item_id, :rel_type, 0)",
+                    ['item_id' => $row['item_id'], 'related_item_id' => $row['related_item_id'], 'rel_type' => $relType]
+                );
+            }
+        }
+    }
+
+    // Удаление всех связей элемента (в обе стороны)
+    protected static function deleteItemRelations(int $item_id): void
+    {
+        DB::run(
+            "DELETE FROM item_relations WHERE item_id = :id_a OR related_item_id = :id_b",
+            ['id_a' => $item_id, 'id_b' => $item_id]
+        );
+    }
+
+    /**
+     * Оставляет из списка id только записи заданного типа (например, 'article').
+     */
+    public static function filterIdsByType(array $ids, string $type): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (!$ids) {
+            return [];
+        }
+
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        $rows = DB::run(
+            "SELECT item_id FROM items WHERE item_id IN ($in) AND item_type = ? AND item_is_deleted = 0",
+            [...$ids, $type]
+        )->fetchAll();
+
+        return array_map('intval', array_column($rows, 'item_id'));
+    }
+
+    // ID связанных элементов (в обе стороны) для текущего item
+    public static function getRelationIds(int $item_id): array
+    {
+        $rows = DB::run(
+            "SELECT item_id AS a, related_item_id AS b FROM item_relations
+             WHERE item_id = :id_a OR related_item_id = :id_b",
+            ['id_a' => (int)$item_id, 'id_b' => (int)$item_id]
+        )->fetchAll();
+
+        $ids = [];
+        foreach ($rows as $row) {
+            $other = ((int)$row['a'] === (int)$item_id) ? (int)$row['b'] : (int)$row['a'];
+            if ($other > 0 && $other !== (int)$item_id) {
+                $ids[] = $other;
+            }
+        }
+        return array_values(array_unique($ids));
+    }
+
+    // Связанные элементы (полные записи) для рендера блока
+    public static function getRelatedItems(int $item_id, ?string $type = null): array
+    {
+        $ids = self::getRelationIds($item_id);
+        if (!$ids) {
+            return [];
+        }
+
+        $in = implode(',', array_map('intval', $ids));
+        $typeCond = $type ? " AND item_type = :type " : '';
+
+        $sql = "SELECT item_id, item_title, item_slug, item_type, item_date, item_content, item_published, item_is_deleted,
+                       u.login,
+                       rel.*
+                FROM items
+                LEFT JOIN (
+                    SELECT relation_item_id,
+                           GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = item_id
+                LEFT JOIN users u ON u.id = item_user_id
+                WHERE item_id IN ($in) $typeCond
+                  AND item_published = 1 AND item_is_deleted = 0
+                ORDER BY item_date DESC";
+
+        $params = [];
+        if ($type) {
+            $params['type'] = $type;
+        }
+        return DB::run($sql, $params)->fetchAll();
+    }
+
     public static function deleteRelation(int $id, string $type)
     {
         $sql = "DELETE FROM facets_items_relation WHERE relation_item_id = :id";
@@ -320,6 +448,7 @@ class ItemModel extends Model
                     item_content_img,
                     item_thumb_img,
                     item_is_deleted,
+                    item_best,
                     u.id,
                     u.login,
                     u.avatar,
@@ -358,6 +487,7 @@ class ItemModel extends Model
                     i.item_title,
                     i.item_content,
                     i.item_slug,
+                    i.item_type,
                     i.item_published,
                     s.title AS item_source_title,
                     s.url    AS item_source_url,
@@ -394,6 +524,7 @@ class ItemModel extends Model
                     item_title,
 					item_content,
                     item_slug,
+                    item_type,
                     item_published,
 					s.title AS item_source_title,
 					s.url    AS item_source_url,
@@ -650,6 +781,68 @@ class ItemModel extends Model
     }
 
     /**
+     * «Лучший факт»: один случайный из помеченных item_best = 1.
+     * Фото — миниатюра или первая картинка в контенте.
+     */
+    public static function getBestFact(): false|array
+    {
+        $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
+                       item_date, rel.facet_list
+                FROM items
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = item_id
+                WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                  AND item_best = 1
+                  AND (
+                      (item_thumb_img IS NOT NULL AND item_thumb_img <> '')
+                      OR POSITION('![' IN item_content) > 0
+                  )
+                ORDER BY (item_thumb_img IS NOT NULL AND item_thumb_img <> '') DESC, RAND()
+                LIMIT 1";
+
+        return DB::run($sql)->fetch();
+    }
+
+    // Счётчик «лучших» фактов
+    public static function countBest(): int
+    {
+        return (int)DB::run(
+            "SELECT COUNT(*) c FROM items
+             WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact' AND item_best = 1"
+        )->fetch()['c'];
+    }
+
+    // «Лучшие» факты с пагинацией (для страницы /best/)
+    public static function getBestFacts(int $page = 1, int $limit = 20): false|array
+    {
+        $start = ($page - 1) * $limit;
+
+        $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
+                       item_date, rel.facet_list
+                FROM items
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = item_id
+                WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                  AND item_best = 1
+                ORDER BY item_best DESC, item_id DESC
+                LIMIT :start, :limit";
+
+        return DB::run($sql, ['start' => $start, 'limit' => $limit])->fetchAll();
+    }
+
+    /**
      * Topics by reference 
      * Темы по ссылке
      *
@@ -660,13 +853,23 @@ class ItemModel extends Model
         $sql = "SELECT
                     facet_id id,
                     facet_title as value,
+                    facet_path,
                     facet_type,
                     facet_slug
                         FROM facets  
                         INNER JOIN facets_items_relation ON relation_facet_id = facet_id
                             WHERE relation_item_id  = :item_id ";
 
-        return DB::run($sql, ['item_id' => $item_id])->fetchAll();
+        $list = DB::run($sql, ['item_id' => $item_id])->fetchAll();
+
+        // Формируем человекочитаемый путь: "facts / Непознанное / Религия / Буддизм"
+        foreach ($list as $i => $row) {
+            if (!empty($row['facet_path'])) {
+                $list[$i]['value'] = $row['facet_path'] . ' / ' . $row['value'];
+            }
+        }
+
+        return $list;
     }
 
     // Увеличить счётчик просмотров факта
@@ -699,6 +902,53 @@ class ItemModel extends Model
                 LIMIT :limit";
 
         return DB::run($sql, ['limit' => $limit])->fetchAll();
+    }
+
+    /**
+     * Факты, на которые ссылается текст статьи (внутренние ссылки вида /facts/.../slug.html).
+     * Возвращает полные записи фактов (как getRelatedItems).
+     */
+    public static function getFactsFromContent(?string $content): array
+    {
+        if (empty($content)) {
+            return [];
+        }
+
+        // Извлекаем все внутренние ссылки на факты: [текст](/facts/путь/slug.html)
+        preg_match_all('#\((/facts/[a-z0-9\-/_]+\.html)\)#i', (string)$content, $m);
+        if (empty($m[1])) {
+            return [];
+        }
+
+        $slugs = [];
+        foreach ($m[1] as $link) {
+            $slug = basename((string)$link, '.html');
+            if ($slug !== '' && $slug !== 'index') {
+                $slugs[$slug] = true;
+            }
+        }
+        if (!$slugs) {
+            return [];
+        }
+
+        $in = implode(',', array_fill(0, count($slugs), '?'));
+        $sql = "SELECT item_id, item_title, item_slug, item_type, item_date, item_content, item_published, item_is_deleted,
+                       u.login,
+                       rel.*
+                FROM items
+                LEFT JOIN (
+                    SELECT relation_item_id,
+                           GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = item_id
+                LEFT JOIN users u ON u.id = item_user_id
+                WHERE item_slug IN ($in)
+                  AND item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                ORDER BY item_date DESC";
+
+        return DB::run($sql, array_keys($slugs))->fetchAll();
     }
 
 }

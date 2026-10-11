@@ -61,7 +61,7 @@ class RecoverController extends Controller
         ];
 
         render(
-            '/content/auth/recover',
+            '/admin/pages/auth/recover',
             [
                 'meta'  => Meta::get(__('app.password_recovery'), __('app.recover_info'), $m),
                 'data'  => [

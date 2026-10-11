@@ -21,11 +21,12 @@ class AddFacetController extends Controller
         $facet_type = Request::param('type')->asString();
 
         render(
-            '/content/facets/add',
+            '/admin/pages/facets/add',
             [
                 'meta'  => Meta::get(__('app.add_' . $facet_type)),
                 'data'  => [
                     'sheet' => $facet_type,
+                    'facets' => FacetModel::getTree('category', 'all'),
                 ]
             ]
         );
@@ -46,14 +47,26 @@ class AddFacetController extends Controller
 
         $type = $facet_type ?? 'topic';
 
+        $slug    = strtolower($data['facet_slug']);
+        $parent  = (int)($data['facet_parent_id'] ?? 0);
+        $parentPath = $parent > 0 ? FacetModel::getParentPath($parent) : '';
+        $facetPath  = $parentPath !== '' ? $parentPath . '/' . $slug : $slug;
+
+        // Уникальность по полному пути (одинаковый slug в разных ветках допустим)
+        if (FacetModel::uniquePath($facetPath, $type)) {
+            Msg::redirect(__('msg.repeat_url'), 'error', url('facet.form.add', ['type' => $facet_type]));
+        }
+
         $new_facet_id = FacetModel::add(
             [
-                'facet_title'               => $data['facet_title'],
-                'facet_description'         => __('app.meta_description'),
-                'facet_slug'                => strtolower($data['facet_slug']),
-                'facet_img'                 => 'facet-default.png',
-                'facet_user_id'             => $this->container->user()->id(),
-                'facet_type'                => $type,
+                'facet_title'       => $data['facet_title'],
+                'facet_description' => __('app.meta_description'),
+                'facet_slug'        => $slug,
+                'facet_img'         => 'facet-default.png',
+                'facet_user_id'     => $this->container->user()->id(),
+                'facet_type'        => $type,
+                'facet_path'        => $facetPath,
+                'facet_parent_id'   => $parent,
             ]
         );
 

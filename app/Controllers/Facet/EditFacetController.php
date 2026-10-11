@@ -32,7 +32,7 @@ class EditFacetController extends Controller
         }
 
         render(
-            '/content/facets/edit',
+            '/admin/pages/facets/edit',
             [
                 'meta'  => Meta::get(__('app.edit') . ' | ' . $facet['facet_title']),
                 'data'  => [
@@ -41,6 +41,8 @@ class EditFacetController extends Controller
                     'user'              => UserModel::get($facet['facet_user_id'], 'id'),
                     'sheet'             => $facet_type,
                     'facet_inf'         => $facet,
+                    'facets_tree'       => FacetModel::getTree('category', 'all'),
+                    'facet_parent_id'   => FacetModel::getParentId((int)$facet['facet_id']),
                 ]
             ]
         );
@@ -64,6 +66,11 @@ class EditFacetController extends Controller
         $facet_top_level = $data['facet_top_level'] ?? false;
         $facet_is_comments = $data['facet_is_comments'] ?? false;
 
+        // Вычисляем путь: родитель из формы (или текущий) + slug
+        $parentId   = (int)($data['facet_parent_id'] ?? FacetModel::getParentId((int)$facet['facet_id']));
+        $parentPath = FacetModel::getParentPath($parentId);
+        $newPath    = $parentPath !== '' ? $parentPath . '/' . strtolower($data['facet_slug']) : strtolower($data['facet_slug']);
+
         FacetModel::edit(
             [
                 'facet_id'                  => $data['facet_id'],
@@ -76,10 +83,16 @@ class EditFacetController extends Controller
                 'facet_post_related'        => $post_related,
                 'facet_type'                => $new_type,
                 'facet_is_comments'         => $facet_is_comments == 'on' ? 1 : 0,
+                'facet_path'                => $newPath,
             ]
         );
 
         self::setModification($data);
+
+        // Смена родителя: обновляем связь в дереве
+        $facet_id = (int)$data['facet_id'];
+        $parent   = (int)($data['facet_parent_id'] ?? 0);
+        FacetModel::setParent($facet_id, $parent);
 
         Msg::redirect(__('msg.change_saved'), 'success', url('structure'));
     }
@@ -101,7 +114,7 @@ class EditFacetController extends Controller
         }
 
         render(
-            '/content/facets/edit-logo',
+            '/admin/pages/facets/edit-logo',
             [
                 'meta'  => Meta::get(__('app.logo')),
                 'data'  => [

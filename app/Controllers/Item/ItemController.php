@@ -7,50 +7,28 @@ namespace App\Controllers\Item;
 use Hleb\Base\Controller;
 
 use Hleb\Static\Request;
-use App\Models\{ItemModel, SearchModel, FacetModel};
-use Meta, Msg, Html, Validator;
-
-use S2\Rose\Entity\ExternalId;
+use App\Models\ItemModel;
 
 class ItemController extends Controller
 {
-    public function index()
+public function index()
     {
         $id = Request::param('id')->asInt();
         $item = ItemModel::getItem($id, 'id');
+        if (empty($item)) {
+            notEmptyOrView404([]);
+            return;
+        }
 
-        Html::pageNumber();
+        // Единообразие в админке: все просмотры идут через предпросмотр (/mod/admin/preview/...),
+        // чтобы админ видел то же, что и пользователь, а внутренние ссылки работали.
+        $dir = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
+        $facetPath = trim($dir[2] ?? '', '/');
+        if ($facetPath === '' || empty($item['item_slug'])) {
+            notEmptyOrView404([]);
+            return;
+        }
 
-        /**
-         * Рекомендованный контент (см. getSimilar())
-         * @param ExternalId $externalId An id of indexed item to search other similar items
-         * @param bool       $includeFormatting Switch the snippets to HTML formatting if available
-         * @param int|null   $instanceId Id of instance where to search these similar items
-         * @param int        $minCommonWords Lower limit for common words. The less common words,
-         *                                   the more items are returned, but among them the proportion
-         *                                   of irrelevant items is increasing.
-         * @param int        $limit
-         */
-        $storage = SearchModel::PdoStorage();
-        $similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
-
-		$dir = preg_split('/(@)/', (string)$item['facet_list'] ?? false);
-
- 		$tree = FacetModel::breadcrumb((int)$dir[0]);
-		$breadcrumb = Html::breadcrumbDir($tree);
-
-
-        render(
-            '/content/items/view',
-            [
-                'meta'  => Meta::get(__('app.tools')),
-                'data'  => [
-                    'sheet'     => 'view',
-                    'item'      => $item,
-                    'similar'   => $similar,
-					'breadcrumb' => $breadcrumb,
-                ]
-            ]
-        );
+        $this->response()->redirect(urlItem($facetPath, $item['item_slug'], 'preview'), code: 303);
     }
 }

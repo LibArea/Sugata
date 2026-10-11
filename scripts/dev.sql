@@ -34,7 +34,7 @@ CREATE TABLE `facets` (
   `facet_is_comments` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Are comments closed (posts, websites...)?',
   `facet_is_deleted` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`facet_id`),
-  UNIQUE KEY `unique_index` (`facet_slug`,`facet_type`),
+  UNIQUE KEY `unique_path` (`facet_path`,`facet_type`),
   KEY `facet_slug` (`facet_slug`),
   KEY `facet_merged_id` (`facet_merged_id`),
   KEY `facet_type` (`facet_type`)
@@ -131,10 +131,12 @@ CREATE TABLE `items` (
   `item_thumb_img` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `item_is_deleted` tinyint(1) DEFAULT '0',
   `item_views` int unsigned NOT NULL DEFAULT '0',
+  `item_best` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`item_id`),
   KEY `item_date` (`item_date`),
   KEY `item_user_id` (`item_user_id`,`item_date`),
   KEY `idx_item_views` (`item_views`),
+  KEY `idx_item_best` (`item_best`),
   FULLTEXT KEY `item_title` (`item_title`,`item_content`)
 ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -328,6 +330,20 @@ CREATE TABLE `users_email_story` (
   `email_activate_flag` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+DROP TABLE IF EXISTS `item_relations`;
+CREATE TABLE item_relations (
+  id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  item_id         INT UNSIGNED NOT NULL,
+  related_item_id INT UNSIGNED NOT NULL,
+  relation_type   VARCHAR(32) NOT NULL DEFAULT 'related',
+  sort_order      TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_pair (item_id, related_item_id, relation_type),
+  KEY idx_related (related_item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 INSERT INTO `facets_types` (`type_id`, `type_code`, `type_lang`, `type_title`) VALUES
 (1, 'topic', 'topic', 'Темы'),

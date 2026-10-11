@@ -24,7 +24,7 @@ class SettingController extends Controller
     public function index()
     {
         render(
-            '/content/user/setting',
+            '/admin/pages/user/setting',
             [
                 'meta'  => Meta::get(__('app.setting')),
                 'data'  => [
@@ -62,7 +62,7 @@ class SettingController extends Controller
     function securityForm()
     {
         render(
-            '/content/user/security',
+            '/admin/pages/user/security',
             [
                 'meta'  => Meta::get(__('app.security')),
                 'data'  => ['sheet' => 'setting']

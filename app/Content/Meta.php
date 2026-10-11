@@ -52,6 +52,21 @@ class Meta
         return $output;
     }
 
+    // Обрезка строки до лимита (по словам, для title/description)
+    protected static function cutLen(string $text, int $limit): string
+    {
+        $text = trim(preg_replace('/\s+/u', ' ', $text));
+        if (mb_strlen($text) <= $limit) {
+            return $text;
+        }
+        $cut = mb_substr($text, 0, $limit);
+        $pos = mb_strrpos($cut, ' ');
+        if ($pos !== false) {
+            $cut = mb_substr($cut, 0, $pos);
+        }
+        return trim($cut) . '…';
+    }
+
     public static function home()
     {
         $meta = [
@@ -61,7 +76,10 @@ class Meta
             'url'       => '/',
         ];
 
-        return self::get(config('meta', 'home_title'), config('meta',  'home_desc'), $meta);
+        $title = self::cutLen((string)config('meta', 'home_title'), 65);
+        $desc  = self::cutLen((string)config('meta', 'home_desc'), 160);
+
+        return self::get($title, $desc, $meta);
     }
 
     public static function view(array $content, $facet_path, $img_url): string
@@ -73,12 +91,44 @@ class Meta
                 'imgurl'    => config('general', 'url_html') . $img_url,
 				'url'    	=> fact_slug($facet_path, $content['item_slug']),
             ];
-  
-        $description  = (fragment($content['item_content'], 250) == '') ? strip_tags($content['item_title']) : fragment($content['item_content'], 250);
 
-        return self::get(htmlEncode(strip_tags($content['item_title'])), htmlEncode($description), $meta);
+        // Если нет картинки статьи — дефолтная картинка бренда (для соцсетей)
+        if (empty($img_url)) {
+            $meta['imgurl'] = config('general', 'url_html') . config('meta', 'img_path');
+        }
+
+        $description  = (fragment($content['item_content'], 250) == '') ? strip_tags($content['item_title']) : fragment($content['item_content'], 250);
+        $title = self::cutLen(html_entity_decode(strip_tags($content['item_title']), ENT_QUOTES | ENT_HTML5, 'UTF-8'), 65);
+        $description = self::cutLen(html_entity_decode((string)$description, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 160);
+
+        // Служебные страницы (info) — noindex
+        if ($facet_path === 'info') {
+            $meta['indexing'] = true;
+        }
+
+        return self::get(htmlEncode($title), htmlEncode($description), $meta);
     }
 
+    // Доп. SEO: JSON-LD CollectionPage для категории
+    protected static function categoryJsonLd(array $facet): string
+    {
+        $url = config('general', 'url_html') . '/' . trim($facet['facet_path'], '/') . '/';
+        $name = trim((string)($facet['facet_title'] ?? ''));
+
+        $json = [
+            '@context' => 'https://schema.org',
+            '@type' => 'CollectionPage',
+            'name' => $name,
+            'url' => $url,
+            'isPartOf' => [
+                '@type' => 'WebSite',
+                'name' => config('general', 'site_name'),
+                'url' => config('general', 'url_html') . '/',
+            ],
+        ];
+
+        return '<script type="application/ld+json">' . json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
+    }
 
     public static function category(array $facet): string
     {
@@ -87,6 +137,7 @@ class Meta
 		// SEO-title из базы (если заполнен), иначе "Название — Факты"
 		$seoTitle = trim((string)($facet['facet_seo_title'] ?? ''));
 		$title  = $seoTitle !== '' ? $seoTitle : $facet['facet_title'] . ' — ' . __('app.facts');
+		$title  = self::cutLen(html_entity_decode($title, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 65);
 
 		// Description: из поля facet_description, иначе — авто-шаблон
 		$descText = trim((string)($facet['facet_description'] ?? ''));
@@ -95,6 +146,7 @@ class Meta
 		} else {
 			$description = $descText;
 		}
+		$description = self::cutLen(html_entity_decode($description, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 160);
 
         $meta = [
             'og'        => true,
@@ -102,6 +154,11 @@ class Meta
             'url'       =>  $url,
         ];
 
-        return self::get($title, $description, $meta);
+        // Служебная категория Информация — noindex
+        if (trim($facet['facet_path'], '/') === 'info') {
+            $meta['indexing'] = true;
+        }
+
+        return self::get($title, $description, $meta) . self::categoryJsonLd($facet);
     }
 }
