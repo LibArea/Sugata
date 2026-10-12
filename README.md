@@ -1,36 +1,114 @@
 <p align="center">
-<a href="https://github.com/LibArea/libarea/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT%20(Free)-brightgreen.svg" alt="License: MIT"></a>
+<img src="https://img.shields.io/badge/License-MIT%20(Free)-brightgreen.svg" alt="License: MIT">
 <img src="https://img.shields.io/badge/PHP-8.2-blue" alt="PHP">
+<img src="https://img.shields.io/badge/MySQL-8/MariaDB-4479A1" alt="DB">
 </p>
 
-# Sugata
+# Сугата (Sugata)
 
-Sugata — is a static site generator that uses Markdown and is written in PHP. Used on the Fact Archive website.
+Статическая вики по архитектуре личного сайта фактов: статьи пишутся в админке, а затем **собираются в готовые HTML-файлы** и раздаются без PHP на продуктиве.
 
-## Ideas
+Проект основан на форке [LibArea/Sugata](https://github.com/LibArea/Sugata), переработан под энциклопедическую модель: история версий, авто-ссылки между статьями, обратные ссылки и проверка битых ссылок.
 
-Analogue of Movable Type, LinkSQL, etc.
+## Возможности
+
+- **Статическая сборка** каждой статьи в `{категория}/{slug}.html` + категории в `index.html`/`page-N.html`, `sitemap.xml`, общий подвал `footer.shtml`.
+- **Инкрементальная пересборка** — обновляются только изменённые факты и зависящие от них категории/главная.
+- **История версий** — снимок состояния до каждой правки (контент, slug, метаданные), просмотр версии и **откат** на любую из них.
+- **Авто-ссылки `[[Термин]]`** — вики-разметка: резолвится в синюю ссылку при однозначном совпадении, в красную на создание — если статьи нет (в админке/превью).
+- **Обратные ссылки «Сюда ссылаются»** — список статей, ссылающихся на текущую.
+- **Проверка битых ссылок** — отчёт о битых `[текст](/url)` и несозданных `[[Термин]]`.
+- **Поиск** с морфологией русского/английского (S2\Rose, стеммер Porter).
+- **Разметка CommonMark** (+ GFM-расширения: таблицы, сноски, чекбоксы, зачёркивание) с экранированием опасного HTML.
+
 
 ![Sugata - архив фактов](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata-for-github.png)
 
 ![Sugata - admin](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata-for-github-admin.png)
 
-### For testing (Installation)
+## Стек
 
-Install the package through [Composer](http://getcomposer.org/). 
+- PHP 8.2+
+- MySQL 8 / MariaDB 10.2.2+
+- Фреймворк [HLEB](https://github.com/phphleb/hleb) (2.x)
+- Парсер [league/commonmark](https://github.com/thephpleague/commonmark) (CommonMark/GFM)
+- Поиск [S2\Rose](https://github.com/s2ware/rose)
 
-Further:
+## Структура
 
-*   migrate: scripts/dev.sql
-*   settings: config/database.php and other files in the directory
-*   Log in to your account using administrator credentials: `ss@sdf.ru` / `qwer14qwer14`
-*   Or user: `test@test.ru` / `test@test.ru`
+```
+config/            настройки (general, database, main, meta...)
+routes/map.php     маршруты (админка + предпросмотр)
+app/
+  Controllers/     контроллеры (сборка, статьи, история, откаты...)
+  Models/          работа с БД (ItemModel, VersionModel, BacklinkModel...)
+  Content/         Parser (CommonMark + вики-ссылки), Html, Meta, Img, Validator
+  helpers.php      глобальные функции
+resources/views/   шаблоны (админка, сайт, общие компоненты)
+public/            точка входа, ассеты (собираются в статику)
+scripts/dev.sql    схема БД и тестовые данные
+wiki-view.local/   РЕЗУЛЬТАТ сборки (статический сайт)
+```
 
-PHP >= 8.2, MySQL 8+ or > MariaDB 10.2.2
+## Установка
 
+```bash
+composer install
+```
 
-**The Public Directory**
+1. Создайте базу и импортируйте схему: `scripts/dev.sql` (включает структуру и тестовые данные).
+2. Задайте подключение в `config/database.php` (или `config/database-local.php`).
+3. Настройте `config/general.php`: `url` (админка), `url_html` (публичный адрес статики), `path_html` (папка сборки).
+4. Запустите веб-сервер на папку `public/`.
 
-The `public` directory contains the `index.php` file, which is the entry point for all requests entering your application and configures autoloading. This directory also houses your assets such as images, JavaScript, and CSS.
+### Вход в админку (тестовые учётки)
 
+- Администратор: `ss@sdf.ru` / `qwer14qwer14`
+- Пользователь: `test@test.ru` / `test@test.ru`
 
+Админка: `https://<url>/mod/admin/`
+
+## Сборка статического сайта
+
+В админке (меню **Инструменты** / `Tools`) последовательно:
+
+1. **Перестроить ресурсы** — собрать CSS/JS (Minify) из исходников.
+2. **Пути категорий** — пересчитать `facet_path`.
+3. **Создать каталог** — папки категорий.
+4. **Собрать HTML-страницы категорий** — `index.html`/`page-N.html` каждой категории.
+5. **Собрать HTML-страницы фактов** — каждая статья в свой `.html`.
+6. **Обновить индекс поиска** — пересоздать морфологический индекс.
+7. **Sitemap** — сгенерировать `sitemap.xml`.
+8. **Проверить источники/битые ссылки** — HEAD-проверка источников и сканирование битых/несозданных ссылок.
+
+> **Инкрементальная сборка** — пересобирает только изменённые факты и зависимые категории/главную; полезно после правок, когда полная пересборка не нужна.
+
+## Вики-разметка
+
+Внутри статей поддерживаются оба способа связывания:
+
+| Синтаксис | Результат |
+|---|---|
+| `[[Дзогчен]]` | Авто-ссылка. Однозначное совпадение → синяя; нет/неоднозначно → красная (в админке) |
+| `[[Текст\|Дзогчен]]` | То же, но с произвольным текстом ссылки |
+| `[[Текст\|/путь/slug.html]]` | Явная точная ссылка на конкретный URL |
+| `[текст](/путь/slug.html)` | Обычная markdown-ссылка (не проверяется движком) |
+| `:::{.foto}` … `:::` | Блок-контейнер с классом (фото с подписью, примечания) |
+| `[^1]` и `[^1]: текст` | Сноски (собираются в блок «Примечания») |
+
+Красные и битые ссылки собираются в отчёте **Битые ссылки** (`/mod/admin/broken-links`).
+
+## База данных (ключевые таблицы)
+
+- `items` — факты/статьи/страницы.
+- `facets`, `facets_items_relation` — дерево категорий и связь статей с категориями.
+- `item_history` — **история версий** (снимок до каждой правки; откаты и просмотр).
+- `item_relations` — ручная связь «похожие статьи» (в обе стороны).
+- `sources`, `article_sources` — источники фактов и их привязка.
+- `broken_links` — отчёт о битых/несозданных ссылках.
+- `item_faq` — блоки «вопрос–ответ».
+- `users` — пользователи и права.
+
+## Лицензия
+
+MIT. См. [LICENSE](LICENSE).

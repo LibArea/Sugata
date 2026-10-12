@@ -105,7 +105,13 @@ function fragment(string $content, int $limit = 0)
 function notEmptyOrView404($params)
 {
     if (empty($params)) {
-        echo view('error', ['httpCode' => 404, 'message' => __('404.page_not') . ' <br> ' . __('404.page_removed')]);
+        $system = Container::getContainer()->system();
+        echo view('error', [
+            'httpCode'   => 404,
+            'message'    => __('404.page_not') . ' <br> ' . __('404.page_removed'),
+            'uriPrefix'  => $system->getFrameworkResourcePrefix(),
+            'apiVersion' => $system->getFrameworkApiVersion(),
+        ]);
         exit();
     }
     return true;

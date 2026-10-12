@@ -67,6 +67,7 @@ public function site(): void
             $dir = [$facet['facet_id'], 'category', $facetPath];
             $breadcrumb = Html::breadcrumbDir(FacetModel::breadcrumb((int)$facet['facet_id']), 'preview');
             $similar = SearchModel::PdoStorage()->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
+            $backlinks = \App\Models\BacklinkModel::referring((int)$item['item_id'], $facetPath, $slug);
             $template = match (($item['item_type'] ?? 'fact')) {
                 'article' => '/site/pages/articles/view.php',
                 'page'    => '/site/pages/page.php',
@@ -81,6 +82,7 @@ public function site(): void
                 'meta' => Meta::view($item, $facetPath, Parser::miniature($item['item_content'])),
                 'breadcrumb' => $breadcrumb,
                 'faq' => \App\Models\FaqModel::forItem((int)$item['item_id']),
+                'backlinks' => $backlinks,
                 'sideNav' => \App\Content\CatalogService::sidebar(),
                 'preview' => true,
             ]));

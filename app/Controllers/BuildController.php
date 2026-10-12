@@ -537,6 +537,13 @@ class BuildController extends Controller
 		$tree = FacetModel::breadcrumb((int)$dir[0]);
 		$breadcrumb = Html::breadcrumbDir($tree, 'static');
 
+		// Обратные ссылки «Сюда ссылаются»: статьи, ссылающиеся на этот факт
+		$backlinks = \App\Models\BacklinkModel::referring(
+			(int)$item['item_id'],
+			(string)($dir[2] ?? ''),
+			(string)$item['item_slug']
+		);
+
 		// Если slug = info (служебная категория) то другой шаблон
 		$tmp = match (($item['item_type'] ?? 'fact')) {
 			'article' => $temp_article,
@@ -554,6 +561,7 @@ class BuildController extends Controller
 			'meta' => Meta::view($item, $dir[2], $img_url),
 			'breadcrumb' => $breadcrumb,
 			'faq' => \App\Models\FaqModel::forItem((int)$item['item_id']),
+			'backlinks' => $backlinks,
 			'sideNav' => $sideNav ?? CatalogService::sidebar(),
 		]));
 	}
@@ -679,11 +687,51 @@ class BuildController extends Controller
 
 		$broken = [];
 
-		// Сканируем все статьи
+// Сканируем все статьи
 		$items = ItemModel::getItemAll();
 		foreach ($items as $item) {
-			// Ссылки [text](/path/slug.html)
-			if (preg_match_all('/\[([^\]]*)\]\((\/[^)\s]+\.html)\)/u', (string)$item['item_content'], $m, PREG_SET_ORDER)) {
+			$haystack = (string)$item['item_content'];
+
+			// Авто-ссылки [[Термин]]: применяем резолвер, чтобы получить реальные URL.
+			// Оставшиеся [[...]] (не резолвленные) считаем потенциально битыми терминами.
+			if (preg_match_all('/\[\[[^\[\]]+\]\]/u', $haystack, $wikiAll)) {
+				[$resolved] = Parser::wikiLinks($haystack); // возвращает [контент, redLinks]
+				// Найденные после резолва ссылки-кандидаты (битые или нет)
+				if (preg_match_all('/\[([^\]]*)\]\((\/[^)\s]+\.html)\)/u', $resolved, $wr, PREG_SET_ORDER)) {
+					foreach ($wr as $w) {
+						$url = $w[2] ?? '';
+						$key = (int)$item['item_id'] . '|' . $url;
+						if (!str_starts_with($url, '/') || isset($broken[$key])) {
+							continue;
+						}
+						$broken[$key] = [
+							'item_id'       => (int)$item['item_id'],
+							'article_title' => $item['item_title'],
+							'link'          => $url,
+							'word'          => trim((string)($w[1] ?? '')),
+						];
+					}
+				}
+				// Оставшиеся непереведённые [[Термин]] — красные ссылки, помечаем как несозданные
+				if (preg_match_all('/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u', $haystack, $uw, PREG_SET_ORDER)) {
+					foreach ($uw as $u) {
+						$word = trim((string)($u[1] ?? ''));
+						$key  = (int)$item['item_id'] . '|[[word]]' . $word;
+						if ($word === '' || isset($broken[$key])) {
+							continue;
+						}
+						$broken[$key] = [
+							'item_id'       => (int)$item['item_id'],
+							'article_title' => $item['item_title'],
+							'link'          => '',
+							'word'          => $word,
+						];
+					}
+				}
+			}
+
+			// Обычные ссылки [text](/path/slug.html)
+			if (preg_match_all('/\[([^\]]*)\]\((\/[^)\s]+\.html)\)/u', $haystack, $m, PREG_SET_ORDER)) {
 				foreach ($m as $match) {
 					$url = $match[2] ?? '';
 					// Только внутренние (не http/https)

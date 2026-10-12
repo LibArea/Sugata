@@ -37,7 +37,7 @@
 		"cocur/slugify": "dev-main",
 		"akh/typograf": "dev-master",
 		"s2/rose": "dev-master",
-		"php-collective/djot": "dev-master"
+		"league/commonmark": "^2.11@dev"
     },
     "autoload": {
         "classmap": [

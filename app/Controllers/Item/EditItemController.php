@@ -163,4 +163,97 @@ public function edit()
 
         return json_encode(['error' => __('msg.upload_invalid_image')]);
     }
+
+    // Список версий факта (история правок)
+    public function history(): void
+    {
+        $item = Validator::content(Request::param('id')->asInt());
+
+        if ($this->container->access()->author('item', $item) === false) {
+            $this->container->redirect()->to(url('homepage'), status: 303);
+        }
+
+        $versions = \App\Models\VersionModel::list((int)$item['item_id'], 100);
+
+        render(
+            '/admin/pages/items/history',
+            [
+                'meta'  => Meta::get(__('app.item_history')),
+                'data'  => [
+                    'item'       => $item,
+                    'sheet'      => 'history',
+                    'versions'   => $versions,
+                ]
+            ],
+        );
+    }
+
+    // Просмотр конкретной версии (контент снимка)
+    public function historyShow(): void
+    {
+        $id      = Request::param('id')->asInt();
+        $version = Request::param('version')->asInt();
+
+        $item = Validator::content($id);
+        if ($this->container->access()->author('item', $item) === false) {
+            $this->container->redirect()->to(url('homepage'), status: 303);
+        }
+
+        $snap = \App\Models\VersionModel::get($id, $version);
+        if (empty($snap)) {
+            Msg::redirect(__('msg.version_not_found'), 'error', url('item.history', ['id' => $id]));
+        }
+
+        render(
+            '/admin/pages/items/history-view',
+            [
+                'meta'  => Meta::get(__('app.item_history')),
+                'data'  => [
+                    'item'    => $item,
+                    'version' => $snap,
+                    'backUrl' => url('item.history', ['id' => $id]),
+                ]
+            ],
+        );
+    }
+
+    // Откат факта к выбранной версии
+    public function rollback(): void
+    {
+        $id      = Request::param('id')->asInt();
+        $version = Request::param('version')->asInt();
+
+        $item = Validator::content($id);
+
+        // Только автор/персонал
+        if ($this->container->access()->author('item', $item) === false) {
+            Msg::redirect(__('msg.went_wrong'), 'error');
+        }
+
+        $snap = \App\Models\VersionModel::get($id, $version);
+        if (empty($snap)) {
+            Msg::redirect(__('msg.version_not_found'), 'error', url('item.history', ['id' => $id]));
+        }
+
+        // Восстанавливаем из снимка данные факта.
+        // ItemModel::edit сам создаст снимок текущего состояния (так откат попадёт в историю).
+        $data = [
+            'item_id'          => (int)$snap['item_id'],
+            'item_title'       => $snap['item_title'],
+            'item_slug'        => $snap['item_slug'],
+            'item_type'        => $snap['item_type'],
+            'item_note'        => $snap['item_note'],
+            'item_content'     => $snap['item_content'],
+            'item_thumb_img'   => $snap['item_thumb_img'],
+            'item_source_url'  => $snap['source_url'],
+            'item_published'   => $item['item_published'],
+            'item_best'        => $item['item_best'],
+            'user_id'          => null,
+            'item_edit_comment'=> '',
+        ];
+
+        \App\Models\ItemModel::edit($data);
+
+        Msg::redirect(__('msg.rollback_done'), 'success', url('item.form.edit', ['id' => $id]));
+    }
 }

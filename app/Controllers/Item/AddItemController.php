@@ -20,13 +20,16 @@ class AddItemController extends Controller
      */
     public function index()
     {
+        // Необязательный предзаполненный заголовок (при переходе по красной ссылке [[Термин]])
+        $prefillTitle = trim((string)Request::get('title')->value() ?? '');
+
         render(
             '/admin/pages/items/add',
             [
                 'meta'  => Meta::get(__('app.add_fact')),
                 'data'  => [
-                    'sheet'    => 'add_fact',
-
+                    'sheet'         => 'add_fact',
+                    'prefill_title' => $prefillTitle,
                 ]
             ],
         );

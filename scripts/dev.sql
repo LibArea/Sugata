@@ -344,6 +344,27 @@ CREATE TABLE item_relations (
   KEY idx_related (related_item_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+DROP TABLE IF EXISTS `item_history`;
+CREATE TABLE `item_history` (
+  `version_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `item_id` int unsigned NOT NULL,
+  `version` int unsigned NOT NULL DEFAULT '1',
+  `item_title` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `item_slug` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `item_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `item_note` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `item_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `item_thumb_img` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `facet_ids` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `source_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `comment` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `user_id` int unsigned NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`version_id`),
+  KEY `idx_item_version` (`item_id`,`version`),
+  KEY `idx_item_created` (`item_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 INSERT INTO `facets_types` (`type_id`, `type_code`, `type_lang`, `type_title`) VALUES
 (1, 'topic', 'topic', 'Темы'),

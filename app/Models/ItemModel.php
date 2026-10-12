@@ -189,6 +189,12 @@ class ItemModel extends Model
 		} else {
 			$user_id = self::container()->user()->id();
 		}	
+
+		// История версий: фиксируем состояние ДО правки (контент, slug и метаданные)
+		$current = (int)$data['item_id'] > 0 ? self::getItem((int)$data['item_id'], 'id') : false;
+		if ($current && !empty($current['item_id'])) {
+			\App\Models\VersionModel::snapshot($current, (string)($data['item_edit_comment'] ?? ''), (int)$user_id);
+		}
 		
 		$params =  [
 				'item_id'           	=> $data['item_id'],
@@ -515,6 +521,106 @@ class ItemModel extends Model
                 LIMIT 1";
 
         return DB::run($sql, ['facet_path' => $facetPath, 'slug' => $slug])->fetch();
+    }
+
+    /**
+     * Глобальный поиск опубликованного факта/статьи по slug (для авто-ссылок [[Термин]]).
+     * Возвращает item_id, item_slug, item_title и путь первой категории (facet_path).
+     */
+    public static function findBySlug(string $slug): false|array
+    {
+        $sql = "SELECT
+                    i.item_id,
+                    i.item_slug,
+                    i.item_title,
+                    i.item_type,
+                    rel.facet_list
+                FROM items i
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = i.item_id
+                WHERE i.item_slug = :slug
+                    AND i.item_published = 1
+                    AND i.item_is_deleted = 0
+                LIMIT 1";
+
+        return DB::run($sql, ['slug' => $slug])->fetch();
+    }
+
+    /**
+     * Поиск факта/статьи для авто-ссылки [[Термин]].
+     * Приоритет: точный slug → термин как отдельное слово в названии → частичное вхождение.
+     *
+     * @param string $fragment текстовый термин
+     * @return array список найденных (0, 1 или несколько) — уже отсортирован по приоритету
+     */
+    public static function findByTerm(string $fragment): array
+    {
+        $slugify = new \Cocur\Slugify\Slugify();
+        $slug = substr((string)$slugify->slugify($fragment), 0, 90);
+        if ($slug === '') {
+            return [];
+        }
+
+        // Все подходящие опубликованные элементы (фильтр по слагу в item_slug ИЛИ по слову в названии)
+        $sql = "SELECT
+                    i.item_id,
+                    i.item_slug,
+                    i.item_title,
+                    i.item_type,
+                    rel.facet_list
+                FROM items i
+                LEFT JOIN (
+                    SELECT
+                        relation_item_id,
+                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                    FROM facets
+                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                    GROUP BY relation_item_id
+                ) AS rel ON rel.relation_item_id = i.item_id
+                WHERE i.item_published = 1
+                    AND i.item_is_deleted = 0
+                    AND (
+                        i.item_slug LIKE :like_slug
+                        OR i.item_title LIKE :like_title_raw
+                    )
+                LIMIT 25";
+
+        $rows = DB::run($sql, [
+            'like_slug'     => '%' . $slug . '%',
+            'like_title_raw'=> '%' . $fragment . '%',
+        ])->fetchAll();
+
+        if (!$rows) {
+            return [];
+        }
+
+        // Ранжирование: 0 = точный slug, 1 = слово в названии, 2 = частичное вхождение
+        $ranked = [];
+        foreach ($rows as $r) {
+            $itemSlug  = substr((string)$slugify->slugify((string)$r['item_slug']), 0, 90);
+            $titleSlug = (string)$slugify->slugify((string)$r['item_title']);
+
+            if ($itemSlug === $slug) {
+                $rank = 0; // точное совпадение slug
+            } elseif (preg_match('/(^|-)' . preg_quote($slug, '/') . '(-|$)/u', $titleSlug)) {
+                $rank = 1; // термин как отдельное слово в названии
+            } else {
+                $rank = 2; // частичное вхождение
+            }
+
+            $r['_rank'] = $rank;
+            $ranked[] = $r;
+        }
+
+        usort($ranked, fn($a, $b) => $a['_rank'] <=> $b['_rank']);
+
+        return $ranked;
     }
 
     public static function getItemAll()

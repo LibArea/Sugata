@@ -79,4 +79,7 @@ return [
 	'type_not_allowed'		=> 'This type of publication is not allowed',
 
     'field_limit'           => 'The number of fields has reached its maximum.',
+	'version_not_found'		=> 'Version not found',
+	'rollback_done'			=> 'Item rolled back to the selected version',
+	'rollback_comment'		=> 'Rollback to version',
 ];
