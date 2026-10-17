@@ -13,8 +13,8 @@
     <fieldset class="form-big">
       <div class="form-label input-label"><label><?= __('app.title'); ?> <strong class="red">*</strong></label></div>
       <div class="form-element">
-        <input minlength="11" id="title" name="item_title" required="" type="text" value="">
-        <div class="help">11 - 250 <?= __('app.characters'); ?></div>
+        <input id="title" name="item_title" required="" type="text" value="<?= htmlEncode($data['prefill_title'] ?? ''); ?>">
+        <div class="help">1 - 250 <?= __('app.characters'); ?></div>
       </div>
     </fieldset>
 

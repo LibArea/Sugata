@@ -19,6 +19,9 @@ $root = match ($itemType) {
             <?= __('app.view'); ?>
           </a>
         <?php endif; ?>
+        <a class="btn btn-small" href="<?= url('item.history', ['id' => $item['item_id']]); ?>">
+          <?= __('app.item_history'); ?>
+        </a>
       </h1>
     </div>
   </header>
@@ -31,7 +34,7 @@ $root = match ($itemType) {
       <div class="form-label input-label"><label for="title"><?= __('app.title'); ?> <strong class="red">*</strong></label></div>
       <div class="form-element">
         <input id="title" name="item_title" required="" type="text" value="<?= htmlEncode($item['item_title']); ?>">
-        <div class="help">11 - 250 <?= __('app.characters'); ?></div>
+        <div class="help">1 - 250 <?= __('app.characters'); ?></div>
       </div>
     </fieldset>
 
@@ -125,6 +128,13 @@ $root = match ($itemType) {
         </fieldset>
       <?php endif; ?>
     <?php endif; ?>
+
+    <fieldset class="form-big">
+      <div class="form-label input-label"><label for="item_edit_comment"><?= __('app.edit_comment'); ?></label></div>
+      <div class="form-element">
+        <input id="item_edit_comment" name="item_edit_comment" type="text" value="" placeholder="<?= __('app.edit_comment_help'); ?>">
+      </div>
+    </fieldset>
 
     <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
     <?= Html::sumbit(__('app.edit')); ?>

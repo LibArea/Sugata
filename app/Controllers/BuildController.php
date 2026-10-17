@@ -712,10 +712,12 @@ class BuildController extends Controller
 						];
 					}
 				}
-				// Оставшиеся непереведённые [[Термин]] — красные ссылки, помечаем как несозданные
-				if (preg_match_all('/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u', $haystack, $uw, PREG_SET_ORDER)) {
+				// Оставшиеся в $resolved непереведённые [[Термин]] — красные ссылки.
+				// Используем ЦЕЛЬ (правую часть при pipe, иначе сам термин),
+				// т.к. резолвер пытался найти именно её.
+				if (preg_match_all('/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u', $resolved, $uw, PREG_SET_ORDER)) {
 					foreach ($uw as $u) {
-						$word = trim((string)($u[1] ?? ''));
+						$word = trim((string)($u[2] ?? $u[1] ?? ''));
 						$key  = (int)$item['item_id'] . '|[[word]]' . $word;
 						if ($word === '' || isset($broken[$key])) {
 							continue;

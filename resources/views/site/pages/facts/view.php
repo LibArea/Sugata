@@ -93,7 +93,7 @@
       </fieldset>
 
       <?php
-        // РЎРІСЏР·Р°РЅРЅС‹Рµ С„Р°РєС‚С‹/СЃС‚Р°С‚СЊРё (СЂСѓС‡РЅР°СЏ СЃРІСЏР·СЊ) вЂ” РїСЂРёРѕСЂРёС‚РµС‚РЅРµРµ Р РµРєРѕРјРµРЅРґРѕРІР°РЅРЅРѕРіРѕ
+        // Связанные факты/статьи (ручная связь) — приоритетнее Рекомендованного
         $related = $related ?? [];
         if ($related) :
           $relTitle = (($item['item_type'] ?? 'fact') === 'fact')
@@ -127,6 +127,8 @@
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
+
+      <?= insert('/site/components/backlinks', ['backlinks' => $backlinks ?? [], 'preview' => !empty($preview)]); ?>
 
     </main>
 

@@ -184,7 +184,7 @@ sup:target .footnote-ref {
 
 .title-dir {
   font-weight: 500;
-  color: var(--link-color);
+  color: var(--gray-600);
   text-decoration: none;
   margin-right: 15px;
 }

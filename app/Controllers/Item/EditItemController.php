@@ -217,6 +217,38 @@ public function edit()
         );
     }
 
+    // Построчный diff между двумя версиями
+    public function historyDiff(): void
+    {
+        $id     = Request::param('id')->asInt();
+        $fromV  = Request::param('from')->asInt();
+        $toV    = Request::param('to')->asInt();
+
+        $item = Validator::content($id);
+        if ($this->container->access()->author('item', $item) === false) {
+            $this->container->redirect()->to(url('homepage'), status: 303);
+        }
+
+        $compare = \App\Models\VersionModel::compare($id, $fromV, $toV);
+        if (empty($compare['from']) || empty($compare['to'])) {
+            Msg::redirect(__('msg.version_not_found'), 'error', url('item.history', ['id' => $id]));
+        }
+
+        render(
+            '/admin/pages/items/history-diff',
+            [
+                'meta'  => Meta::get(__('app.item_diff')),
+                'data'  => [
+                    'item'    => $item,
+                    'diff'    => $compare['diff'],
+                    'from'    => $compare['from'],
+                    'to'      => $compare['to'],
+                    'backUrl' => url('item.history', ['id' => $id]),
+                ]
+            ],
+        );
+    }
+
     // Откат факта к выбранной версии
     public function rollback(): void
     {

@@ -28,12 +28,12 @@ $didYouKnow = $didYouKnow ?? [];
             <h2 class="wiki-best__title"><a href="<?= $path; ?>"><?= htmlEncode($bestFact['item_title']); ?></a></h2>
 
             <?php
-            // РџРµСЂРІС‹Рµ РїРѕР»РЅС‹Рµ Р°Р±Р·Р°С†С‹ (РґРѕ ~800 СЃРёРјРІРѕР»РѕРІ) СЃ СЃРѕС…СЂР°РЅРµРЅРёРµРј С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ markdown
+            // Первые полные абзацы (до ~800 символов) с сохранением форматирования markdown
             $blocks = preg_split('/\n\s*\n/', (string)$bestFact['item_content']);
             $keep = [];
             $len = 0;
             foreach ($blocks as $b) {
-                $clean = trim(preg_replace('/[#>*_\[\]()!-]/u', '', $b)); // РіСЂСѓР±Р°СЏ РѕС†РµРЅРєР° РґР»РёРЅС‹ С‚РµРєСЃС‚Р°
+                $clean = trim(preg_replace('/[#>*_\[\]()!-]/u', '', $b)); // грубая оценка длины текста
                 if ($len + mb_strlen($clean) > 800) {
                     break;
                 }

@@ -24,7 +24,7 @@ class Validator
     public static function publication($data, $redirect)
     {
 		$title = str_replace("&nbsp;", '', $data['item_title']);
-		if (v::stringType()->length(6, 250)->validate($title) === false) {
+		if (v::stringType()->length(1, 250)->validate($title) === false) {
 			Msg::redirect(__('msg.string_length', ['name' => '«' . __('msg.title') . '»']), 'error', $redirect);
 		}
 

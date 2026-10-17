@@ -517,6 +517,20 @@ body.wiki-preview aside {
   font-size: var(--font-size-sm);
 }
 
+/* ========== Red links (несуществующие статьи [[Термин]]) ========== */
+.wiki-content a.red-link,
+.wiki-fact-body a.red-link {
+  color: var(--red);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--red);
+}
+
+.wiki-content a.red-link:hover,
+.wiki-fact-body a.red-link:hover {
+  color: var(--red);
+  text-decoration: underline;
+}
+
 /* ========== Fact card in lists ========== */
 .wiki-fact-list {
   display: flex;
@@ -611,6 +625,22 @@ body.dark .wiki-admin-preview-bar {
   color: #ffe9b8;
   background: linear-gradient(90deg, #7a5a10, #8a6a16);
   border-bottom-color: #f0b429;
+}
+
+/* ========== Подсветка вики-ссылок [[...]] в превью редактора ========== */
+.wikilink {
+  padding: 0 1px;
+  border-radius: 3px;
+}
+.wikilink-ok {
+  color: var(--blue);
+  background-color: rgba(59, 130, 246, 0.08);
+  border-bottom: 1px solid var(--blue);
+}
+.wikilink-missing {
+  color: var(--red);
+  background-color: rgba(239, 68, 68, 0.08);
+  border-bottom: 1px dashed var(--red);
 }
 
 /* ========== Article list (journal style) ========== */

@@ -83,7 +83,7 @@
       <?php endif; ?>
 
       <?php
-        // РЎРІСЏР·Р°РЅРЅС‹Рµ СЃС‚Р°С‚СЊРё (СЂСѓС‡РЅР°СЏ СЃРІСЏР·СЊ: С„Р°РєС‚ в†” СЃС‚Р°С‚СЊСЏ). РЈ СЃС‚Р°С‚СЊРё РїРѕРєР°Р·С‹РІР°РµРј СЃРІСЏР·Р°РЅРЅС‹Рµ СЃС‚Р°С‚СЊРё.
+        // Связанные статьи (ручная связь: факт ↔ статья). У статьи показываем связанные статьи.
         $related = $related ?? [];
         if (!empty($related)) :
           echo insert('/shared/related', ['related' => $related, 'title' => __('app.related_articles'), 'accent' => true, 'preview' => !empty($preview)]);
@@ -91,7 +91,7 @@
       ?>
 
       <?php
-        // Р¤Р°РєС‚С‹, РЅР° РєРѕС‚РѕСЂС‹Рµ СЃСЃС‹Р»Р°РµС‚СЃСЏ С‚РµРєСЃС‚ СЃС‚Р°С‚СЊРё.
+        // Факты, на которые ссылается текст статьи.
         $linkedFacts = \App\Models\ItemModel::getFactsFromContent($item['item_content'] ?? '');
         if (!empty($linkedFacts)) :
           echo insert('/shared/related', ['related' => $linkedFacts, 'title' => __('app.related_facts'), 'plain' => true, 'thumb' => true, 'preview' => !empty($preview)]);
@@ -108,6 +108,8 @@
           <?php endforeach; ?>
         </div>
       <?php endif; ?>
+
+      <?= insert('/site/components/backlinks', ['backlinks' => $backlinks ?? [], 'preview' => !empty($preview)]); ?>
 
     </main>
 

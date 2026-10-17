@@ -88,6 +88,80 @@ var customMenuC = Cherry.createMenuHook('factlink', {
 	}
 });
 
+// --- Подсветка вики-ссылок [[...]] в превью (синяя — статья есть, красная — нет) ---
+if (typeof window.__wikiLinkStatus === 'undefined') {
+	window.__wikiLinkStatus = {}; // цель -> 1|0
+	window.__wikiLinkTimer = null;
+}
+
+// Собрать уникальные цели из markdown-строки
+function collectWikiTargets(md) {
+	var targets = {};
+	var re = /\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/g;
+	var m;
+	while ((m = re.exec(md)) !== null) {
+		var target = (m[2] || m[1] || '').trim();
+		if (target) targets[target] = 1;
+	}
+	return Object.keys(targets);
+}
+
+// Запросить статусы целей у сервера
+function refreshWikiStatus(cherryInst, md) {
+	var list = collectWikiTargets(md);
+	if (!list.length) { window.__wikiLinkStatus = {}; return; }
+	var body = list.map(function (t) { return 'terms[]=' + encodeURIComponent(t); }).join('&');
+	fetch('/mod/admin/editor/check-wikilinks', {
+		method: 'POST',
+		credentials: 'same-origin',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body: body
+	}).then(function (r) {
+		if (!r.ok) throw new Error('HTTP ' + r.status);
+		return r.json();
+	}).then(function (res) {
+		window.__wikiLinkStatus = res || {};
+		// Перекрасить уже отрисованные спаны напрямую (Cherry кэширует по data-sign и не перерисовывает их)
+		window.__cherryPreviewDom = window.__cherryPreviewDom
+			|| document.querySelector('#markdown-container .cherry-previewer')
+			|| document.getElementById('markdown-container')
+			|| document;
+		repaintWikiLinks();
+	}).catch(function (e) {
+		console.error('check-wikilinks error:', e && e.message ? e.message : e);
+	});
+}
+
+// Хук: красит [[...]] в превью согласно статусу
+var WikiLinkHook = Cherry.createSyntaxHook('wikiLink', Cherry.constants.HOOKS_TYPE_LIST.SEN, {
+	makeHtml(str) {
+		var that = this;
+		return str.replace(this.RULE.reg, function (whole, m1, m2) {
+			var text = (m1 || '').trim();
+			var target = (m2 || m1 || '').trim();
+			var ok = window.__wikiLinkStatus[target] === 1;
+			return '<span class="wikilink ' + (ok ? 'wikilink-ok' : 'wikilink-missing') + '" data-target="' + target.replace(/"/g, '&quot;') + '" title="' + (ok ? 'Существует' : 'Статья не создана') + '">' + text + '</span>';
+		});
+	},
+	rule(str) {
+		return { reg: /\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/g };
+	}
+});
+
+// Перекрасить уже отрисованные спаны .wikilink по текущему статусу (без перерендера Cherry)
+function repaintWikiLinks() {
+	var root = window.__cherryPreviewDom;
+	if (!root) return;
+	var spans = root.querySelectorAll('.wikilink');
+	for (var i = 0; i < spans.length; i++) {
+		var t = spans[i].getAttribute('data-target') || '';
+		var ok = window.__wikiLinkStatus[t] === 1;
+		var cls = 'wikilink wikilink-' + (ok ? 'ok' : 'missing');
+		spans[i].className = cls;
+		spans[i].setAttribute('title', ok ? 'Существует' : 'Статья не создана');
+	}
+}
+
 var cherry = new Cherry({
 		id: 'markdown-container',
 		value: document.getElementById("source").value,
@@ -103,11 +177,21 @@ var cherry = new Cherry({
 
         <?= insert('/shared/form/editor/localization'); ?>
 
-		togglePreview: false,
+		togglePreview: true,
+
+		engine: {
+			customSyntax: {
+				wikiLink: {
+					syntaxClass: WikiLinkHook,
+					force: true,
+					before: 'fontEmphasis',
+				},
+			},
+		},
 
 		editor: {
 			name: 'item_content',
-			defaultModel: 'editOnly', // edit&preview|editOnly|previewOnly
+			defaultModel: 'edit&preview',
 			height: '<?= $height; ?>',
 			showSuggestList: false,
 			autoSave2Textarea: true, // синхронизировать контент в textarea перед отправкой
@@ -141,6 +225,23 @@ var cherry = new Cherry({
 });
 
 	window.cherry = cherry;
+
+	// Первичная проверка статусов вики-ссылок сразу после загрузки
+	var initialMd = (document.getElementById('source') || {}).value || '';
+	refreshWikiStatus(cherry, initialMd);
+
+	// Пересборка при изменении текста (с дебаунсом)
+	function getCurrentMd() {
+		var cm = cherry.getCodeMirror ? cherry.getCodeMirror() : null;
+		if (cm && cm.state && cm.state.doc) return cm.state.doc.toString();
+		return '';
+	}
+	cherry.$event && cherry.$event.on('afterChange', function (evt) {
+		clearTimeout(window.__wikiLinkTimer);
+		window.__wikiLinkTimer = setTimeout(function () {
+			refreshWikiStatus(cherry, getCurrentMd());
+		}, 400);
+	});
 </script>
 
 <div id="fact-search-modal" class="fact-search-modal">

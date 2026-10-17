@@ -33,7 +33,13 @@
               <a href="<?= url('item.form.edit', ['id' => $link['item_id']]); ?>"><?= htmlEncode($link['article_title']); ?></a>
             </td>
             <td><?= htmlEncode($link['word'] ?: '—'); ?></td>
-            <td><code><?= htmlEncode($link['link']); ?></code></td>
+            <td>
+              <?php if ($link['link']) : ?>
+                <code><?= htmlEncode($link['link']); ?></code>
+              <?php else : ?>
+                <span class="red"><?= __('app.broken_term'); ?></span>
+              <?php endif; ?>
+            </td>
             <td><?= $link['created_at'] ? langDate($link['created_at']) : '—'; ?></td>
           </tr>
         <?php endforeach; ?>

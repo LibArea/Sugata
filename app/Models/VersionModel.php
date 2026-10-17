@@ -92,6 +92,25 @@ class VersionModel extends Model
         return self::maxVersion($item_id) > 0;
     }
 
+    // Построчный diff содержимого двух версий.
+    // Возвращает [['op' => '='|'-'|'+', 'text' => string], ...] + метаданные версий.
+    public static function compare(int $item_id, int $fromVersion, int $toVersion): array
+    {
+        $from = self::get($item_id, $fromVersion);
+        $to   = self::get($item_id, $toVersion);
+
+        $oldText = (string)($from['item_content'] ?? '');
+        $newText = (string)($to['item_content'] ?? '');
+
+        $diff = \LineDiff::diff($oldText, $newText);
+
+        return [
+            'diff' => $diff,
+            'from' => $from,
+            'to'   => $to,
+        ];
+    }
+
     // Категории факта из снимка в виде JSON-массива id
     protected static function facetIdsJson(array $item): ?string
     {
