@@ -1,26 +1,13 @@
-<div class="box bg-lightgray">
-	<ul class="menu">
+<nav class="nav" aria-label="Меню">
+  <?php foreach ($itemsMenu as $key => $item) :
+    $css = empty($item['css']) ? false : $item['css'];
+    $isActive = $item['id'] == $sheet ? 'active' : false;
+    $class = ($css || $isActive) ? ' class="' . $isActive . ' ' .  $css . '"' : ''; ?>
 
-		<?php foreach ($itemsMenu as $key => $item) :
-			$css = empty($item['css']) ? false : $item['css'];
-			$isActive = $item['id'] == $sheet ? 'active' : false;
-			$class = ($css || $isActive) ? ' class="' . $isActive . ' ' .  $css . '"'   : ''; ?>
-
-
-			<?php if ($container->user()->tl() >= $item['tl']) : ?>
-
-				<?php if (!empty($item['br'])) : ?><br><?php endif; ?>
-
-				<li<?= $class; ?>>
-					<a href="<?= url($item['url']); ?>">
-						<?php if (!empty($item['icon'])) : ?><svg class="icon">
-								<use xlink:href="/assets/svg/icons.svg#<?= $item['icon']; ?>"></use>
-							</svg><?php endif; ?>
-						<?= __($item['title']); ?>
-					</a>
-					</li>
-				<?php endif; ?>
-			<?php endforeach; ?>
-
-	</ul>
-</div>
+    <?php if ($container->user()->tl() >= $item['tl']) : ?>
+      <a<?= $class; ?> href="<?= url($item['url']); ?>">
+        <?= __($item['title']); ?>
+      </a>
+    <?php endif; ?>
+  <?php endforeach; ?>
+</nav>

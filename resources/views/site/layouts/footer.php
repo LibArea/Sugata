@@ -1,10 +1,6 @@
-<br>
-<footer class="content wiki-content">
-  <div>
-    © 2026 sugata — <span class="lowercase"><?= __('app.facts'); ?></span><br>
-    <?= __('app.page_rebuilt'); ?> <?= date('d.m.Y H:i:s'); ?>
-  </div>
-  <div class="right mb-none"><a href="/info/about.html">О сайте</a></div>
+<footer>
+  <div>© 2026 sugata — <span class="lowercase"><?= __('app.facts'); ?></span> · <?= __('app.page_rebuilt'); ?> <?= date('d.m.Y H:i:s'); ?></div>
+  <div><a href="/info/about.html">О сайте</a></div>
 </footer>
 
 <?php if ((int)config('general', 'metrika_id') > 0) : ?>

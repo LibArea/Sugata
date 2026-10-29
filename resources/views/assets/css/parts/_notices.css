@@ -1,0 +1,116 @@
+/* ============================================
+   Страница уведомлений (Notifications)
+   ============================================ */
+
+/* ---------- Контейнер страницы ---------- */
+.notifications-page {
+    margin-top: 1em;
+}
+
+/* ---------- Шапка: заголовок + действия ---------- */
+.notifications-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.notifications-header h2 {
+    margin: 0;
+}
+
+/* ---------- Список уведомлений ---------- */
+ol.notification-list {
+    padding: 0;
+    list-style: none;
+    margin: 0;
+}
+
+.notification-item {
+    border-bottom: 1px solid var(--color-box-bg-shaded);
+}
+
+.notification-item:first-child {
+    border-top: 1px solid var(--color-box-bg-shaded);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* ---------- Ссылка-элемент уведомления ---------- */
+.notification-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75em;
+    padding: 0.6em 0.25em;
+    text-decoration: none;
+    color: var(--color-fg);
+    transition: background-color var(--transition-fast);
+}
+
+.notification-link:hover {
+    background-color: var(--color-box-bg-shaded);
+}
+
+.notification-link:visited {
+    color: var(--color-fg);
+}
+
+/* ---------- Иконка уведомления (круг) ---------- */
+.notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: var(--color-box-bg-shaded);
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+/* ---------- Контент уведомления ---------- */
+.notification-body {
+    flex-grow: 1;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.notification-sender {
+    font-weight: bold;
+    margin-right: 0.3em;
+}
+
+.notification-action {
+    color: var(--opacity-fg-67);
+    font-size: 0.9em;
+}
+
+.notification-quote {
+    margin: 0.3em 0 0 0;
+    font-size: 0.9em;
+}
+
+.notification-time {
+    color: var(--opacity-fg-59);
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+/* ---------- Непрочитанное уведомление ---------- */
+.notification-unread {
+    background-color: var(--color-flash-bg-notice);
+}
+
+.notification-unread .notification-link {
+    font-weight: bold;
+}
+
+.notification-unread .notification-icon {
+    background-color: var(--color-fg-accent);
+    color: white;
+}
+
+

@@ -18,7 +18,7 @@
 	]);
 	?>
 
-	<h1 class="uppercase-box"><?= __('app.add_' . $data['sheet']); ?> </h1>
+	<h1 class="title"><?= __('app.add_' . $data['sheet']); ?> </h1>
 
 	<form class="max-w-md" action="<?= url('add.facet', ['type' => $data['sheet']], method: 'post'); ?>" method="post" enctype="multipart/form-data">
 		<?= $container->csrf()->field(); ?>

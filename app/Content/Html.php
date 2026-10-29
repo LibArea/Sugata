@@ -7,7 +7,7 @@ use App\Bootstrap\Services\User\UserData;
 
 class Html
 {
-    public static function facetDir($facet, $mod = 'dynamics', $css = 'title-dir')
+    public static function facetDir($facet, $mod = 'dynamics', $css = 'gray')
     {
         $facets = preg_split('/(@)/', (string)$facet ?? false);
 

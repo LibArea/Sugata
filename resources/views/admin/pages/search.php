@@ -3,53 +3,49 @@ $type = $data['type'];
 $sw = $sw ?? '?';
 ?>
 
-<main>
+<main class="content">
+  <h1 class="title"><?= __('app.search'); ?></h1>
 
   <?php if (!empty($data['results'])) : ?>
-    <div class="flex mb20">
-      <?php foreach ($data['tags'] as $tag) : ?>
-        <?php $url = url('topic', ['slug' => $tag['slug']]); ?>
-        <a class="tag-yellow" href="<?= $url; ?>">
-          <?= $tag['title']; ?>
-        </a>
-      <?php endforeach; ?>
-    </div>
-  <?php endif; ?>
-
-  <?php if (!empty($data['results'])) : ?>
-
-    <div class="gray-600 flex items-center justify-between mb20">
-      <?= __('search.results_search'); ?> <?= $data['count']; ?>
-      <span><?= round($data['time'], 3); ?> мс.</span>
-    </div>
-
-    <?php foreach ($data['results'] as $result) : ?>
-
-      <div class="mb20">
-        <?php if (!empty($result['link'])) : ?>
-          <a class="text-xl" href="<?= htmlEncode($result['link']); ?>">
-            <?= $result['title']; ?>
-          </a>
-        <?php else : ?>
-          <span class="text-xl"><?= $result['title']; ?></span>
-        <?php endif; ?>
-        <?php if ($type == 'comment') : ?>
-          <?= fragment($result['comment_content'], 250); ?>
-        <?php else : ?>
-          <?php if (config('general', 'search_engine') == false) : ?>
-            <div class="max-w-md"><?= fragment($result['content'], 250); ?></div>
-          <?php else : ?>
-            <div class="max-w-md"><?= $result['content']; ?></div>
-          <?php endif; ?>
-        <?php endif; ?>
+    <?php if ($data['tags']) : ?>
+      <div class="mb1">
+        <?php foreach ($data['tags'] as $tag) : ?>
+          <a class="tag" href="<?= url('topic', ['slug' => $tag['slug']]); ?>"><?= $tag['title']; ?></a>
+        <?php endforeach; ?>
       </div>
-    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <div class="gray mb1">
+      <?= __('search.results_search'); ?> <?= $data['count']; ?>
+      <span class="right"><?= round($data['time'], 3); ?> мс.</span>
+    </div>
+
+    <ol class="stories">
+      <?php foreach ($data['results'] as $result) : ?>
+        <li class="story">
+          <div class="story_liner">
+            <div class="link">
+              <?php if (!empty($result['link'])) : ?>
+                <a href="<?= htmlEncode($result['link']); ?>"><?= $result['title']; ?></a>
+              <?php else : ?>
+                <?= $result['title']; ?>
+              <?php endif; ?>
+            </div>
+            <div class="story_content">
+              <?php if ($type == 'comment') : ?>
+                <?= fragment($result['comment_content'], 250); ?>
+              <?php else : ?>
+                <?= $result['content']; ?>
+              <?php endif; ?>
+            </div>
+          </div>
+        </li>
+      <?php endforeach; ?>
+    </ol>
 
     <?php $url = 'go?q=' . htmlEncode($data['q']) . '&cat=' . $data['type'] . ''; ?>
-
     <?= Html::pagination($data['pNum'], $data['pagesCount'], null, $url, '&'); ?>
-
   <?php else : ?>
-    Результатов нет
+    <p><?= __('app.no_content'); ?></p>
   <?php endif; ?>
 </main>

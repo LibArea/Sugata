@@ -23,13 +23,16 @@ class ItemModel extends Model
                 $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact' ORDER BY item_date DESC";
                 break;
             case 'all_site':
-                $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type IN ('fact','article') ORDER BY item_date DESC";
+                $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type IN ('fact','article','site') ORDER BY item_date DESC";
                 break;
             case 'page':
                 $sort     = "item_is_deleted = 0 AND item_type = 'page' ORDER BY item_date DESC";
                 break;
             case 'articles':
                 $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'article' ORDER BY item_date DESC";
+                break;
+            case 'sites':
+                $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'site' ORDER BY item_date DESC";
                 break;
             case 'moderation':
                 $sort     = "item_published = 0 AND item_type = 'fact' ORDER BY item_date DESC";

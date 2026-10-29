@@ -44,6 +44,9 @@ class BuildController extends Controller
 			$this->buildCss(HLEB_GLOBAL_DIR . $putch, $key);
 		}
 
+		// Автоперенос ассетов (CSS/JS/картинки) на статический сайт
+		$this->copyAssetsToStatic();
+
 		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
 	}
 
@@ -242,10 +245,9 @@ class BuildController extends Controller
 
 	public function transfer(): void
 	{
-		// Копируем папку uploads в публичное пространство
-		$this->copyDirectFile();
-
-		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
+		// Копируем только папку uploads (фото) в публичное пространство.
+		// CSS/JS/ассеты копируются автоматически при пересборке (copyAssetsToStatic).
+		$this->transferUploads();
 	}
 
 	public function copyDirectFile(): void
@@ -266,6 +268,62 @@ class BuildController extends Controller
 			$dest . '/assets/js/cropper',
 			$dest . '/assets/js/editor',
 			$dest . '/assets/js/prism',
+		];
+		foreach ($old as $path) {
+			if (is_file($path)) {
+				unlink($path);
+			} elseif (is_dir($path)) {
+				$this->rmdirRecursive($path);
+			}
+		}
+	}
+
+	/**
+	 * Перенос ТОЛЬКО картинок (uploads) на статику.
+	 * Используется кнопкой «Перенести фото».
+	 */
+	public function transferUploads(): void
+	{
+		$source = HLEB_PUBLIC_DIR . '/uploads';
+		$dest   = $this->path . '/uploads';
+
+		// Перезаписываем — фото могли быть обновлены под тем же именем
+		$this->copyDirect($source, $dest, $over = true);
+
+		Msg::redirect(__('msg.change_saved'), 'success', url('tools'));
+	}
+
+	/**
+	 * Автокопирование ассетов (assets/css, assets/js, assets/images, assets/svg)
+	 * на статику. Вызывается после пересборки CSS/JS и генерации индекса/рандомных фактов,
+	 * чтобы стили и скрипты сразу оказывались на статическом сайте без ручного переноса.
+	 */
+	public function copyAssetsToStatic(): void
+	{
+		$dest = $this->path . '/assets';
+
+		// Перезаписываем: пересобранные CSS/JS обязаны попасть на статику.
+		// copyDirect с $over=true не может удалять лишние КАТАЛОГИ внутри assets (editor/tag/...),
+		// поэтому админские JS-подпапки чистим отдельно ниже.
+		$over = true;
+
+		foreach (['css', 'js', 'images', 'svg'] as $sub) {
+			$source = HLEB_PUBLIC_DIR . '/assets/' . $sub;
+			if (is_dir($source)) {
+				$this->copyDirect($source, $dest . '/' . $sub, $over);
+			}
+		}
+
+		// Убираем из статики админские JS, которые могли попасть при прошлых переносах
+		$old = [
+			$dest . '/js/admin.js',
+			$dest . '/js/app.js',
+			$dest . '/js/common.js',
+			$dest . '/js/la.js',
+			$dest . '/js/tag',
+			$dest . '/js/cropper',
+			$dest . '/js/editor',
+			$dest . '/js/prism',
 		];
 		foreach ($old as $path) {
 			if (is_file($path)) {
@@ -356,6 +414,40 @@ class BuildController extends Controller
 		file_put_contents(HLEB_PUBLIC_DIR . '/assets/js/random-facts.js', $js);
 	}
 
+	// Генерирует assets/js/search-index.js — JSON-индекс всех публикуемых статей
+	// для клиентского поиска на статике (MiniSearch).
+	protected function buildSearchIndex(): void
+	{
+		$docs = [];
+		foreach (SearchModel::getIndexAll() as $item) {
+			$chunks = array_chunk(preg_split('/(@)/', (string)($item['facet_list'] ?? '')), 4);
+			$path = trim($chunks[0][2] ?? '', '/');
+			if ($path === '' || empty($item['item_slug'])) {
+				continue;
+			}
+
+			$docs[] = [
+				'id'    => (int)$item['item_id'],
+				'title' => (string)$item['item_title'],
+				'path'  => $path,
+				'slug'  => (string)$item['item_slug'],
+				'url'   => '/' . $path . '/' . $item['item_slug'] . '.html',
+				'text'  => (string)$item['item_content'],
+			];
+		}
+
+		$js = "window.__SEARCH_INDEX__ = " . json_encode($docs, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ";";
+		file_put_contents($this->path . '/assets/js/search-index.js', $js);
+		file_put_contents(HLEB_PUBLIC_DIR . '/assets/js/search-index.js', $js);
+	}
+
+	// Кнопка в админке: пересобрать search-index.js
+	public function buildSearchIndexAction(): void
+	{
+		$this->buildSearchIndex();
+		Msg::redirect(__('msg.successfully'), 'success', url('tools'));
+	}
+
 	public function buildDir()
 	{
 		$facets = FacetModel::getTree('category', 'all');
@@ -380,6 +472,9 @@ class BuildController extends Controller
 	{
 		// Создает домашнюю страницу и css
 		$this->buildHtmlHome();
+
+		// Клиентский поисковый индекс для статики
+		$this->buildSearchIndex();
 
 		$facets = FacetModel::getTree('category', 'all');
 
@@ -406,17 +501,13 @@ class BuildController extends Controller
 			return;
 		}
 
-		$temp_dit = '/site/pages/facts/index.php';
-
 		$tree = FacetModel::breadcrumb($facetId);
 		$breadcrumb = Html::breadcrumbDir($tree, 'static');
 		$meta = Meta::category($facet);
 		$dirPath = $this->path . $facet['facet_path'];
 
-		// Категория статей (корень articles) — свой шаблон списка
-		if (str_starts_with(trim((string)$facet['facet_path'], '/'), 'articles/') || trim((string)$facet['facet_path'], '/') === 'articles') {
-			$temp_dit = '/site/pages/articles/index.php';
-		}
+		// Шаблон списка категории (статьи/сайты/факты) — единая логика
+		$temp_dit = CatalogService::categoryTemplate((string)$facet['facet_path']);
 
 		// Автосоздание папки категории
 		if (!is_dir($dirPath)) {
@@ -525,10 +616,6 @@ class BuildController extends Controller
 	// Рендер одного факта/страницы в статический HTML
 	protected function renderItemFile(array $item, ?array $sideNav = null): void
 	{
-		$temp_view = '/site/pages/facts/view.php';
-		$temp_page = '/site/pages/page.php';
-		$temp_article = '/site/pages/articles/view.php';
-
 		$storage = SearchModel::PdoStorage();
 		$similar = $storage->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
 
@@ -544,12 +631,8 @@ class BuildController extends Controller
 			(string)$item['item_slug']
 		);
 
-		// Если slug = info (служебная категория) то другой шаблон
-		$tmp = match (($item['item_type'] ?? 'fact')) {
-			'article' => $temp_article,
-			'page'    => $temp_page,
-			default   => ($dir[2] == 'info') ? $temp_page : $temp_view,
-		};
+		// Выбор шаблона записи (факт/статья/сайт/страница) — единая логика
+		$tmp = \App\Content\CatalogService::itemTemplate($item, (string)($dir[2] ?? ''));
 
 		$img_url = Parser::miniature($item['item_content']);
 

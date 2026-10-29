@@ -1,5 +1,271 @@
 /*
  * Additional styles
- *
- * Дополнительные стили
+ * Дополнительные стили Sugata (отсутствуют в базовой дизайн-системе base.css)
  */
+
+/* ---------- Контейнер ---------- */
+.content {
+    margin: 0 auto;
+    max-width: 60rem;
+    padding: 0 1em;
+}
+
+/* ---------- Оглавление статьи ---------- */
+.toc {
+    border: 1px solid var(--color-box-border);
+    border-radius: 3px;
+    background-color: var(--color-box-bg);
+    padding: 0.6em 0.9em;
+    max-width: 38rem;
+}
+
+.toc__title {
+    font-weight: bold;
+    margin-bottom: 0.4em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--color-box-border);
+}
+
+.toc__list {
+    margin: 0;
+    padding-left: 1em;
+    list-style: none;
+    counter-reset: toc;
+}
+
+.toc__list li {
+    margin: 0.25em 0;
+}
+
+.toc__list a {
+    color: var(--color-fg-link);
+    text-decoration: none;
+}
+
+.toc__list a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Связанные статьи: цветная полоса слева по разделу ---------- */
+.related .story {
+    border-left: 3px solid var(--color-fg-accent);
+    padding-left: 0.75em;
+}
+
+.related--articles .story {
+    border-left-color: var(--color-fg-link);
+}
+
+.related--web .story {
+    border-left-color: var(--color-fg-affirmative);
+}
+
+.related--info .story {
+    border-left-color: var(--color-fg-shape);
+}
+
+/* ---------- Выпадающие результаты поиска ---------- */
+.wiki-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    margin-top: 0.25em;
+    background: var(--color-box-bg);
+    border: 1px solid var(--color-box-border);
+    border-radius: 3px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+
+.wiki-search-item {
+    display: block;
+    padding: 0.5em 0.75em;
+    border-bottom: 1px solid var(--color-box-bg-shaded);
+    color: var(--color-fg-link);
+    text-decoration: none;
+}
+
+.wiki-search-item:last-child {
+    border-bottom: none;
+}
+
+.wiki-search-item:hover,
+.wiki-search-item:focus {
+    background: var(--color-box-bg-shaded);
+}
+
+.wiki-search-item__title {
+    display: block;
+    font-weight: 600;
+}
+
+.wiki-search-item__path {
+    display: block;
+    font-size: 0.85em;
+    color: var(--opacity-fg-59);
+}
+
+.wiki-search-empty {
+    color: var(--opacity-fg-63);
+    font-size: 0.85em;
+    padding: 0.5em 0.75em;
+}
+
+/* ---------- Кнопки (в базовой системе только btn-link/btn-danger) ---------- */
+.btn {
+    display: inline-block;
+    background-color: var(--color-button-bg);
+    border: 1px solid var(--color-box-border);
+    color: var(--color-fg);
+    cursor: pointer;
+    padding: 4px 10px;
+    line-height: 18px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn:hover { background-color: var(--color-button-bg-shaded); }
+
+.btn-primary {
+    background-color: var(--color-fg-accent);
+    border-color: var(--color-fg-accent);
+    color: white;
+}
+
+.btn-primary:hover { opacity: 0.9; background-color: var(--color-fg-accent); }
+
+/* ---------- Панели ---------- */
+.box {
+    background-color: var(--color-box-bg-shaded);
+    border: 1px solid var(--color-box-border);
+    border-radius: 3px;
+    padding: 0.75em;
+}
+
+.bg-blue { background-color: var(--color-fg-accent); }
+
+/* ---------- Утилиты проколов (не в базовой) ---------- */
+.add { width: 99%; box-sizing: border-box; resize: vertical; }
+.center { text-align: center; }
+.content { max-width: 60rem; }
+.copy {
+  margin: 1em 0;
+  border: none;
+  padding: .5em;
+  display: flex;
+  align-items: center;
+  gap: .5em;
+  background-color: #F5F0E6;
+}
+
+.copy input {
+  flex: 1;
+  min-width: 0;
+}
+.gray-600 { color: var(--opacity-fg-63); }
+.gap-sm { gap: 0.375rem; }
+.inline { display: inline; }
+.items-center { align-items: center; }
+.lowercase { text-transform: lowercase; }
+.max-w-md { max-width: 800px; }
+.mb20 { margin-bottom: 20px; }
+.mb10 { margin-bottom: 10px; }
+.mb15 { margin-bottom: 15px; }
+.mb5 { margin-bottom: 5px; }
+.middle { vertical-align: middle; }
+.ml5 { margin-left: 5px; }
+.mt20 { margin-top: 20px; }
+.none { display: none; }
+.p15 { padding: 15px; }
+.p5 { padding: 5px; }
+.p5-10 { padding: 5px 10px; }
+.prevImg { margin-top: 0.5em; }
+.relative { position: relative; }
+.block { display: block; }
+.icon { width: 1em; height: 1em; vertical-align: middle; fill: currentColor; }
+
+/* ---------- Админ-иконка редактирования ---------- */
+.admin-icon-action {
+    margin-left: 0.5em;
+    text-decoration: none;
+    vertical-align: middle;
+}
+
+/* ---------- Модалка поиска фактов (в редакторе) ---------- */
+.fact-search-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.fact-search-modal.block { display: flex; }
+
+.fact-search-modal__box {
+    background-color: var(--color-box-bg);
+    border: 1px solid var(--color-box-border);
+    border-radius: 3px;
+    padding: 1em;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.fact-search-results { display: flex; flex-direction: column; gap: 0.3em; }
+
+.fact-search-item {
+    text-align: left;
+    background-color: var(--color-box-bg-shaded);
+    border: 1px solid var(--color-box-border);
+    border-radius: 3px;
+    padding: 0.4em 0.6em;
+    cursor: pointer;
+    color: var(--color-fg-link);
+}
+
+.fact-search-item:hover { background-color: var(--color-button-bg-shaded); }
+
+/* ---------- FAQ-поля в форме ---------- */
+.faq-row { display: flex; flex-direction: column; gap: 0.35em; margin-bottom: 0.75em; }
+.faq-q, .faq-a { width: 99%; }
+.faq-row-del { cursor: pointer; }
+
+/* ---------- Блок «Фото» :::{.foto} … ::: ---------- */
+.foto {
+    margin: 1em auto;
+    text-align: center;
+}
+
+.foto img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 0.4em;
+}
+
+.foto em {
+    display: block;
+    font-style: italic;
+    color: var(--opacity-fg-63);
+    font-size: 0.9em;
+}
+
+/* ---------- Прочее ---------- */
+.g-recaptcha { margin-bottom: 15px; }
+.img-remove { color: var(--color-fg-negative); }
+.showPassword {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.25em;
+}
+.tip { margin-left: 0.25em; cursor: help; }
+.type-ban { cursor: pointer; }
+.type-return { cursor: pointer; }
+.wikilink { color: var(--color-fg-link); text-decoration: underline; }

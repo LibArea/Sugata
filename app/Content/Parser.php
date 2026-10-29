@@ -256,6 +256,9 @@ class Parser
 
         $str =  str_replace(['&gt;', '{cut}'], '', strip_tags($content));
 
+        // Вики-ссылки [[Термин]] / [[Текст|Термин]] → оставляем чистый текст без скобок
+        $str = preg_replace('/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/', '$1', $str);
+
         return self::fragment($str, $lenght);
     }
 

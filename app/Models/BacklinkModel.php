@@ -32,16 +32,19 @@ class BacklinkModel extends Model
             return [];
         }
 
-        // Якорь ссылки: "/живой-путь/slug.html". Экранируем регэксп-спецсимволы пути.
+        // Якорь жёсткой ссылки: "/живой-путь/slug.html".
         $anchor = '/' . trim($facet_path, '/') . '/' . $slug . '.html';
-        $needle = preg_quote($anchor, '/');
 
+        // Статьи, ссылающиеся одним из способов:
+        //  a) жёсткая ссылка [текст](anchor)
+        //  b) вики-ссылка, чья ЦЕЛЬ резолвится в этот факт (по slug), вида [[Термин]] или [[текст|Термин]]
         $sql = "SELECT
                     i.item_id,
                     i.item_title,
                     i.item_slug,
                     i.item_type,
                     i.item_date,
+                    i.item_content,
                     rel.facet_list
                 FROM items i
                 LEFT JOIN (
@@ -55,15 +58,67 @@ class BacklinkModel extends Model
                 WHERE i.item_published = 1
                   AND i.item_is_deleted = 0
                   AND i.item_id <> :item_id
-                  AND i.item_content LIKE :like
+                  AND (
+                      i.item_content LIKE :anchor_like
+                      OR i.item_content LIKE :wikilink
+                  )
                 ORDER BY i.item_date DESC
                 LIMIT :limit";
 
-        return DB::run($sql, [
-            'item_id' => (int)$item_id,
-            'like'    => '%' . $anchor . '%',
-            'limit'   => (int)$limit,
+        $rows = DB::run($sql, [
+            'item_id'      => (int)$item_id,
+            'anchor_like'  => '%' . $anchor . '%',
+            // ищем любые вики-ссылки; цель резолвится ниже
+            'wikilink'     => '%[[%',
+            'limit'        => (int)$limit,
         ])->fetchAll();
+
+        // Отсеиваем: оставляем статьи, где либо есть жёсткая ссылка на anchor,
+        // либо есть [[...]], чья цель (справа от | или сама) резолвится в этот факт.
+        $result = [];
+        foreach ($rows as $row) {
+            $content = (string)($row['item_content'] ?? '');
+
+            // Жёсткая ссылка — точно обратная
+            if (mb_strpos($content, $anchor) !== false) {
+                $result[] = $row;
+                continue;
+            }
+
+            // Проверяем вики-ссылки [[...]]
+            if (self::contentLinksTo($content, $slug)) {
+                $result[] = $row;
+            }
+        }
+
+        return array_slice($result, 0, $limit);
+    }
+
+    // Содержит ли контент вики-ссылку [[...|Цель]] или [[Цель]],
+    // где цель резолвится (по слагифицированному slug) в текущий факт.
+    protected static function contentLinksTo(string $content, string $slug): bool
+    {
+        if (!preg_match_all('/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u', $content, $m, PREG_SET_ORDER)) {
+            return false;
+        }
+
+        $slugify = new \Cocur\Slugify\Slugify();
+        $targetSlug = $slugify->slugify($slug); // slug уже слагифицирован, но нормализуем
+
+        foreach ($m as $match) {
+            $target = trim((string)($match[2] ?? $match[1] ?? ''));
+            if ($target === '') {
+                continue;
+            }
+            $candidate = $slugify->slugify($target);
+
+            // Цель указывает на этот факт: слагифицированная цель == слагу факта
+            if ($candidate === $targetSlug) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Количество ссылающихся статей (для заголовка «N статей ссылаются сюда»)

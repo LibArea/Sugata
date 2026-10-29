@@ -1,26 +1,20 @@
 /*
- * List of resources to build
- *
- * Перечень ресурсов для сборки
+ * List of resources to build for visitor HTML
+ * Перечень ресурсов для сборки статического сайта посетителя
  */
 
-/* Resources used for LibArea design */
-@import './parts/_variables-common.css';
-
-@import './theme/_variables-light.css';
-@import './theme/_variables-dark.css';
-
-@import './parts/_components.css';
 @import './parts/_basic.css';
-@import './parts/_images.css';
-@import './parts/_inputs.css';
-@import './parts/_menu.css';
+@import './parts/_stories.css';
+@import './parts/_forms.css';
+@import './parts/_flash.css';
+@import './parts/_notices.css';
+@import './parts/_details.css';
+@import './parts/_pagination.css';
 @import './parts/_table.css';
-@import './parts/_button.css';
-@import './parts/_tags.css';
-@import './parts/_media.css';
-@import './parts/_code.css';
-
-@import './parts/_wiki.css';
+@import './parts/_search.css';
+@import './parts/_navbar.css';
+@import './parts/_profile.css';
+@import './parts/_home.css';
+@import './parts/_responsive.css';
 
 @import 'custom.css';

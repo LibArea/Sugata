@@ -68,11 +68,7 @@ public function site(): void
             $breadcrumb = Html::breadcrumbDir(FacetModel::breadcrumb((int)$facet['facet_id']), 'preview');
             $similar = SearchModel::PdoStorage()->getSimilar(new ExternalId($item['item_id'], 1), false, 1, 3, 3);
             $backlinks = \App\Models\BacklinkModel::referring((int)$item['item_id'], $facetPath, $slug);
-            $template = match (($item['item_type'] ?? 'fact')) {
-                'article' => '/site/pages/articles/view.php',
-                'page'    => '/site/pages/page.php',
-                default   => $facetPath === 'info' ? '/site/pages/page.php' : '/site/pages/facts/view.php',
-            };
+            $template = \App\Content\CatalogService::itemTemplate($item, $facetPath);
 
             $this->response()->setBody(view($template, [
                 'item' => $item,
@@ -105,9 +101,8 @@ public function site(): void
 
         $catalog = \App\Content\CatalogService::data((int)$facet['facet_id'], $pNum, 'preview');
 
-        // Категория статей (корень articles) — свой шаблон списка
-        $isArticles = str_starts_with(trim($facetPath, '/'), 'articles/') || trim($facetPath, '/') === 'articles';
-        $indexTemplate = $isArticles ? '/site/pages/articles/index.php' : '/site/pages/facts/index.php';
+        // Шаблон списка категории (статьи/сайты/факты) — единая логика
+        $indexTemplate = \App\Content\CatalogService::categoryTemplate($facetPath);
 
         $this->response()->setBody(view($indexTemplate, [
             'items' => $catalog['items'],

@@ -1,0 +1,72 @@
+/* ---------- Адаптивность ---------- */
+@media only screen and (max-width: 480px) {
+    body { padding: 0 0.5em 1em 0.5em; }
+	
+	.mb-none { display: none; }	
+    
+    header#nav { flex-wrap: wrap; }
+    
+    ol.stories li.story {
+        display: table;
+        width: 100%;
+    }
+    
+    .comment_form_container form { margin-left: 0; }
+    
+    footer {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    footer nav a {
+        display: inline-block;
+        margin: 0.25em 0.5em;
+    }
+    
+    .navbar-container { flex-wrap: wrap; }
+    
+    .navbar-links {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 0.5em;
+        margin-top: 0.5em;
+    }
+    
+    .navbar-user-dropdown-container { margin-left: auto; }
+    
+    .navbar-dropdown-menu {
+        right: 0;
+        left: auto;
+        min-width: 160px;
+    }
+    
+    li.comment > .comment_votes {
+        float: none;
+        margin-bottom: 0.5em;
+    }
+    
+    li.comment > .comment_body { overflow: visible; }
+    
+    li.comment > ol.comments {
+        margin-left: 0.5em;
+        padding-left: 0.5em;
+    }
+	
+    .admin-stats-grid {
+        grid-template-columns: 1fr 1fr; /* На телефонах по 2 карточки в ряд */
+        gap: 1em;
+    }
+    
+    .admin-stat-card {
+        padding: 1em;
+    }
+    
+    .admin-stat-value {
+        font-size: 2em;
+    }
+}
+
+@media print {
+    header#nav, footer, .voters, .byline .divider { display: none; }
+}

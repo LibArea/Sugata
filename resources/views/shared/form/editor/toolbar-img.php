@@ -248,7 +248,7 @@ var cherry = new Cherry({
   <div class="fact-search-modal__box">
     <div class="flex justify-between items-center mb10">
       <b><?= __('app.fact_link'); ?></b>
-      <button type="button" class="btn btn-small" id="fact-search-close">✕</button>
+      <button type="button" class="btn" id="fact-search-close">✕</button>
     </div>
     <input class="w-100 mb10" id="fact-search-input" type="text" placeholder="<?= __('app.fact_search_placeholder'); ?>" autocomplete="off">
     <div id="fact-search-results" class="fact-search-results"></div>
@@ -293,7 +293,7 @@ var cherry = new Cherry({
         .then(function (r) { return r.json(); })
         .then(function (list) {
           if (!Array.isArray(list) || !list.length) {
-            results.innerHTML = '<div class="gray-600">—</div>';
+            results.innerHTML = '<div class="gray">—</div>';
             return;
           }
           var html = '';

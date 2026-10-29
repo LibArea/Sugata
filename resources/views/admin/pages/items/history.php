@@ -1,15 +1,15 @@
-<main>
+<main class="content">
   <?php $item = $data['item']; ?>
-  <div class="flex justify-between items-center mb20">
+  <div class="flex justify-between items-center mb1">
     <div>
-      <p class="admin-record-id">ID <?= $item['item_id']; ?> · <a href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>"><?= htmlEncode($item['item_title']); ?></a></p>
+      <p class="hint">ID <?= $item['item_id']; ?> · <a href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>"><?= htmlEncode($item['item_title']); ?></a></p>
       <h1 class="title"><?= __('app.item_history'); ?></h1>
     </div>
-    <a class="btn btn-primary" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>"><?= __('app.edit'); ?></a>
+    <a class="btn" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>"><?= __('app.edit'); ?></a>
   </div>
 
   <?php if ($data['versions']) : ?>
-    <table>
+    <table class="data zebra">
       <thead>
         <tr>
           <th><?= __('app.version'); ?></th>
@@ -32,16 +32,16 @@
             <td><?= langDate($v['created_at']); ?></td>
             <td><?= htmlEncode($v['user_login'] ?? '—'); ?></td>
             <td><code><?= htmlEncode($v['item_slug']); ?></code></td>
-            <td class="gray-600"><?= htmlEncode($v['comment'] ?: '—'); ?></td>
+            <td class="gray"><?= htmlEncode($v['comment'] ?: '—'); ?></td>
             <td>
-              <div class="flex gap-sm items-center">
-                <a class="btn btn-small" href="<?= url('item.history.show', ['id' => $item['item_id'], 'version' => $v['version']]); ?>"><?= __('app.view'); ?></a>
+              <div class="flex gap items-center">
+                <a class="btn" href="<?= url('item.history.show', ['id' => $item['item_id'], 'version' => $v['version']]); ?>"><?= __('app.view'); ?></a>
                 <?php if ($prev) : ?>
-                  <a class="btn btn-small" href="<?= url('item.history.diff', ['id' => $item['item_id'], 'from' => $v['version'], 'to' => $prev['version']]); ?>"><?= __('app.diff_prev'); ?></a>
+                  <a class="btn" href="<?= url('item.history.diff', ['id' => $item['item_id'], 'from' => $v['version'], 'to' => $prev['version']]); ?>"><?= __('app.diff_prev'); ?></a>
                 <?php endif; ?>
                 <form class="inline" method="post" action="<?= url('item.rollback', ['id' => $item['item_id'], 'version' => $v['version']], method: 'post'); ?>" onsubmit="return confirm('<?= __('app.rollback_confirm'); ?>');">
                   <?= $container->csrf()->field(); ?>
-                  <button type="submit" class="btn btn-small"><?= __('app.rollback'); ?></button>
+                  <button type="submit" class="btn"><?= __('app.rollback'); ?></button>
                 </form>
               </div>
             </td>
@@ -49,7 +49,7 @@
         <?php endforeach; ?>
       </tbody>
     </table>
-    <div class="mt20 gray-600"><?= __('app.version_detail_note'); ?></div>
+    <div class="mt1 gray"><?= __('app.version_detail_note'); ?></div>
   <?php else : ?>
     <?= insert('/shared/no-content', ['type' => 'small', 'text' => __('app.no_history'), 'icon' => 'info']); ?>
   <?php endif; ?>

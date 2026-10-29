@@ -20,9 +20,9 @@ if (($action ?? 'add') === 'edit' && !empty($data['category_arr'])) {
     }
 }
 ?>
-<select id="category_id" name="facet_select[]" multiple size="8" class="category-select" required></select>
+<select id="category_id" name="facet_select[]" multiple size="8" required></select>
 <input type="hidden" id="category_root" value="<?= htmlEncode($selRoot); ?>">
-<div class="help"><?= __('app.category_select_help'); ?></div>
+<div class="hint"><?= __('app.category_select_help'); ?></div>
 
 <script nonce="<?= config('main', 'nonce'); ?>">
   (function () {
@@ -66,7 +66,7 @@ if (($action ?? 'add') === 'edit' && !empty($data['category_arr'])) {
     document.addEventListener('change', function (e) {
       if (e.target && e.target.name === 'content_kind') {
         var kind = e.target.value;
-        if (rootEl) rootEl.value = (kind === 'article') ? 'articles' : (kind === 'page' ? 'info' : 'facts');
+        if (rootEl) rootEl.value = (kind === 'article') ? 'articles' : (kind === 'page' ? 'info' : (kind === 'site' ? 'web' : 'facts'));
         selectedIds = [];
         loadCategories(false);
       }

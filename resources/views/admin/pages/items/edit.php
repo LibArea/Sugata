@@ -4,39 +4,38 @@ $item = $data['item'];
 $itemType = (string)($item['item_type'] ?? 'fact');
 $root = match ($itemType) {
     'article' => 'articles',
+    'site'    => 'web',
     'page'    => 'info',
     default   => 'facts',
 };
 ?>
 
-<main class="admin-main admin-edit-page">
-  <header class="admin-page-heading">
+<main>
+  <div class="flex justify-between items-center mb20">
     <div>
-      <p class="admin-record-id">ID <?= $item['item_id']; ?> · <span class="lowercase"><?= langDate($item['item_date']); ?></span></p>
-      <h1 class="title"><?= __('app.edit_fact'); ?>
-        <?php if (!empty($data['item_url'])) : ?>
-          <a class="btn btn-small" target="_blank" rel="noopener" href="<?= htmlEncode(config('general', 'url') . '/mod/admin/preview' . $data['item_url']); ?>">
-            <?= __('app.view'); ?>
-          </a>
-        <?php endif; ?>
-        <a class="btn btn-small" href="<?= url('item.history', ['id' => $item['item_id']]); ?>">
-          <?= __('app.item_history'); ?>
-        </a>
-      </h1>
+      <p class="hint">ID <?= $item['item_id']; ?> · <span class="lowercase"><?= langDate($item['item_date']); ?></span></p>
+      <h1 class="title"><?= __('app.edit_fact'); ?></h1>
     </div>
-  </header>
+    <div class="flex gap">
+      <?php if (!empty($data['item_url'])) : ?>
+        <a class="btn" target="_blank" rel="noopener" href="<?= htmlEncode(config('general', 'url') . '/mod/admin/preview' . $data['item_url']); ?>">
+          <?= __('app.view'); ?>
+        </a>
+      <?php endif; ?>
+      <a class="btn" href="<?= url('item.history', ['id' => $item['item_id']]); ?>">
+        <?= __('app.item_history'); ?>
+      </a>
+    </div>
+  </div>
 
-  <div class="admin-edit-card">
-  <form class="admin-edit-form" action="<?= url('edit.item', method: 'post'); ?>" method="post">
+  <form action="<?= url('edit.item', method: 'post'); ?>" method="post">
     <?= $container->csrf()->field(); ?>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label for="title"><?= __('app.title'); ?> <strong class="red">*</strong></label></div>
-      <div class="form-element">
-        <input id="title" name="item_title" required="" type="text" value="<?= htmlEncode($item['item_title']); ?>">
-        <div class="help">1 - 250 <?= __('app.characters'); ?></div>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="title"><strong><?= __('app.title'); ?> <span class="red">*</span></strong></label>
+      <input id="title" name="item_title" required="" type="text" class="form-input-wide" value="<?= htmlEncode($item['item_title']); ?>">
+      <div class="hint">1 - 250 <?= __('app.characters'); ?></div>
+    </div>
 
     <?php if ($container->user()->admin()) : ?>
       <?= insert('/shared/form/content-type', ['type' => $itemType, 'allowPage' => true]); ?>
@@ -44,102 +43,86 @@ $root = match ($itemType) {
       <input type="hidden" name="content_kind" value="<?= htmlEncode($itemType); ?>">
     <?php endif; ?>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label for="category_id"><?= __('app.category'); ?> <strong class="red">*</strong></label></div>
-      <div class="form-element">
-        <?= insert('/shared/form/select/category', ['action' => 'edit', 'root' => $root, 'data' => $data]); ?>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="category_id"><strong><?= __('app.category'); ?> <span class="red">*</span></strong></label>
+      <?= insert('/shared/form/select/category', ['action' => 'edit', 'root' => $root, 'data' => $data]); ?>
+    </div>
 
     <?= insert('/shared/form/select/select-related', ['data' => $data]); ?>
 
-    <fieldset>
-      <div class="form-label input-label"><label for="item_slug">SLUG (URL) <strong class="red">*</strong></label></div>
-      <div class="form-element">
-        <input id="item_slug" minlength="5" maxlength="250" value="<?= $item['item_slug']; ?>" type="text" required name="item_slug">
-        <div class="help">> 5 <?= __('app.characters'); ?></div>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="item_slug"><strong>SLUG (URL) <span class="red">*</span></strong></label>
+      <input id="item_slug" minlength="5" maxlength="250" value="<?= $item['item_slug']; ?>" type="text" required name="item_slug">
+      <div class="hint">&gt; 5 <?= __('app.characters'); ?></div>
+    </div>
 
     <?php if (!empty($data['item_url'])) : ?>
-    <fieldset>
-      <div class="form-label input-label"><label><?= __('app.item_url_copy'); ?></label></div>
-      <div class="form-element">
-        <div class="flex gap-sm">
-          <input id="item_url_copy" type="text" readonly value="<?= htmlEncode($data['item_url']); ?>">
-          <button type="button" class="btn btn-primary" id="item_url_copy_btn"><?= __('app.copy'); ?></button>
-        </div>
-        <div class="help"><?= __('app.item_url_copy_help'); ?></div>
+    <div class="form-field-group">
+      <label><strong><?= __('app.item_url_copy'); ?></strong></label>
+      <div class="flex gap">
+        <input id="item_url_copy" type="text" readonly value="<?= htmlEncode($data['item_url']); ?>">
+        <button type="button" class="btn" id="item_url_copy_btn"><?= __('app.copy'); ?></button>
       </div>
-    </fieldset>
+      <div class="hint"><?= __('app.item_url_copy_help'); ?></div>
+    </div>
     <?php endif; ?>
 
     <?= insert('/shared/form/editor/toolbar-img', ['height'  => '300px', 'content' => $item['item_content'], 'type' => 'item_content', 'id' => $item['item_id']]); ?>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label for="item_note"><?= __('app.note'); ?></label></div>
-      <div class="form-element">
-        <input minlength="11" id="item_note" name="item_note" type="text" value="<?= $item['item_note']; ?>">
-        <div class="help">> 24 <?= __('app.characters'); ?></div>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="item_note"><strong><?= __('app.note'); ?></strong></label>
+      <input minlength="11" id="item_note" name="item_note" type="text" value="<?= $item['item_note']; ?>">
+      <div class="hint">&gt; 24 <?= __('app.characters'); ?></div>
+    </div>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label for="item_source_url"><?= __('app.source_url'); ?> </label></div>
-      <div class="form-element">
-        <input id="item_source_url" name="item_source_url" type="url" value="<?= htmlEncode($item['item_source_url'] ?? ''); ?>" placeholder="https://...">
-        <div class="help"><?= __('app.source_url_help'); ?></div>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="item_source_url"><strong><?= __('app.source_url'); ?></strong></label>
+      <input id="item_source_url" name="item_source_url" type="url" value="<?= htmlEncode($item['item_source_url'] ?? ''); ?>" placeholder="https://...">
+      <div class="hint"><?= __('app.source_url_help'); ?></div>
+    </div>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label><?= __('app.faq'); ?></label></div>
-      <div class="form-element">
-        <div id="faq-items">
-          <?php foreach ($data['faq'] ?? [] as $i => $qa) : ?>
-            <div class="faq-row">
-              <input class="faq-q mb5" type="text" name="faq_question[]" placeholder="<?= __('app.faq_question'); ?>" value="<?= htmlEncode($qa['question']); ?>">
-              <textarea class="faq-a mb5" name="faq_answer[]" rows="3" placeholder="<?= __('app.faq_answer'); ?>"><?= htmlEncode($qa['answer']); ?></textarea>
-              <div><button type="button" class="btn btn-small faq-row-del"><?= __('app.faq_remove'); ?></button></div>
-            </div>
-          <?php endforeach; ?>
-        </div>
-        <button type="button" class="btn btn-primary" id="faq-add">+ <?= __('app.faq_add'); ?></button>
-        <div class="help"><?= __('app.faq_help'); ?></div>
+    <div class="form-field-group">
+      <label><strong><?= __('app.faq'); ?></strong></label>
+      <div id="faq-items">
+        <?php foreach ($data['faq'] ?? [] as $i => $qa) : ?>
+          <div class="faq-row">
+            <input class="faq-q mb5" type="text" name="faq_question[]" placeholder="<?= __('app.faq_question'); ?>" value="<?= htmlEncode($qa['question']); ?>">
+            <textarea class="faq-a mb5" name="faq_answer[]" rows="3" placeholder="<?= __('app.faq_answer'); ?>"><?= htmlEncode($qa['answer']); ?></textarea>
+            <div><button type="button" class="btn faq-row-del"><?= __('app.faq_remove'); ?></button></div>
+          </div>
+        <?php endforeach; ?>
       </div>
-    </fieldset>
+      <button type="button" class="btn" id="faq-add">+ <?= __('app.faq_add'); ?></button>
+      <div class="hint"><?= __('app.faq_help'); ?></div>
+    </div>
 
     <?php if ($container->user()->admin()) : ?>
       <?= insert('/shared/form/select/user', ['user' => $data['user']]); ?>
 
-      <fieldset class="admin-publish-field">
-        <label class="admin-publish-toggle" for="item_published">
+      <div class="form-field-group">
+        <label class="clear" for="item_published">
           <input id="item_published" type="checkbox" name="item_published" <?php if ($item['item_published'] == 1) : ?>checked <?php endif; ?>>
           <span class="red"><?= __('app.posted'); ?></span>
         </label>
-      </fieldset>
-
-      <?php if ($itemType !== 'article') : ?>
-        <fieldset class="admin-publish-field">
-          <label class="admin-publish-toggle" for="item_best">
+        <?php if ($itemType !== 'article') : ?>
+          <label class="clear" for="item_best">
             <input id="item_best" type="checkbox" name="item_best" <?php if (!empty($item['item_best'])) : ?>checked <?php endif; ?>>
             <span class="green"><?= __('app.best_fact'); ?></span>
           </label>
-        </fieldset>
-      <?php endif; ?>
+        <?php endif; ?>
+      </div>
     <?php endif; ?>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label for="item_edit_comment"><?= __('app.edit_comment'); ?></label></div>
-      <div class="form-element">
-        <input id="item_edit_comment" name="item_edit_comment" type="text" value="" placeholder="<?= __('app.edit_comment_help'); ?>">
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="item_edit_comment"><strong><?= __('app.edit_comment'); ?></strong></label>
+      <input id="item_edit_comment" name="item_edit_comment" type="text" value="" placeholder="<?= __('app.edit_comment_help'); ?>">
+    </div>
 
     <input type="hidden" name="item_id" value="<?= $item['item_id']; ?>">
-    <?= Html::sumbit(__('app.edit')); ?>
+    <div class="form-actions">
+      <?= Html::sumbit(__('app.edit')); ?>
+    </div>
   </form>
-  </div>
 </main>
 
 <script src="/assets/js/cropper/cropper.min.js"></script>
@@ -166,7 +149,7 @@ $root = match ($itemType) {
       row.innerHTML =
         '<input class="faq-q mb5" type="text" name="faq_question[]" placeholder="' + '<?= __('app.faq_question'); ?>' + '" value="' + (q || '') + '">' +
         '<textarea class="faq-a mb5" name="faq_answer[]" rows="3" placeholder="' + '<?= __('app.faq_answer'); ?>' + '">' + (a || '') + '</textarea>' +
-        '<div><button type="button" class="btn btn-small faq-row-del">' + '<?= __('app.faq_remove'); ?>' + '</button></div>';
+        '<div><button type="button" class="btn faq-row-del">' + '<?= __('app.faq_remove'); ?>' + '</button></div>';
       row.querySelector('.faq-row-del').addEventListener('click', function () {
         row.remove();
       });

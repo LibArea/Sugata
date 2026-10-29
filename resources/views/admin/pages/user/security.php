@@ -1,42 +1,35 @@
-<main>
-	<div class="nav-bar">
-		<ul class="nav scroll-menu">
-			<?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-		</ul>
-	</div>
+<main class="content">
+	<nav class="nav">
+		<?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
+	</nav>
 
 	<h1 class="title"><?= __('app.password'); ?></h1>
 
-	<form class="mt20" action="<?= url('setting.edit.security', method: 'post'); ?>" method="post">
+	<form class="max-w-md mt1" action="<?= url('setting.edit.security', method: 'post'); ?>" method="post">
 		<?= $container->csrf()->field(); ?>
-		<fieldset>
-			<div class="form-label input-label"><label><?= __('app.old_password'); ?></label></div>
-			<div class="form-element">
-				<input id="password" name="password" type="password" required="">
-				<span class="showPassword"><svg class="icon">
-						<use xlink:href="#eye"></use>
-					</svg></span>
-			</div>
-		</fieldset>
 
-		<fieldset>
-			<div class="form-label input-label"><label><?= __('app.new_password'); ?></label></div>
-			<div class="form-element">
-				<input name="password2" type="password" required="">
-				<div class="help">8 - 32 <?= __('app.characters'); ?></div>
-			</div>
-		</fieldset>
+		<div class="form-field-group">
+			<label for="password"><strong><?= __('app.old_password'); ?></strong></label>
+			<input id="password" name="password" type="password" required="">
+			<span class="showPassword"><svg class="icon">
+					<use xlink:href="#eye"></use>
+				</svg></span>
+		</div>
 
-		<fieldset>
-			<div class="form-label input-label"><label><?= __('app.confirm_password'); ?></label></div>
-			<div class="form-element">
-				<input name="password3" type="password" required="">
-			</div>
-		</fieldset>
+		<div class="form-field-group">
+			<label for="password2"><strong><?= __('app.new_password'); ?></strong></label>
+			<input id="password2" name="password2" type="password" required="">
+			<div class="hint">8 - 32 <?= __('app.characters'); ?></div>
+		</div>
 
-		<fieldset>
-			<input type="hidden" name="nickname" id="nickname" value="">
+		<div class="form-field-group">
+			<label for="password3"><strong><?= __('app.confirm_password'); ?></strong></label>
+			<input id="password3" name="password3" type="password" required="">
+		</div>
+
+		<input type="hidden" name="nickname" id="nickname" value="">
+		<div class="form-actions">
 			<?= Html::sumbit(__('app.edit')); ?>
-		</fieldset>
+		</div>
 	</form>
 </main>

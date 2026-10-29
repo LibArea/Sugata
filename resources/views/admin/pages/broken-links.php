@@ -1,23 +1,19 @@
-<main>
-  <div class="nav-bar">
-    <ul class="nav scroll-menu">
-      <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-    </ul>
-  </div>
+<main class="content">
+  <nav class="nav">
+    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
+  </nav>
 
-  <div class="flex justify-between items-center mb20">
+  <div class="flex justify-between items-center">
     <h1 class="title"><?= __('app.broken_links'); ?></h1>
-    <div class="flex gap">
-      <a class="btn btn-primary" href="<?= url('broken.links.check'); ?>"><?= __('app.broken_links_check'); ?></a>
-    </div>
+    <a class="btn" href="<?= url('broken.links.check'); ?>"><?= __('app.broken_links_check'); ?></a>
   </div>
 
-  <div class="mb20 gray-600">
+  <div class="mb1 gray">
     <?= __('app.broken_links_total'); ?>: <b><?= $data['total']; ?></b>
   </div>
 
   <?php if ($data['links']) : ?>
-    <table>
+    <table class="data zebra">
       <thead>
         <tr>
           <th><?= __('app.article'); ?></th>

@@ -48,7 +48,7 @@ class AddItemController extends Controller
 
         // Тип контента: селект «Факт / Статья / Страница» (поле content_kind)
         $kind = (string)($data['content_kind'] ?? $data['item_type'] ?? 'fact');
-        $data['item_type'] = in_array($kind, ['fact', 'article', 'page'], true) ? $kind : 'fact';
+        $data['item_type'] = in_array($kind, ['fact', 'article', 'site', 'page'], true) ? $kind : 'fact';
 
         error_log('[ADDBUG] content_kind=' . var_export($data['content_kind'] ?? null, true)
             . ' item_type после=' . $data['item_type']

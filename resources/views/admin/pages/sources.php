@@ -1,33 +1,22 @@
-<main>
-  <div class="nav-bar">
-    <ul class="nav scroll-menu">
-      <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-    </ul>
-  </div>
+<main class="content">
+  <nav class="nav">
+    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
+  </nav>
 
-  <div class="flex justify-between items-center mb20">
+  <div class="flex justify-between items-center">
     <h1 class="title"><?= __('app.sources'); ?></h1>
-    <a class="btn btn-primary" href="<?= url('update.sources'); ?>"><?= __('app.sources_check'); ?></a>
+    <a class="btn" href="<?= url('update.sources'); ?>"><?= __('app.sources_check'); ?></a>
   </div>
 
-  <div class="nav-bar">
-    <ul class="nav scroll-menu admin-nav admin-nav--filters">
-      <li class="<?= $data['tab'] == 'all' ? 'active' : ''; ?>">
-        <a href="/mod/admin/sources"><?= __('app.all_sources'); ?> (<?= array_sum($data['stats']); ?>)</a>
-      </li>
-      <li class="<?= $data['tab'] == 'errors' ? 'active' : ''; ?>">
-        <a href="/mod/admin/sources?tab=errors"><?= __('app.source_errors'); ?> (<?= $data['errorsCount']; ?>)</a>
-      </li>
-      <li class="<?= $data['tab'] == 'nosource' ? 'active' : ''; ?>">
-        <a href="/mod/admin/sources?tab=nosource"><?= __('app.facts_no_source'); ?> (<?= $data['noSourceCount']; ?>)</a>
-      </li>
-    </ul>
-  </div>
+  <nav class="nav br-none">
+    <a class="<?= $data['tab'] == 'all' ? 'active' : ''; ?>" href="/mod/admin/sources"><?= __('app.all_sources'); ?> (<?= array_sum($data['stats']); ?>)</a>
+    <a class="<?= $data['tab'] == 'errors' ? 'active' : ''; ?>" href="/mod/admin/sources?tab=errors"><?= __('app.source_errors'); ?> (<?= $data['errorsCount']; ?>)</a>
+    <a class="<?= $data['tab'] == 'nosource' ? 'active' : ''; ?>" href="/mod/admin/sources?tab=nosource"><?= __('app.facts_no_source'); ?> (<?= $data['noSourceCount']; ?>)</a>
+  </nav>
 
   <?php if ($data['tab'] == 'nosource') : ?>
-
     <?php if ($data['factsNoSource']) : ?>
-      <table>
+      <table class="data zebra">
         <thead>
           <tr>
             <th><?= __('app.fact'); ?></th>
@@ -37,24 +26,19 @@
         <tbody>
           <?php foreach ($data['factsNoSource'] as $fact) : ?>
             <tr>
-              <td>
-                <a href="<?= url('item.form.edit', ['id' => $fact['item_id']]); ?>"><?= htmlEncode($fact['item_title']); ?></a>
-              </td>
+              <td><a href="<?= url('item.form.edit', ['id' => $fact['item_id']]); ?>"><?= htmlEncode($fact['item_title']); ?></a></td>
               <td><?= langDate($fact['item_date']); ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
       </table>
-
       <?= Html::pagination($data['pNum'], $data['pagesCount'], false, '/mod/admin/sources?tab=nosource', '&'); ?>
     <?php else : ?>
       <?= insert('/shared/no-content', ['type' => 'small', 'text' => __('app.no_content'), 'icon' => 'info']); ?>
     <?php endif; ?>
-
   <?php else : ?>
-
     <?php if ($data['sources']) : ?>
-      <table>
+      <table class="data zebra">
         <thead>
           <tr>
             <th><?= __('app.source'); ?></th>
@@ -68,13 +52,13 @@
             <tr>
               <td>
                 <?php if (!empty($source['title'])) : ?>
-                  <div class="source-title"><?= htmlEncode($source['title']); ?></div>
+                  <strong><?= htmlEncode($source['title']); ?></strong>
                 <?php endif; ?>
-                <a href="<?= htmlEncode($source['url']); ?>" target="_blank" rel="noopener" class="source-url"><?= htmlEncode($source['url']); ?></a>
+                <div><a href="<?= htmlEncode($source['url']); ?>" target="_blank" rel="noopener" class="gray"><?= htmlEncode($source['url']); ?></a></div>
                 <?php if (!empty($source['facts'])) : ?>
-                  <div class="text-sm gray-600 source-facts-list">
+                  <div class="text-sm gray">
                     <?php foreach ($source['facts'] as $fact) : ?>
-                      <div><a href="<?= url('item.form.edit', ['id' => $fact['item_id']]); ?>" class="source-fact-link"><?= htmlEncode($fact['item_title']); ?></a></div>
+                      <div><a href="<?= url('item.form.edit', ['id' => $fact['item_id']]); ?>"><?= htmlEncode($fact['item_title']); ?></a></div>
                     <?php endforeach; ?>
                   </div>
                 <?php endif; ?>
@@ -86,7 +70,7 @@
                     'broken'   => 'red',
                     'timeout'  => 'brown',
                     'redirect' => 'sky',
-                    default    => 'gray-600',
+                    default    => 'gray',
                 };
                 ?>
                 <span class="<?= $label; ?>"><?= __('app.source_status_' . $source['status']); ?></span>
@@ -110,6 +94,5 @@
     <?php else : ?>
       <?= insert('/shared/no-content', ['type' => 'small', 'text' => __('app.no_content'), 'icon' => 'info']); ?>
     <?php endif; ?>
-
   <?php endif; ?>
 </main>

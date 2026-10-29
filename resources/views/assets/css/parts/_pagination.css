@@ -1,0 +1,25 @@
+/* ---------- Пагинация ---------- */
+.pagination {
+    margin-top: 1.5em;
+}
+
+.pagination a,
+.pagination span {
+    color: var(--opacity-fg-75);
+    padding: 0.25em 0.5em;
+    font-weight: bold;
+    text-decoration: none;
+    margin-left: 0.5em;
+    display: inline-block;
+}
+
+.pagination a:hover {
+    background-color: var(--color-button-bg-shaded);
+}
+
+.pagination span.current {
+    background-color: var(--color-fg-accent);
+    border-color: transparent;
+    color: var(--color-bg);
+}
+

@@ -1,0 +1,33 @@
+/* ---------- Детали и раскрытие постов ---------- */
+.story_content details {
+    border: none;
+    background: none;
+}
+
+.story_content summary {
+    cursor: pointer;
+    font-style: italic;
+    font-size: 0.9em;
+    color: var(--opacity-fg-63);
+}
+
+.story_content summary:hover { color: var(--color-fg); }
+
+.story_content details[open] summary {
+    padding-bottom: 1em;
+    border-bottom: 1px solid var(--color-box-bg-shaded);
+}
+
+/* ---------- Карточка истории с новыми комментариями ---------- */
+.story-card--has-new {
+    border-left: 3px solid var(--color-fg-link);
+    background-color: var(--color-box-bg-shaded);
+}
+
+.new-comments {
+    display: inline-block;
+    color: var(--color-fg-negative);
+}
+
+.new-comments:hover { opacity: 0.8; }
+

@@ -1,29 +1,39 @@
 <main>
-    <h1 class="uppercase-box"><?= __('app.authorization'); ?></h1>
+    <h1><?= __('app.authorization'); ?></h1>
 
-    <form class="mb20" action="<?= config('meta', 'url'); ?><?= url('authorization', method: 'post'); ?>" method="post">
+    <p class="hint"><?= __('auth.login_info'); ?></p>
+
+    <form action="<?= config('meta', 'url'); ?><?= url('authorization', method: 'post'); ?>" method="post">
       <?= $container->csrf()->field(); ?>
 
-      <fieldset class="max-w-sm mb-max-w-full">
-        <input class="w-100" name="email" type="email" placeholder="<?= __('app.email'); ?>" required="">
-      </fieldset>
+      <div class="form-field-group">
+        <label for="login-email"><strong><?= __('app.email'); ?></strong></label>
+        <input type="email" id="login-email" name="email" required autofocus class="form-input-wide" placeholder="name@example.com">
+      </div>
 
-      <fieldset class="max-w-sm mb-max-w-full">
-        <input class="w-100" id="password" name="password" type="password" placeholder="<?= __('app.password'); ?>" required="">
-        <span class="showPassword">
-          <svg class="icon">
-            <use xlink:href="/assets/svg/icons.svg#eye"></use>
-          </svg>
-        </span>
-      </fieldset>
+      <div class="form-field-group">
+        <label for="login-password">
+          <strong><?= __('app.password'); ?></strong>
+          <a href="<?= url('recover'); ?>" class="form-field-hint-inline">(<?= __('app.forgot_password'); ?>?)</a>
+        </label>
+        <input type="password" id="login-password" name="password" required class="form-input-wide">
+      </div>
 
-      <fieldset class="flex gap-sm gray">
-        <input id="rememberme" name="rememberme" type="checkbox" value="1">
-        <label class="m0" for="rememberme"><?= __('app.remember_me'); ?></label>
-      </fieldset>
+      <div class="form-field-group">
+        <label>
+          <input type="checkbox" name="rememberme" value="1">
+          <?= __('app.remember_me'); ?>
+        </label>
+      </div>
 
-      <?= Html::sumbit(__('app.sign_in')); ?>
-
-      <a class="ml20 text-sm" href="<?= url('recover'); ?>"><?= __('app.forgot_password'); ?>?</a>
+      <div class="form-actions">
+        <?= Html::sumbit(__('app.sign_in')); ?>
+      </div>
     </form>
+
+    <hr>
+
+    <p>
+      <?= __('auth.no_account'); ?> <a href="<?= url('register'); ?>"><?= __('auth.registration'); ?></a>
+    </p>
 </main>

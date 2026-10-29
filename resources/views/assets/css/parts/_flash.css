@@ -1,0 +1,44 @@
+/* ---------- Уведомления (Flash messages) ---------- */
+.alert, .flash-error, .flash-success, .flash-notice {
+    position: relative;
+    padding: 0.75em 1em;
+    margin-bottom: 1em;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.alert-success, .flash-success {
+    background-color: var(--color-flash-bg-success);
+    border-color: var(--color-fg-affirmative);
+    color: var(--color-fg);
+}
+
+.alert-danger, .flash-error {
+    background-color: var(--color-flash-bg-error);
+    border-color: var(--color-fg-negative);
+    color: var(--color-fg);
+}
+
+.alert-notice, .flash-notice {
+    background-color: var(--color-flash-bg-notice);
+    border-color: var(--color-fg-link);
+    color: var(--color-fg);
+}
+
+.alert-warning {
+    background-color: var(--color-comment-new-bg);
+    border-color: var(--color-comment-new-border);
+    color: var(--color-fg);
+}
+
+.alert-info {
+    background-color: var(--beige);
+    color: var(--opacity-fg-84);
+}
+
+
+.alert strong { font-weight: bold; }
+
+

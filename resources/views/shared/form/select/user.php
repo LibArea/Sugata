@@ -1,10 +1,8 @@
  
-   <fieldset class="form-big">
-      <div class="form-label input-label"><label><?= __('app.author'); ?></label></div>
-      <div class="form-element">
-        <input name='user_id' id="user_id">
-      </div>
-    </fieldset>
+   <div class="form-field-group">
+      <label for="user_id"><strong><?= __('app.author'); ?></strong></label>
+      <input name='user_id' id="user_id">
+    </div>
   
     <script nonce="<?= config('main', 'nonce'); ?>">
         const user_search = async (props = {}) => {

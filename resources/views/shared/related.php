@@ -1,6 +1,6 @@
 <?php
 /*
- * Связанные факты/статьи.
+ * Связанные факты/статьи (нативный класс stories base.css)
  * Ожидает: $related (массив item-записей), $title (заголовок блока), $preview (bool|null)
  */
 if (empty($related)) {
@@ -8,46 +8,47 @@ if (empty($related)) {
 }
 $preview = $preview ?? false;
 $linkMod = $preview ? 'preview' : 'static';
-$accent  = $accent ?? false; // true — цветной бордюр слева (ручная связь)
-$plain   = $plain ?? false;  // true — сниппет выводить плоским текстом (без markdown)
-$thumb   = $thumb ?? false;  // true — показывать фото (превью из контента) слева
+$accent  = $accent ?? false;
+$plain   = $plain ?? false;
+$thumb   = $thumb ?? false;
 ?>
-<h3 class="uppercase-box"><?= $title; ?></h3>
-<div class="wiki-fact-list wiki-mb4">
+<h3 class="title"><?= $title; ?></h3>
+<ol class="stories related">
   <?php foreach ($related as $value) :
     $rDir = preg_split('/(@)/', (string)($value['facet_list'] ?? ''));
     $rPath = trim($rDir[2] ?? '', '/');
+    // Корневой раздел — первый сегмент пути (facts/articles/web/info), для цвета полосы
+    $rRoot = strtok($rPath, '/') ?: 'other';
     ?>
-    <article class="wiki-fact-item<?= $accent ? ' wiki-fact-item--related' : ''; ?>">
-      <?php if ($thumb && ($tImg = Parser::miniature($value['item_content'] ?? ''))) : ?>
-        <a class="wiki-fact-item__thumb" href="<?= urlItem($rPath, $value['item_slug'], $linkMod); ?>">
-          <img alt="<?= htmlEncode($value['item_title']); ?>" src="<?= htmlEncode($tImg); ?>">
-        </a>
-      <?php endif; ?>
-      <div class="wiki-fact-item__body">
-        <h3>
+    <li class="story related--<?= htmlEncode($rRoot); ?>">
+      <div class="story_liner">
+        <?php if ($thumb && ($tImg = Parser::miniature($value['item_content'] ?? ''))) : ?>
           <a href="<?= urlItem($rPath, $value['item_slug'], $linkMod); ?>">
-            <?= htmlEncode($value['item_title']); ?>
+            <img alt="<?= htmlEncode($value['item_title']); ?>" src="<?= htmlEncode($tImg); ?>">
           </a>
-        </h3>
+        <?php endif; ?>
+
+        <div class="link"><a href="<?= urlItem($rPath, $value['item_slug'], $linkMod); ?>"><?= htmlEncode($value['item_title']); ?></a></div>
+
         <?php if (!empty($value['item_content'])) : ?>
-          <div class="wiki-fact-item__excerpt">
+          <div class="story_content">
             <?php
               $arr = Parser::cut($value['item_content']);
               if ($plain) {
-                  // Плоский текст (без форматирования) — для блока «Факты»
-                  echo htmlEncode(strip_tags(markdown($arr['content'], 'mini')));
+                  echo htmlEncode(strip_tags(markdown($arr['content'], 'text')));
               } else {
-                  echo markdown($arr['content'], 'mini');
+                  echo markdown($arr['content'], 'text');
               }
             ?>
           </div>
         <?php endif; ?>
-        <div class="wiki-fact-item__meta">
+
+        <div class="byline">
           <?= Html::facetDir($value['facet_list'] ?? '', $linkMod); ?>
+          <span class="divider">·</span>
           <span class="lowercase"><?= langDate($value['item_date']); ?></span>
         </div>
       </div>
-    </article>
+    </li>
   <?php endforeach; ?>
-</div>
+</ol>

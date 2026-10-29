@@ -1,16 +1,20 @@
 <main>
-  <h1 class="uppercase-box"><?= __('app.password_recovery'); ?></h1>
-  <form class="mb20" action="<?= url('recover.send', method: 'post'); ?>" method="post">
-    <?= $container->csrf()->field(); ?>
+    <h1><?= __('app.password_recovery'); ?></h1>
 
-    <fieldset>
-      <input type="email" required="" placeholder="<?= __('app.email'); ?>"  name="email">
-    </fieldset>
+    <p class="hint"><?= __('app.recover_info'); ?></p>
 
-    <?= insert('/shared/form/captcha'); ?>
+    <form action="<?= url('recover.send', method: 'post'); ?>" method="post">
+      <?= $container->csrf()->field(); ?>
 
-    <div class="mt20">
-      <?= Html::sumbit(__('app.reset')); ?>
-    </div>
-  </form>
+      <div class="form-field-group">
+        <label for="recover-email"><strong><?= __('app.email'); ?></strong></label>
+        <input type="email" id="recover-email" name="email" required autofocus class="form-input-wide" placeholder="name@example.com">
+      </div>
+
+      <?= insert('/shared/form/captcha'); ?>
+
+      <div class="form-actions">
+        <?= Html::sumbit(__('app.reset')); ?>
+      </div>
+    </form>
 </main>

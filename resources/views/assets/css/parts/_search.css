@@ -1,0 +1,167 @@
+/* ==========================================================================
+   Стили для формы поиска (CSP-Safe)
+   ========================================================================== */
+
+.title {
+  margin-bottom: 5px;
+}
+
+.form-search {
+    max-width: 650px; /* Ограничиваем максимальную ширину для красоты на больших экранах */
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* Эмуляция таблицы для идеального выравнивания input и button */
+.form-search-telo {
+    display: table;
+    width: 100%;
+    border-collapse: separate; /* Позволяет применять border-radius к дочерним элементам */
+    border-spacing: 0; /* Убирает зазоры между "ячейками" */
+}
+
+.table-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+/* Поле ввода */
+.search {
+    width: 100%; /* Как вы и просили */
+    box-sizing: border-box; /* КРИТИЧЕСКИ ВАЖНО: чтобы padding не увеличивал ширину больше 100% */
+    padding: 10px 15px;
+    font-size: 15px;
+    line-height: 1.2;
+    color: #333;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-right: none; /* Убираем правую границу, чтобы слить с кнопкой */
+    border-radius: 2px 0 0 2px; /* Закругляем только левые углы */
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search::placeholder {
+    color: #999;
+}
+
+.search:focus {
+    border-color: #007bff; /* Цвет фокуса (замените на ваш основной цвет бренда) */
+   /* box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.15); */
+}
+
+/* Кнопка поиска */
+.btn-search {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #007bff; /* Цвет кнопки (замените на ваш основной цвет бренда) */
+    border: 1px solid #007bff;
+    border-left: none; /* Убираем левую границу, чтобы слить с input */
+    border-radius: 0 6px 6px 0; /* Закругляем только правые углы */
+    cursor: pointer;
+    white-space: nowrap; /* Запрещаем перенос текста на кнопке */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-search:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-search:active {
+    background-color: #004085;
+    transform: translateY(1px); /* Легкий эффект нажатия */
+}
+
+/* ==========================================================================
+   Поддержка темной темы (Data Attribute)
+   ========================================================================== */
+
+[data-theme="dark"] .search {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .search::placeholder {
+    color: #888;
+}
+
+[data-theme="dark"] .search:focus {
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.2);
+}
+
+[data-theme="dark"] .btn-search {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+[data-theme="dark"] .btn-search:hover {
+    background-color: #004085;
+}
+
+/* ==========================================================================
+   Стили для переключателей (Radio) под формой
+   ========================================================================== */
+
+.search-options {
+    margin-top: 5px;
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    gap: 15px;
+}
+
+[data-theme="dark"] .search-options {
+    color: #aaa;
+}
+
+.search-radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none; /* Запрет выделения текста на лейбле */
+}
+
+.search-radio-label input[type="radio"] {
+    margin-right: 6px;
+    cursor: pointer;
+    accent-color: #007bff; /* Цвет самой радио-кнопки в современных браузерах */
+}
+
+.search-example {
+    margin-left: 30px;
+}
+
+[data-theme="dark"] .search-example {
+    color: #aaa;
+}
+
+.search-example .word {
+    color: #007bff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+}
+
+.search-example .word:hover {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+[data-theme="dark"] .search-example .word {
+    color: #4dabf7;
+}
+
+[data-theme="dark"] .search-example .word:hover {
+    color: #74c0fc;
+}
+

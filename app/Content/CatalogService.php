@@ -48,34 +48,30 @@ class CatalogService
     }
 
     /**
-     * Категории для центральной страницы (раздел «Категория»).
-     * Основной контейнер — facts (его дети = темы уровня 1).
-     * Статьи (articles) на главной не выводим — у них свой корень.
+     * Разделы для центральной страницы-портала.
+     * Каждый корневой раздел (facts, articles, web и т.п.) — это «модуль»,
+     * его прямые дети — темы-ссылки внутри модуля.
+     * Служебный раздел info на главной не показываем.
      */
     public static function sections(): array
     {
-        $nav  = Html::builder(null, 0, self::tree());
-
-        // Определяем корень-контейнер
-        $rootPath = null;
-        foreach ($nav as $c) {
-            if ($c['level'] == 0 && ($c['facet_path'] === 'facts' || trim($c['facet_path'], '/') === 'facts')) {
-                $rootPath = 'facts';
-                break;
-            }
-        }
-
-        // Если корня-контейнера нет — секции = все корни
-        $sectionLevel = ($rootPath === null) ? 0 : 1;
+        $nav = Html::builder(null, 0, self::tree());
 
         $sections = [];
         foreach ($nav as $i => $cat) {
-            if ($cat['level'] != $sectionLevel) continue;
+            if ($cat['level'] != 0) {
+                continue;
+            }
 
-            // Подкатегории — прямые дети уровня sectionLevel+1
+            // Служебная категория — не показываем
+            if (trim($cat['facet_path'] ?? '', '/') === 'info') {
+                continue;
+            }
+
+            // Прямые дети текущего корня (темы уровня 1)
             $children = [];
-            for ($j = $i + 1; $j < count($nav) && $nav[$j]['level'] > $sectionLevel; $j++) {
-                if ($nav[$j]['level'] == $sectionLevel + 1 && $nav[$j]['facet_parent_id'] == $cat['facet_id']) {
+            for ($j = $i + 1; $j < count($nav) && $nav[$j]['level'] > 0; $j++) {
+                if ($nav[$j]['level'] == 1 && $nav[$j]['facet_parent_id'] == $cat['facet_id']) {
                     $children[] = [
                         'title' => $nav[$j]['facet_title'],
                         'path'  => trim($nav[$j]['facet_path'], '/'),
@@ -83,12 +79,10 @@ class CatalogService
                 }
             }
 
-            $help = (empty($children)) ? trim((string)($cat['facet_description'] ?? '')) : '';
-
             $sections[] = [
                 'title' => $cat['facet_title'],
                 'path'  => trim($cat['facet_path'], '/'),
-                'help'  => $help,
+                'help'  => trim((string)($cat['facet_description'] ?? '')),
                 'sub'   => $children,
             ];
         }
@@ -97,12 +91,41 @@ class CatalogService
     }
 
     /**
-     * Данные для страницы категории.
+     * Шаблон страницы отдельной записи (факт/статья/сайт/страница).
+     * Централизованный выбор — используется и static, и preview.
      *
-     * @param int    $facetId
-     * @param int    $page
-     * @param string $mod  'static' | 'preview'
+     * @param array  $item  запись
+     * @param string $dir2  третий сегмент facet_list (@path@dir2) или '' если нет
      */
+    public static function itemTemplate(array $item, string $dir2 = ''): string
+    {
+        return match (($item['item_type'] ?? 'fact')) {
+            'article' => '/site/pages/articles/view.php',
+            'page'    => '/site/pages/page.php',
+            'site'     => '/site/pages/sites/view.php',
+            default   => ($dir2 === 'info') ? '/site/pages/page.php' : '/site/pages/facts/view.php',
+        };
+    }
+
+    /**
+     * Шаблон страницы категории (список записей).
+     * Распознаёт корень articles (статьи) и web (сайты) по пути.
+     */
+    public static function categoryTemplate(string $facetPath): string
+    {
+        $path = trim((string)$facetPath, '/');
+
+        if ($path === 'articles' || str_starts_with($path, 'articles/')) {
+            return '/site/pages/articles/index.php';
+        }
+
+        if ($path === 'web' || str_starts_with($path, 'web/')) {
+            return '/site/pages/sites/index.php';
+        }
+
+        return '/site/pages/facts/index.php';
+    }
+
     public static function data(int $facetId, int $page = 1, string $mod = 'static'): array
     {
         $childrenForFeed = FacetModel::childrenForFeed($facetId);

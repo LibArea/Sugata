@@ -1,0 +1,112 @@
+/* ---------- Формы ---------- */
+.form-input-wide {
+    width: 100%;
+    max-width: 600px;
+    display: block;
+}
+
+.form-actions { margin-top: 1em; }
+.form-actions a { margin-left: 1em; }
+
+.form-field-group { margin-bottom: 1em; }
+.form-field-group label { display: block; margin-bottom: 0.3em; }
+
+.form-field-hint-inline {
+    color: var(--opacity-fg-63);
+    font-style: italic;
+    font-size: 0.85em;
+    margin-left: 0.5em;
+}
+
+input, button, select, textarea {
+    color: var(--color-fg);
+    font: inherit;
+    background-color: var(--color-box-bg);
+    padding: 3px 5px;
+    margin: var(--input-outline-width);
+    border: 1px solid var(--color-box-border);
+    transition: border-color var(--transition-fast), outline var(--transition-fast);
+}
+
+input:focus, /* button:focus, */ select:focus, textarea:focus {
+  /* outline: var(--input-outline-width) solid var(--color-box-border-focus); */
+   /*  border-color: transparent; */
+}
+
+textarea {
+    width: 99%;
+    box-sizing: border-box;
+    min-height: 80px;
+    resize: vertical;
+}
+
+button,
+input[type="submit"],
+input[type="button"],
+a.button {
+    background-color: var(--color-button-bg);
+    border: 1px solid var(--color-box-border);
+    border-bottom-color: var(--color-fg-shape);
+    color: var(--color-fg);
+    cursor: pointer;
+    display: inline-block;
+    line-height: 18px;
+    padding: 4px 10px;
+    text-align: center;
+    text-decoration: none;
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+    background-color: var(--color-button-bg-shaded);
+}
+
+button.button-no {
+    border: 0;
+    background-color: var(--color-box-bg);
+    color: var(--opacity-fg-67);
+    text-decoration: none;
+}
+
+button.button-no:hover {
+    color: var(--opacity-fg-67);
+    background-color: var(--color-box-bg);
+}
+
+button.btn-link {
+    background: none;
+    border: none;
+    color: var(--color-fg-link);
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    font: inherit;
+}
+
+button.btn-link:hover { opacity: 0.8; }
+
+button.btn-danger {
+    background: var(--color-fg-negative);
+    color: var(--color-box-bg);
+    border: 1px solid var(--color-fg-negative);
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+button.btn-danger:hover { opacity: 0.9; }
+
+
+
+
+@keyframes highlight-fade {
+    0% { 
+        background-color: var(--color-comment-highlight);
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+    }
+    100% { 
+        background-color: transparent;
+        box-shadow: none;
+    }
+}
+

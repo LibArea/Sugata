@@ -61,7 +61,7 @@ public function edit()
 
         // Тип контента: селект «Факт / Статья / Страница» (поле content_kind)
         $kind = (string)($data['content_kind'] ?? $data['item_type'] ?? 'fact');
-        $data['item_type'] = in_array($kind, ['fact', 'article', 'page'], true) ? $kind : 'fact';
+        $data['item_type'] = in_array($kind, ['fact', 'article', 'site', 'page'], true) ? $kind : 'fact';
 
         $redirect = url('item.form.edit', ['id' => (int)$data['item_id']]);
 

@@ -18,13 +18,11 @@ if (!empty($data['related_arr'])) {
     }
 }
 ?>
-<fieldset class="form-big">
-  <div class="form-label input-label"><label><?= __('app.related_items'); ?></label></div>
-  <div class="form-element">
-    <input name="related_ids" id="related_ids" placeholder="<?= __('app.related_items_help'); ?>">
-    <div class="help"><?= __('app.related_items_help'); ?></div>
-  </div>
-</fieldset>
+<div class="form-field-group">
+  <label for="related_ids"><strong><?= __('app.related_items'); ?></strong></label>
+  <input name="related_ids" id="related_ids" placeholder="<?= __('app.related_items_help'); ?>">
+  <div class="hint"><?= __('app.related_items_help'); ?></div>
+</div>
 
 <script src="/assets/js/tag/tagify.min.js"></script>
 <link rel="stylesheet" href="/assets/js/tag/tagify.css" type="text/css">

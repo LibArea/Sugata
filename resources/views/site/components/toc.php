@@ -1,10 +1,7 @@
 <?php
 /*
- * Table of contents built from markdown headings
- * Оглавление, собираемое из заголовков статьи
- *
+ * Оглавление, собираемое из заголовков статьи (нативные классы base.css).
  * Expects: $item (array)
- * Renders nothing when the article has no headings.
  */
 $slugify = new \Cocur\Slugify\Slugify();
 $tocLines = [];
@@ -21,12 +18,12 @@ if (empty($tocLines)) {
     return;
 }
 ?>
-<div class="wiki-toc" role="navigation" aria-label="TOC">
-  <div class="wiki-toc__title"><?= __('app.content'); ?></div>
-  <ol>
+<div role="navigation" aria-label="TOC" class="toc mb1">
+  <div class="toc__title"><?= __('app.content'); ?></div>
+  <ol class="toc__list">
     <?php foreach ($tocLines as $tl) : ?>
       <li style="margin-inline-start: <?= ($tl['level'] - 2) * 1; ?>rem;">
-        <a href="#<?= $tl['anchor']; ?>" class="wiki-toc__link"><?= htmlEncode($tl['text']); ?></a>
+        <a href="#<?= $tl['anchor']; ?>"><?= htmlEncode($tl['text']); ?></a>
       </li>
     <?php endforeach; ?>
   </ol>

@@ -1,17 +1,12 @@
 <?php
 /*
- * Sidebar / Left navigation (Wikipedia style)
- * Сайдбар с навигацией по разделам
- *
- * Expects: $sideNav (array — дерево категорий из БД, подготовлено контроллером),
- *          $preview (bool), optional $activePath (string current facet path)
+ * Сайдбар с навигацией по разделам (нативный класс nav base.css)
+ * Expects: $sideNav (array), $preview (bool), optional $activePath (string), optional $sideRoot (string)
  */
 $activePath = $activePath ?? '';
 $sideMod    = !empty($preview) ? 'preview' : 'static';
 $sideNav    = $sideNav ?? [];
 
-// Ограничить сайдбар одним корнем. По умолчанию — все корни.
-// Для статьи передаётся sideRoot='articles', для факта — 'facts'.
 $sideRoot = $sideRoot ?? '';
 if ($sideRoot !== '') {
     $keep = false;
@@ -27,34 +22,12 @@ if ($sideRoot !== '') {
     $sideNav = $filtered;
 }
 ?>
-
-<nav class="wiki-sidebar" aria-label="<?= __('app.category'); ?>">
-  <div class="wiki-sidebar__title"><?= __('app.category'); ?></div>
-  <ul>
-    <?php foreach ($sideNav as $i => $cat) :
-      if ($cat['level'] != 0) continue;
-      $active = ($activePath === $cat['facet_path']);
-
-      // Прямые дети уровня 1 для этого корня
-      $children = [];
-      for ($j = $i + 1; $j < count($sideNav) && $sideNav[$j]['level'] > 0; $j++) {
-          if ($sideNav[$j]['level'] == 1 && $sideNav[$j]['facet_parent_id'] == $cat['facet_id']) {
-              $children[] = $sideNav[$j];
-          }
-      }
-      ?>
-      <li class="<?= $active ? 'active' : ''; ?>">
-        <a href="<?= urlDir($cat['facet_path'], $sideMod); ?>"><?= htmlEncode($cat['facet_title']); ?></a>
-        <?php if ($children) : ?>
-          <ul>
-            <?php foreach ($children as $child) : ?>
-              <li class="<?= ($activePath === $child['facet_path']) ? 'active' : ''; ?>">
-                <a href="<?= urlDir($child['facet_path'], $sideMod); ?>"><?= htmlEncode($child['facet_title']); ?></a>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
-      </li>
-    <?php endforeach; ?>
-  </ul>
+<nav class="nav" aria-label="<?= __('app.category'); ?>">
+  <div class="title"><?= __('app.category'); ?></div>
+  <?php foreach ($sideNav as $i => $cat) :
+    if ($cat['level'] != 0) continue;
+    $active = ($activePath === $cat['facet_path']);
+    ?>
+    <a class="<?= $active ? 'active' : ''; ?>" href="<?= urlDir($cat['facet_path'], $sideMod); ?>"><?= htmlEncode($cat['facet_title']); ?></a>
+  <?php endforeach; ?>
 </nav>

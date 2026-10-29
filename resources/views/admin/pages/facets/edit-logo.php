@@ -3,48 +3,27 @@ $fs = $data['facet_inf'];
 $url = url('redirect.facet', ['id' => $fs['facet_id']]);
 ?>
 
-<main>
-  <div class="box">
-    <div class="nav-bar">
-      <ul class="nav">
-        <?= insert(
-          '/shared/navigation/nav',
-          [
-            'list' => [
-              [
-                'id'        => 'topic',
-                'url'       => url('facet.form.edit', ['type' => $data['type'], 'id' => $fs['facet_id']]),
-                'title'     => 'app.edit_' . $data['type'],
-              ],
-              [
-                'id'        => 'topic',
-                'url'       => url('facet.form.logo.edit', ['type' => $data['type'], 'id' => $fs['facet_id']]),
-                'title'     => 'app.logo',
-              ],
-              [
-                'id'        => 'team',
-                'url'       => url('team.form.edit', ['type' => $data['type'], 'id' => $fs['facet_id']]),
-                'title'     => 'app.team',
-              ]
-            ]
-          ]
-        ); ?>
-      </ul>
-      <a class="gray-600" href="<?= $url; ?>"><?= __('app.go_to'); ?></a>
-    </div>
+<main class="content">
+  <nav class="nav">
+    <?php foreach ([
+      ['url' => url('facet.form.edit', ['type' => $data['type'], 'id' => $fs['facet_id']]), 'title' => __('app.edit_' . $data['type'])],
+      ['url' => url('facet.form.logo.edit', ['type' => $data['type'], 'id' => $fs['facet_id']]), 'title' => __('app.logo')],
+      ['url' => url('team.form.edit', ['type' => $data['type'], 'id' => $fs['facet_id']]), 'title' => __('app.team')],
+    ] as $navItem) : ?>
+      <a href="<?= $navItem['url']; ?>"><?= $navItem['title']; ?></a>
+    <?php endforeach; ?>
+    <a class="gray" href="<?= $url; ?>"><?= __('app.go_to'); ?></a>
+  </nav>
 
-    <?= insert('/shared/form/cropper/facet-logo', ['data' => $fs]); ?>
+  <?= insert('/shared/form/cropper/facet-logo', ['data' => $fs]); ?>
 
-    <br>
-
-    <?php if ($fs['facet_type'] == 'blog') : ?>
-      <?= insert('/shared/form/cropper/facet-cover', ['data' => $fs]); ?>
-    <?php endif; ?>
-  </div>
+  <?php if ($fs['facet_type'] == 'blog') : ?>
+    <?= insert('/shared/form/cropper/facet-cover', ['data' => $fs]); ?>
+  <?php endif; ?>
 </main>
-<aside>
+<aside class="content">
   <div class="box">
-    <h4 class="uppercase-box"><?= __('app.help'); ?></h4>
+    <h4 class="title"><?= __('app.help'); ?></h4>
     <?= __('help.edit_' . $data['type']); ?>
   </div>
 </aside>

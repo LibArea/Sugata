@@ -33,22 +33,15 @@ $list = [
     'title' => 'app.add_fact',
   ],
 ];
-
 ?>
 
 <?php foreach ($list as $key => $item) :
   $tl = $item['tl'] ?? 0;
   $css = empty($item['css']) ? false : $item['css'];
   $isActive = $item['id'] == $sheet ? 'active' : false;
-  $class = ($css || $isActive) ? ' class="' . $isActive . ' ' .  $css . '"'   : '';
-
+  $class = ($css || $isActive) ? ' class="' . $isActive . ' ' .  $css . '"' : '';
 ?>
-
-  <li<?= $class; ?>>
-    <a href="<?= $item['url']; ?>"<?= !empty($item['target']) ? ' target="' . $item['target'] . '" rel="noopener"' : ''; ?>>
-      <?php if (!empty($item['icon'])) : ?><i class="text-sm <?= $item['icon']; ?>"></i><?php endif; ?>
-      <?= __($item['title']); ?>
-    </a>
-    </li>
-
-  <?php endforeach; ?>
+  <a<?= $class; ?> href="<?= $item['url']; ?>"<?= !empty($item['target']) ? ' target="' . $item['target'] . '" rel="noopener"' : ''; ?>>
+    <?= __($item['title']); ?>
+  </a>
+<?php endforeach; ?>

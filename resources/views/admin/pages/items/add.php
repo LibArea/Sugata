@@ -1,61 +1,51 @@
 <main>
-  <div class="nav-bar">
-    <ul class="nav scroll-menu">
-      <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-    </ul>
+  <div class="flex justify-between items-center mb20">
+    <h1 class="title"><?= __('app.add_fact'); ?></h1>
   </div>
 
-  <h1 class="title"><?= __('app.add_fact'); ?></h1>
-
-  <form class="mt20" action="<?= url('add.item', method: 'post'); ?>" method="post">
+  <form action="<?= url('add.item', method: 'post'); ?>" method="post">
     <?= $container->csrf()->field(); ?>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label><?= __('app.title'); ?> <strong class="red">*</strong></label></div>
-      <div class="form-element">
-        <input id="title" name="item_title" required="" type="text" value="<?= htmlEncode($data['prefill_title'] ?? ''); ?>">
-        <div class="help">1 - 250 <?= __('app.characters'); ?></div>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="title"><strong><?= __('app.title'); ?> <span class="red">*</span></strong></label>
+      <input id="title" name="item_title" required="" type="text" class="form-input-wide" value="<?= htmlEncode($data['prefill_title'] ?? ''); ?>">
+      <div class="hint">1 - 250 <?= __('app.characters'); ?></div>
+    </div>
 
     <?= insert('/shared/form/content-type', ['type' => 'fact', 'allowPage' => true]); ?>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label for="category_id"><?= __('app.category'); ?> <strong class="red">*</strong></label></div>
-      <div class="form-element">
-        <?= insert('/shared/form/select/category', ['action' => 'add', 'root' => 'facts']); ?>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="category_id"><strong><?= __('app.category'); ?> <span class="red">*</span></strong></label>
+      <?= insert('/shared/form/select/category', ['action' => 'add', 'root' => 'facts']); ?>
+    </div>
 
     <?= insert('/shared/form/select/select-related'); ?>
 
     <?= insert('/shared/form/editor/toolbar-img', ['height' => '300px', 'id' => 0]); ?>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label><?= __('app.note'); ?></label></div>
-      <div class="form-element">
-        <input minlength="11" id="item_note" name="item_note" type="text">
-        <div class="help">> 24 <?= __('app.characters'); ?></div>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="item_note"><strong><?= __('app.note'); ?></strong></label>
+      <input minlength="11" id="item_note" name="item_note" type="text">
+      <div class="hint">&gt; 24 <?= __('app.characters'); ?></div>
+    </div>
 
-    <fieldset class="form-big">
-      <div class="form-label input-label"><label><?= __('app.source_url'); ?> </label></div>
-      <div class="form-element">
-        <input id="source_url" name="item_source_url" type="url" value="" placeholder="https://...">
-        <div class="help"><?= __('app.source_url_help'); ?></div>
-      </div>
-    </fieldset>
+    <div class="form-field-group">
+      <label for="source_url"><strong><?= __('app.source_url'); ?></strong></label>
+      <input id="source_url" name="item_source_url" type="url" value="" placeholder="https://...">
+      <div class="hint"><?= __('app.source_url_help'); ?></div>
+    </div>
 
-    <?php if ($container->user()->admin()) : ?><br>
-       <fieldset>
-	   <label class="admin-publish-toggle" for="item_published">
-        <input type="checkbox" name="item_published"> <?= __('app.posted'); ?>
-		</label>
-      </fieldset>
+    <?php if ($container->user()->admin()) : ?>
+      <div class="form-field-group">
+        <label class="clear" for="item_published">
+          <input type="checkbox" name="item_published" id="item_published"> <?= __('app.posted'); ?>
+        </label>
+      </div>
     <?php endif; ?>
 
-    <?= Html::sumbit(__('app.add')); ?>
+    <div class="form-actions">
+      <?= Html::sumbit(__('app.add')); ?>
+    </div>
   </form>
 </main>
 
