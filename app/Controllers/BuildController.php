@@ -139,6 +139,58 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.sitemap_built', ['total' => count($items) + count($facets) + 1]), 'success', url('tools'));
 	}
 
+	// Кнопка в админке: скачать/обновить фавиконы для сайтов
+	public function faviconsAction(): void
+	{
+		$saved = 0;
+		$failed = 0;
+
+		foreach (ItemModel::sitesWithUrl() as $site) {
+			$result = ItemModel::saveFavicon((int)$site['item_id'], (string)($site['url'] ?? ''));
+			if ($result !== false) {
+				$saved++;
+			} else {
+				$failed++;
+			}
+		}
+
+		Msg::redirect(__('msg.favicons_saved', ['saved' => $saved, 'failed' => $failed]), 'success', url('tools'));
+	}
+
+	// Кнопка в админке: пересчитать Яндекс ИКС (ТИЦ) для сайтов
+	public function tcyAction(): void
+	{
+		$result = ItemModel::recalcYandexTcy();
+
+		Msg::redirect(__('msg.tcy_recalculated', ['checked' => $result['checked'], 'saved' => $result['saved']]), 'success', url('tools'));
+	}
+
+	// Кнопка в админке: скачать фавиконы только для сайтов, у которых его ещё нет
+	public function faviconsNewAction(): void
+	{
+		$saved = 0;
+		$failed = 0;
+
+		foreach (ItemModel::sitesWithUrl('item_favicon_img') as $site) {
+			$result = ItemModel::saveFavicon((int)$site['item_id'], (string)($site['url'] ?? ''));
+			if ($result !== false) {
+				$saved++;
+			} else {
+				$failed++;
+			}
+		}
+
+		Msg::redirect(__('msg.favicons_saved', ['saved' => $saved, 'failed' => $failed]), 'success', url('tools'));
+	}
+
+	// Кнопка в админке: пересчитать ТИЦ только для сайтов, у которых его ещё нет
+	public function tcyNewAction(): void
+	{
+		$result = ItemModel::recalcYandexTcy('item_yandex_tcy');
+
+		Msg::redirect(__('msg.tcy_recalculated', ['checked' => $result['checked'], 'saved' => $result['saved']]), 'success', url('tools'));
+	}
+
 	// Строим CSS для админки
 	protected function buildCss($putch, $key)
 	{

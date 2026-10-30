@@ -15,6 +15,7 @@
         ['type' => 'moderation', 'title' => 'app.moderation','active' => ($data['type'] ?? '') === 'moderation'],
         ['type' => 'all',        'title' => 'app.all_facts', 'active' => ($data['type'] ?? '') === 'all'],
         ['type' => 'articles',   'title' => 'app.articles',  'active' => ($data['type'] ?? '') === 'articles'],
+        ['type' => 'sites',      'title' => 'app.sites',     'active' => ($data['type'] ?? '') === 'sites'],
         ['type' => 'page',       'title' => 'app.pages',     'active' => ($data['type'] ?? '') === 'page'],
       ];
     ?>
@@ -31,7 +32,15 @@
         ?>
         <li class="story">
           <div class="story_liner">
-            <div class="link"><a href="<?= urlItem($vPath, $item['item_slug'], 'preview'); ?>"><?= htmlEncode($item['item_title']); ?></a>
+            <div class="link">
+              <?php if (($data['type'] ?? '') === 'sites') : ?>
+                <?php if (!empty($item['item_favicon_img'])) : ?>
+                  <img class="site-favicon" src="/uploads/favicons/<?= htmlEncode($item['item_favicon_img']); ?>" alt="" width="16" height="16" loading="lazy">
+                <?php else : ?>
+                  <img class="site-favicon" src="/uploads/favicons/no-favicon.png" alt="" width="16" height="16" loading="lazy">
+                <?php endif; ?>
+              <?php endif; ?>
+              <a href="<?= urlItem($vPath, $item['item_slug'], 'preview'); ?>"><?= htmlEncode($item['item_title']); ?></a>
               <?php if (!$item['item_published']) : ?>
                 <span class="red"><?= __('app.not_published'); ?></span>
               <?php endif; ?>
@@ -43,6 +52,10 @@
               <span class="lowercase"><?= langDate($item['item_date']); ?></span>
               <span class="divider">·</span>
               <span class="brown"><?= $item['login']; ?></span>
+              <?php if ((($data['type'] ?? '') === 'sites') && !empty($item['item_yandex_tcy'])) : ?>
+                <span class="divider">·</span>
+                <span class="site-tcy" title="<?= __('app.tcy'); ?>"><?= __('app.tcy'); ?>: <?= htmlEncode($item['item_yandex_tcy']); ?></span>
+              <?php endif; ?>
               <?php if ($container->access()->author('item', $item) === true) : ?>
                 <a class="ml5 gray" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
                   <svg class="icon text-sm" aria-hidden="true"><use xlink:href="/assets/svg/icons.svg#edit"></use></svg>

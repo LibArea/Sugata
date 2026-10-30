@@ -42,6 +42,7 @@ class HomeController extends Controller
             'my'         => __('app.my_facts'),
             'moderation' => __('app.moderation'),
             'articles'   => __('app.articles'),
+            'sites'      => __('app.sites'),
             'deleted'    => __('app.deleted'),
             default      => __('app.facts'),
         };

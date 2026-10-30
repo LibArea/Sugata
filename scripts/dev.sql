@@ -129,6 +129,8 @@ CREATE TABLE `items` (
   `item_note` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_danish_ci DEFAULT NULL,
   `item_content_img` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `item_thumb_img` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `item_favicon_img` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `item_yandex_tcy` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `item_is_deleted` tinyint(1) DEFAULT '0',
   `item_views` int unsigned NOT NULL DEFAULT '0',
   `item_best` tinyint(1) NOT NULL DEFAULT '0',

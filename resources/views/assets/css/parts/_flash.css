@@ -41,4 +41,40 @@
 
 .alert strong { font-weight: bold; }
 
+/* ---------- Всплывающее уведомление (функция Notice) ---------- */
+.notice {
+    position: fixed;
+    z-index: 1000;
+    max-width: 320px;
+    padding: 0.8em 1em;
+    border-radius: 4px;
+    background-color: var(--color-box-bg);
+    color: var(--color-fg);
+    border: 1px solid var(--color-box-border);
+    box-shadow: 0 2px 12px rgb(0 0 0 / 0.18);
+    font-size: 0.95em;
+    line-height: 1.4;
+    animation-name: notice-out;
+    animation-fill-mode: both;
+}
+
+.notice-top { top: 12px; }
+.notice-bottom { bottom: 12px; }
+.notice-left { left: 12px; }
+.notice-right { right: 12px; }
+.notice-center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notice { animation: none; }
+}
+
+@keyframes notice-out {
+    0% { opacity: 0; transform: translateY(-4px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-4px); }
+}
+
 

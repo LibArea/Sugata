@@ -39,12 +39,13 @@ class Validator
         }
 
         // Выбранные категории не должны противоречить типу контента:
-        // факт → ветка facts, статья → ветка articles, страница → ветка info.
+        // факт → ветка facts, статья → ветка articles, сайт → ветка web, страница → ветка info.
         $kind = $data['content_kind'] ?? $data['item_type'] ?? 'fact';
-        $kind = in_array($kind, ['fact', 'article', 'page'], true) ? $kind : 'fact';
+        $kind = in_array($kind, ['fact', 'article', 'site', 'page'], true) ? $kind : 'fact';
 
         $expectRoot = match ($kind) {
             'article' => 'articles',
+            'site'    => 'web',
             'page'    => 'info',
             default   => 'facts',
         };

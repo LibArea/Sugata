@@ -1,5 +1,5 @@
 <footer class="content text-sm lowercase mt20">
-  © 2025 sugata — <?= __('app.facts'); ?>
+  © 2026 sugata — <?= __('app.facts_archive'); ?>
 </footer>
 
 <script src="/assets/js/common.js?<?= config('general', 'version'); ?>"></script>

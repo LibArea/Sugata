@@ -29,8 +29,9 @@
   (function () {
     try {
       var t = localStorage.getItem('wiki-theme');
-      if (t === 'dark') document.body.classList.add('dark');
-      else if (!t && window.matchMedia('(prefers-color-scheme: dark)').matches) document.body.classList.add('dark');
+      var dark = t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.body.classList.add('dark');
+      document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
     } catch (e) {}
   })();
 </script>

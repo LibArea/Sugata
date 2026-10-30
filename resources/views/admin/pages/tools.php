@@ -59,8 +59,31 @@
     </div>
 
     <div class="box">
-      <a class="btn btn-danger" href="<?= url('deletion.dir'); ?>"><?= __('app.delete'); ?></a>
-      <div class="hint"><?= __('app.deletion_dir'); ?></div>
+      <a class="btn" href="<?= url('update.favicons.new'); ?>"><?= __('app.run'); ?></a>
+      <div class="hint"><?= __('app.sites_favicons_new'); ?></div>
     </div>
+
+    <div class="box">
+      <a class="btn" href="<?= url('update.tcy.new'); ?>"><?= __('app.run'); ?></a>
+      <div class="hint"><?= __('app.sites_tcy_new'); ?></div>
+    </div>
+
+    <details class="box tools-danger">
+      <summary><?= __('app.tools_full_rebuild'); ?></summary>
+      <div class="box">
+        <a class="btn" href="<?= url('update.favicons'); ?>"><?= __('app.run'); ?></a>
+        <div class="hint"><?= __('app.sites_favicons'); ?></div>
+      </div>
+
+      <div class="box">
+        <a class="btn" href="<?= url('update.tcy'); ?>"><?= __('app.run'); ?></a>
+        <div class="hint"><?= __('app.sites_tcy'); ?></div>
+      </div>
+
+      <div class="box">
+        <a class="btn btn-danger" href="<?= url('deletion.dir'); ?>"><?= __('app.delete'); ?></a>
+        <div class="hint"><?= __('app.deletion_dir'); ?></div>
+      </div>
+    </details>
   </div>
 </main>

@@ -5,7 +5,8 @@
 
   <article>
     <?php $srcUrl = trim((string)($item['item_source_url'] ?? '')); ?>
-    <h1 class="title"><?= htmlEncode($item['item_title']); ?>
+    <h1 class="title">
+      <?= htmlEncode($item['item_title']); ?>
       <?php if ($srcUrl !== '') : ?>
         <a href="<?= htmlEncode($srcUrl); ?>" target="_blank" rel="nofollow noopener noreferrer" aria-label="<?= __('app.open_site'); ?>">
           <svg class="icon text-sm" aria-hidden="true"><use xlink:href="/assets/svg/icons.svg#external"></use></svg>
@@ -19,17 +20,21 @@
     </h1>
 
     <div class="hint mb1">
+      <?php if ($srcUrl !== '') : ?>
+        <?php $host = parse_url($srcUrl, PHP_URL_HOST); ?>
+        <?php if ($host) : ?>
+          <?php if (!empty($item['item_favicon_img'])) : ?>
+            <img class="site-favicon" src="/uploads/favicons/<?= htmlEncode($item['item_favicon_img']); ?>" alt="" width="16" height="16" loading="lazy">
+          <?php endif; ?>
+          <span class="site-domain"><?= htmlEncode($host); ?></span>
+        <?php endif; ?>
+      <?php endif; ?>
       <?= Html::facetDir($item['facet_list'] ?? '', !empty($preview) ? 'preview' : 'static'); ?>
       <span class="lowercase"><?= langDate($item['item_date']); ?></span>
+      <?php if (!empty($preview) && !empty($item['item_yandex_tcy'])) : ?>
+        <span class="site-tcy" title="<?= __('app.tcy'); ?>"><?= __('app.tcy'); ?>: <?= htmlEncode($item['item_yandex_tcy']); ?></span>
+      <?php endif; ?>
     </div>
-
-    <?php if ($srcUrl !== '') : ?>
-      <div class="mb1">
-        <a class="btn" href="<?= htmlEncode($srcUrl); ?>" target="_blank" rel="nofollow noopener noreferrer">
-          <?= __('app.visit_site'); ?>
-        </a>
-      </div>
-    <?php endif; ?>
 
     <?php if (!empty($item['item_thumb_img'])) : ?>
       <div class="mb1">
@@ -55,14 +60,11 @@
       <?= markdown($item['item_content'], 'text', !empty($preview)); ?>
     </div>
 
-    <?php if (!empty($item['item_source_title']) || $srcUrl !== '') : ?>
-      <div class="mt1 mb1 gray">
-        <?= __('app.source'); ?>:
-        <?php if ($srcUrl !== '') : ?>
-          <a class="gray" href="<?= htmlEncode($srcUrl); ?>" rel="nofollow noopener noreferrer"><?= htmlEncode(!empty($item['item_source_title']) ? $item['item_source_title'] : $srcUrl); ?></a>
-        <?php else : ?>
-          <?= htmlEncode($item['item_source_title']); ?>
-        <?php endif; ?>
+    <?php if ($srcUrl !== '') : ?>
+      <div class="mt1 mb1">
+        <a class="btn" href="<?= htmlEncode($srcUrl); ?>" target="_blank" rel="nofollow noopener noreferrer">
+          <?= __('app.visit_site'); ?>
+        </a>
       </div>
     <?php endif; ?>
   </article>

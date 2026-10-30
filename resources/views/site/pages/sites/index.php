@@ -36,15 +36,23 @@
       ?>
       <li class="story">
         <div class="story_liner">
-          <div class="link"><a href="<?= $path; ?>"><?= htmlEncode($item['item_title']); ?></a>
-            <?php if ($srcUrl !== '') : ?>
-              <a class="domain" href="<?= htmlEncode($srcUrl); ?>" target="_blank" rel="nofollow noopener noreferrer">
-                <svg class="icon text-sm" aria-hidden="true"><use xlink:href="/assets/svg/icons.svg#external"></use></svg>
-              </a>
-            <?php endif; ?>
+          <div class="link">
+            <a href="<?= $path; ?>"><?= htmlEncode($item['item_title']); ?></a>
           </div>
+          <?php if (!empty($preview) && !empty($item['item_yandex_tcy'])) : ?>
+              <span class="site-tcy" title="<?= __('app.tcy'); ?>"><?= htmlEncode($item['item_yandex_tcy']); ?></span>
+            <?php endif; ?>
           <div class="story_content"><?= htmlEncode(Parser::noHTML($item['item_content'], 320)); ?></div>
           <div class="byline">
+            <?php if (!empty($item['item_favicon_img'])) : ?>
+              <img class="site-favicon" src="/uploads/favicons/<?= htmlEncode($item['item_favicon_img']); ?>" alt="" width="16" height="16" loading="lazy">
+            <?php endif; ?>
+            <?php if ($srcUrl !== '') : ?>
+              <?php $host = parse_url($srcUrl, PHP_URL_HOST); ?>
+              <?php if ($host) : ?>
+                <span class="site-domain"><?= htmlEncode($host); ?></span>
+              <?php endif; ?>
+            <?php endif; ?>
             <?= Html::facetDir($item['facet_list'] ?? '', !empty($preview) ? 'preview' : 'static'); ?>
             <span class="divider">·</span>
             <span class="lowercase"><?= langDate($item['item_date']); ?></span>

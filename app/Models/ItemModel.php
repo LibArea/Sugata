@@ -91,11 +91,16 @@ class ItemModel extends Model
                     item_user_id,
                     item_date,
 	                item_is_deleted,
+					item_favicon_img,
+					item_yandex_tcy,
+					s.url    AS item_source_url,
 					u.id, u.login, u.avatar, u.created_at, 
                     rel.*
   
                         FROM facets_items_relation 
                         LEFT JOIN items ON relation_item_id = item_id
+                        LEFT JOIN article_sources a_s ON a_s.article_id = item_id AND a_s.sort_order = 0
+                        LEFT JOIN sources s ON s.id = a_s.source_id
                         LEFT JOIN (
                             SELECT  		 
                                 relation_item_id,
@@ -275,6 +280,115 @@ class ItemModel extends Model
         DB::run("DELETE FROM sources
                  WHERE last_checked_at IS NULL
                    AND NOT EXISTS (SELECT 1 FROM article_sources a_s WHERE a_s.source_id = sources.id)");
+    }
+
+
+    // Скачивает фавикон с сервиса Яндекса и сохраняет в /uploads/favicons/YYYY/M/{domain}.png.
+    // Путь кладёт в item_favicon_img. Возвращает relative-путь либо false.
+    public static function saveFavicon(int $itemId, string $itemUrl): string|false
+    {
+        $host = parse_url($itemUrl, PHP_URL_HOST);
+        if (!$host) {
+            return false;
+        }
+
+        $host = str_replace('www.', '', strtolower(trim($host)));
+        $year  = date('Y');
+        $month = date('n');
+        $fileName = $host . '.png';
+        $relativePath = $year . '/' . $month . '/' . $fileName;
+
+        $targetDir = HLEB_PUBLIC_DIR . '/uploads/favicons/' . $year . '/' . $month;
+        $targetPath = $targetDir . '/' . $fileName;
+
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0777, true);
+        }
+
+        // Если файл уже существует и валиден — только синхронизируем путь в БД
+        if (is_file($targetPath) && filesize($targetPath) > 100) {
+            self::updateFaviconPath($itemId, $relativePath);
+            return $relativePath;
+        }
+
+        $faviconUrl = 'https://favicon.yandex.net/favicon/' . $host . '?size=32';
+
+        $imageData = @file_get_contents($faviconUrl, false, stream_context_create([
+            'http' => [
+                'timeout' => 10,
+                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            ],
+        ]));
+
+        if ($imageData !== false && strlen($imageData) > 100) {
+            @file_put_contents($targetPath, $imageData);
+            self::updateFaviconPath($itemId, $relativePath);
+            return $relativePath;
+        }
+
+        return false;
+    }
+
+    // Пишет путь к фавикону в БД (если отличается)
+    protected static function updateFaviconPath(int $itemId, string $relativePath): void
+    {
+        $cur = DB::run("SELECT item_favicon_img FROM items WHERE item_id = :id", ['id' => $itemId])->fetch();
+        if (($cur['item_favicon_img'] ?? '') !== $relativePath) {
+            DB::run("UPDATE items SET item_favicon_img = :img WHERE item_id = :id", ['img' => $relativePath, 'id' => $itemId]);
+        }
+    }
+
+    // Список сайтов (item_type = 'site') с их исходным URL (доменом).
+    // Если передать $blankColumn (имя колонки items), вернёт только сайты,
+    // у которых это поле пусто (NULL или '') — для режима «только новые».
+    public static function sitesWithUrl(string $blankColumn = ''): false|array
+    {
+        $blank = '';
+        if ($blankColumn !== '') {
+            $blank = " AND (i.`" . str_replace('`', '', $blankColumn) . "` IS NULL OR i.`" . str_replace('`', '', $blankColumn) . "` = '')";
+        }
+
+        return DB::run(
+            "SELECT i.item_id, i.item_title, i.item_favicon_img, i.item_yandex_tcy, s.url, s.domain
+             FROM items i
+             INNER JOIN article_sources a_s ON a_s.article_id = i.item_id AND a_s.sort_order = 0
+             INNER JOIN sources s ON s.id = a_s.source_id
+             WHERE i.item_type = 'site' AND i.item_is_deleted = 0
+             $blank
+             ORDER BY i.item_id DESC"
+        )->fetchAll();
+    }
+
+    // Пересчитывает Яндекс ИКС (ТИЦ) для сайтов и сохраняет в item_yandex_tcy.
+    // Если передать колонку $blankColumn — обрабатывает только сайты с пустым значением («только новые»).
+    // Возвращает ['checked' => n, 'saved' => m].
+    public static function recalcYandexTcy(string $blankColumn = ''): array
+    {
+        $checked = 0;
+        $saved   = 0;
+
+        foreach (self::sitesWithUrl($blankColumn) as $site) {
+            $checked++;
+
+            $domain = $site['domain'] ?? '';
+            if ($domain === '') {
+                $domain = parse_url((string)$site['url'], PHP_URL_HOST) ?? '';
+            }
+            if ($domain === '') {
+                continue;
+            }
+
+            $value = \App\Support\YandexIks::getValueFromImage($domain);
+            if ($value !== '-' && $value !== '' && $value !== null) {
+                DB::run("UPDATE items SET item_yandex_tcy = :v WHERE item_id = :id", [
+                    'v' => $value,
+                    'id' => (int)$site['item_id'],
+                ]);
+                $saved++;
+            }
+        }
+
+        return ['checked' => $checked, 'saved' => $saved];
     }
 
 
@@ -501,6 +615,8 @@ class ItemModel extends Model
                     s.title AS item_source_title,
                     s.url    AS item_source_url,
                     i.item_thumb_img,
+                    i.item_favicon_img,
+                    i.item_yandex_tcy,
                     i.item_date,
                     rel.facet_list
                 FROM items i
@@ -639,6 +755,9 @@ class ItemModel extends Model
 					s.url    AS item_source_url,
                     item_user_id,
                     item_modified,
+                    item_thumb_img,
+                    item_favicon_img,
+                    item_yandex_tcy,
                     item_date,
                     rel.*
                         FROM items

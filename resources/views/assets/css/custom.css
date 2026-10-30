@@ -157,7 +157,7 @@
   display: flex;
   align-items: center;
   gap: .5em;
-  background-color: #F5F0E6;
+  background-color: var(--beige);
 }
 
 .copy input {
@@ -269,3 +269,28 @@
 .type-ban { cursor: pointer; }
 .type-return { cursor: pointer; }
 .wikilink { color: var(--color-fg-link); text-decoration: underline; }
+
+/* ---------- Сайты (каталог) ---------- */
+.site-favicon {
+    display: inline-block;
+    vertical-align: -2px;
+    margin-right: 0.4em;
+    border-radius: 3px;
+    width: 16px;
+    height: 16px;
+}
+.site-domain {
+    color: var(--color-fg-affirmative);
+    margin-right: 0.5em;
+}
+.site-tcy {
+    display: inline-block;
+    margin-left: 0.5em;
+    padding: 0.05em 0.5em;
+    font-size: 0.85em;
+    line-height: 1.4;
+    color: var(--color-fg-affirmative);
+    border: 1px solid var(--color-box-border);
+    border-radius: 3px;
+    white-space: nowrap;
+}
