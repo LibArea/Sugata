@@ -131,8 +131,4 @@
   }
 </script>
 
-<?php if (!empty($preview)) : ?>
-  <?= insert('/site/layouts/footer', ['preview' => true]); ?>
-<?php else : ?>
-  <!--#include virtual="/assets/footer.shtml"-->
-<?php endif; ?>
+<?= insert('/site/layouts/footer', ['preview' => !empty($preview)]); ?>

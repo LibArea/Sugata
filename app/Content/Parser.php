@@ -336,7 +336,11 @@ class Parser
                     return $marker;
                 }
 
-                return $m[0];
+                //    На статике — приглушённый текст без ссылки (статьи ещё нет),
+                //    чтобы не было ни битых ссылок, ни «сырых» [[...]].
+                $marker = "\x1AWIKIRED" . count($redLinks) . "\x1A";
+                $redLinks[$marker] = '<span class="wikilink-nolink" title="Статья не создана">' . htmlspecialchars($text, ENT_QUOTES) . '</span>';
+                return $marker;
             },
             $content
         );

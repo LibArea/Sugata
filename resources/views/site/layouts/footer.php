@@ -1,5 +1,6 @@
 <footer>
-  <div>© 2026 sugata — <span class="lowercase"><?= __('app.facts'); ?></span> · <?= __('app.page_rebuilt'); ?> <?= date('d.m.Y H:i:s'); ?></div>
+  <div>© 2026 sugata — <?= __('app.facts_archive'); ?></div>
+  <div class="footer-rebuilt"><?= __('app.page_rebuilt'); ?> <?= date('d.m.Y H:i:s'); ?></div>
   <div><a href="/info/about.html">О сайте</a></div>
 </footer>
 

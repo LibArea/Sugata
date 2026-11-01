@@ -22,6 +22,7 @@ public function site(): void
             'bestFact' => ItemModel::getBestFact(),
             'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
             'sections' => \App\Content\CatalogService::sections(),
+            'popular' => ItemModel::getPopular(5),
             'preview' => true,
         ]));
     }
@@ -39,6 +40,25 @@ public function site(): void
         $previewPath = trim(substr($requestPath, strlen($prefix)), '/');
         if ($previewPath === '') {
             notEmptyOrView404([]);
+            return;
+        }
+
+        // Подборка «Избранные статьи» в превью админки
+        if ($previewPath === 'best' || $previewPath === 'best/index.html' || preg_match('#^best/page-(\d+)$#', $previewPath, $bm)) {
+            $page  = isset($bm[1]) ? max(1, (int)$bm[1]) : 1;
+            $limit = 20;
+            $items = ItemModel::getBestFacts($page, $limit);
+            $total = ItemModel::countBest();
+
+            $this->response()->setBody(view('/site/pages/best.php', [
+                'items'      => $items,
+                'total'      => $total,
+                'pagesCount' => max(1, (int)ceil($total / $limit)),
+                'pNum'       => $page,
+                'sideNav'    => \App\Content\CatalogService::sidebar(),
+                'meta'       => Meta::get(__('app.best_facts_page')),
+                'preview'    => true,
+            ]));
             return;
         }
 

@@ -38,7 +38,7 @@
         $rPath = trim($rDir[2] ?? '', '/'); ?>
         <li class="story">
           <div class="story_liner">
-            <div class="link"><a href="<?= urlItem($rPath, $value['item_slug']); ?>"><?= htmlEncode($value['item_title']); ?></a></div>
+            <div class="link"><a href="<?= urlItem($rPath, $value['item_slug'], 'preview'); ?>"><?= htmlEncode($value['item_title']); ?></a></div>
             <div class="story_content"><?php $arr = Parser::cut((string)($value['item_content'] ?? '')); echo markdown($arr['content'], 'text'); ?></div>
             <div class="byline">
               <?= HTML::facetDir($value['facet_list'] ?? ''); ?>

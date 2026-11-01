@@ -80,7 +80,7 @@ class SearchController extends Controller
                 $result[$key]['content'] = $item->getSnippet();
 
                 // Полноценная ссылка: в админке — предпросмотр, на статике — HTML
-                $result[$key]['link'] = self::resultLink($item->getUrl());
+                $result[$key]['link'] = self::resultLink($item->getUrl(), (bool)$this->container->user()->admin());
             }
         }
 
@@ -149,9 +149,9 @@ class SearchController extends Controller
     /**
      * Строит ссылку на результат поиска.
      * URL из индекса — JSON: {"item_id":..,"slug":"..","facets":".."}.
-     * В админке ведём на предпросмотр статьи, на статике — на готовый HTML.
+     * Для админа — на предпросмотр статьи, иначе — на готовый HTML статики.
      */
-    protected static function resultLink(string $url): string
+    protected static function resultLink(string $url, bool $isAdmin = false): string
     {
         $decoded = json_decode($url, true);
         if (!is_array($decoded) || empty($decoded['slug'])) {
@@ -164,8 +164,6 @@ class SearchController extends Controller
         if ($facetPath === '') {
             return '';
         }
-
-        $isAdmin = str_contains((string)Request::getUri()->getPath(), '/mod/admin/');
 
         return $isAdmin
             ? urlItem($facetPath, $decoded['slug'], 'preview')

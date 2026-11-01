@@ -1,2 +1,6 @@
 User-agent: *
-Disallow: /
+Disallow: /mod/admin/
+Disallow: /search/
+Disallow: /uploads/tmp/
+
+Sitemap: https://sugata.ru/sitemap.xml

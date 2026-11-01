@@ -31,94 +31,63 @@
 
 /* Поле ввода */
 .search {
-    width: 100%; /* Как вы и просили */
-    box-sizing: border-box; /* КРИТИЧЕСКИ ВАЖНО: чтобы padding не увеличивал ширину больше 100% */
-    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+    height: 38px;
+    padding: 0 14px;
+    font-family: inherit;
     font-size: 15px;
-    line-height: 1.2;
-    color: #333;
-    background-color: #ffffff;
-    border: 1px solid #ced4da;
-    border-right: none; /* Убираем правую границу, чтобы слить с кнопкой */
-    border-radius: 2px 0 0 2px; /* Закругляем только левые углы */
+    line-height: 36px;
+    text-align: left;
+    color: var(--color-fg);
+    background-color: var(--color-box-bg);
+    border: 1px solid var(--color-box-border);
+    border-right: none;
+    border-radius: 3px 0 0 3px;
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease;
 }
 
 .search::placeholder {
-    color: #999;
+    color: var(--opacity-fg-59);
 }
 
 .search:focus {
-    border-color: #007bff; /* Цвет фокуса (замените на ваш основной цвет бренда) */
-   /* box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.15); */
+    border-color: var(--color-box-border-focus);
 }
 
-/* Кнопка поиска */
+/* Кнопка поиска — лёгкая, без тяжёлой заливки */
 .btn-search {
     display: inline-block;
-    padding: 10px 20px;
+    box-sizing: border-box;
+    height: 38px;
+    padding: 0 16px;
+    font-family: inherit;
     font-size: 15px;
-    font-weight: 600;
-    color: #ffffff;
-    background-color: #007bff; /* Цвет кнопки (замените на ваш основной цвет бренда) */
-    border: 1px solid #007bff;
-    border-left: none; /* Убираем левую границу, чтобы слить с input */
-    border-radius: 0 6px 6px 0; /* Закругляем только правые углы */
+    line-height: 36px;
+    font-weight: 500;
+    color: var(--opacity-fg-75);
+    background-color: var(--color-button-bg);
+    border: 1px solid var(--color-box-border);
+    border-left: none;
+    border-radius: 0 3px 3px 0;
     cursor: pointer;
-    white-space: nowrap; /* Запрещаем перенос текста на кнопке */
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-search:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
+    background-color: var(--color-button-bg-shaded);
+    color: var(--color-fg);
 }
 
 .btn-search:active {
-    background-color: #004085;
-    transform: translateY(1px); /* Легкий эффект нажатия */
+    transform: translateY(1px);
 }
 
 /* ==========================================================================
    Поддержка темной темы (Data Attribute)
    ========================================================================== */
-
-[data-theme="dark"] .search {
-    background-color: #2d2d2d;
-    border-color: #444;
-    color: #e0e0e0;
-}
-
-[data-theme="dark"] .search::placeholder {
-    color: #888;
-}
-
-[data-theme="dark"] .search:focus {
-    border-color: #4dabf7;
-    box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.2);
-}
-
-[data-theme="dark"] .btn-search {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-
-[data-theme="dark"] .btn-search:hover {
-    background-color: #004085;
-}
-
-/* ==========================================================================
-   Стили для переключателей (Radio) под формой
-   ========================================================================== */
-
-.search-options {
-    margin-top: 5px;
-    font-size: 13px;
-    color: #666;
-    display: flex;
-    gap: 15px;
-}
 
 [data-theme="dark"] .search-options {
     color: #aaa;

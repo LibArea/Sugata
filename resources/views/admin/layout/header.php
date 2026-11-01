@@ -28,6 +28,9 @@
   <?php endif; ?>
   <script src="/assets/js/la.js?<?= config('general', 'version'); ?>"></script>
   <script src="/assets/js/prism/prism.js?<?= config('general', 'version'); ?>"></script>
+  <script defer src="/assets/js/minisearch.min.js?<?= config('general', 'version'); ?>"></script>
+  <script defer src="/assets/js/search-index.js?<?= config('general', 'version'); ?>"></script>
+  <script defer src="/assets/js/wiki-search.js?<?= config('general', 'version'); ?>"></script>
 
   <?php if (!$container->user()->active() && $type == 'main') : ?>
     <link rel="preload" fetchpriority="high" as="image" href="/assets/images/banner-fon.webp" type="image/webp">

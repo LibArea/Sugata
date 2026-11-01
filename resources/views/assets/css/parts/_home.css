@@ -2,7 +2,7 @@
 
 /* ---------- Главная-портал: интро (SEO-заголовок) ---------- */
 .home-intro {
-    margin: 0 0 1em 0;
+    margin: 2.75em 0 1em 0;
 }
 
 .home-intro__title {
@@ -15,10 +15,167 @@
     max-width: 46rem;
 }
 
+/* ---------- Главная: строка сервисов ---------- */
+.portal-topbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4em 1.1em;
+    padding: 0.6em 0 0;
+    font-size: 0.82em;
+}
+
+.portal-topbar a {
+    color: var(--color-fg-link);
+    text-decoration: none;
+}
+
+.portal-topbar a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Главная: hero (логотип + поиск по центру) ---------- */
+.hero {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 2.5em 0 0;
+    text-align: center;
+}
+
+.hero-logo {
+    display: inline-block;
+    font-size: 3em;
+    font-weight: bold;
+    letter-spacing: -1px;
+    color: var(--color-fg-accent);
+    text-decoration: none;
+    line-height: 1.1;
+}
+
+.hero-search {
+    position: relative;
+    max-width: 34rem;
+    margin: 1.1em auto 0;
+}
+
+.under-search {
+    margin-top: 0.6em;
+    font-size: 0.78em;
+    color: var(--opacity-fg-59);
+}
+
+/* ---------- Главная: три колонки без рамок ---------- */
+.portal-columns {
+    display: flex;
+    gap: 1.75rem;
+    align-items: flex-start;
+    margin-top: 2.5rem;
+}
+
+.portal-columns .col {
+    flex: 1;
+    min-width: 0;
+}
+
+.portal-columns .col--wide {
+    flex: 1.4;
+}
+
+.block-title {
+    font-size: 0.95em;
+    font-weight: bold;
+    margin: 0 0 0.6em;
+    padding-bottom: 0.25em;
+    border-bottom: 1px solid var(--color-box-border);
+}
+
+.block-title--spaced {
+    margin-top: 1.5rem;
+}
+
+.article-text {
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.article-thumb {
+    float: left;
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    margin: 2px 10px 4px 0;
+    border: 1px solid var(--color-box-border);
+    background-color: var(--color-box-bg-shaded);
+}
+
+.article-title {
+    font-weight: bold;
+    color: var(--color-fg-link);
+    text-decoration: none;
+}
+
+.article-title:hover {
+    text-decoration: underline;
+}
+
+.article-text .more {
+    white-space: nowrap;
+}
+
+.news-item {
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin-bottom: 0.5em;
+}
+
+.did-you-know {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.did-you-know li {
+    font-size: 0.9em;
+    line-height: 1.5;
+    margin: 0 0 0.5em 1.1em;
+    position: relative;
+}
+
+.did-you-know li::before {
+    content: "•";
+    position: absolute;
+    left: -1.1em;
+    color: var(--opacity-fg-59);
+}
+
+/* «Знаете ли вы?» внизу — одна колонка, выпадающие пункты */
+.portal-dyk {
+    margin-top: 2.5rem;
+}
+
+.portal-dyk__list {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 900px) {
+    .portal-columns {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .portal-columns .col,
+    .portal-columns .col--wide {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+}
+
 /* ---------- Портал: шапка ---------- */
 .portal-wrap {
     max-width: 968px;
     margin: 0 auto;
+    padding: 0 1em;
 }
 
 .portal-top {
@@ -37,8 +194,9 @@
 }
 
 .portal-modules-nav a {
-    color: var(--color-fg-link);
+    color: var(--opacity-fg-63);
     text-decoration: none;
+	font-size: .9em;
 }
 
 .portal-modules-nav a:hover {
@@ -65,13 +223,16 @@
     display: flex;
     align-items: center;
     gap: 1.5em;
-    padding: 0.5em 0 1em 0;
+    padding: 1.25em 0 1em 0;
     margin-bottom: 1.5em;
 }
 
 .portal-logo {
+    display: block;
+    height: 38px;
     font-size: 1.5em;
     font-weight: bold;
+    line-height: 38px;
     color: var(--color-fg-accent);
     text-decoration: none;
     white-space: nowrap;
@@ -81,6 +242,7 @@
     flex: 1;
     max-width: 40rem;
     position: relative;
+    margin: 0;
 }
 
 .portal-search .form-search {
@@ -88,12 +250,7 @@
     padding: 0;
 }
 
-.portal-search .search {
-    padding: 10px 14px;
-    font-size: 1em;
-}
-
-/* ---------- Главная-портал: две колонки ---------- */
+/* ---------- Главная-портал: трёхколоночная сетка ---------- */
 .portal-home__cols {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
@@ -101,19 +258,133 @@
     align-items: start;
 }
 
-.portal-cols2 {
+.portal-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem 2.5rem;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 1.5rem;
     align-items: start;
 }
 
-.portal-cols2--bottom {
-    margin-top: 1.5rem;
+.portal-col--cats .portal-rubrics {
+    gap: 1em;
 }
 
-.portal-col--best {
-    padding-right: 1rem;
+.portal-col--cats .portal-rubric__title {
+    font-size: 1.05em;
+}
+
+.portal-block-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+}
+
+/* Общие списки боковых колонок */
+.portal-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.portal-list--num {
+    counter-reset: pnum;
+}
+
+.portal-list--num li {
+    counter-increment: pnum;
+    padding: 0.35em 0;
+    border-bottom: 1px dashed var(--color-box-bg-shaded);
+}
+
+.portal-list--num li::before {
+    content: counter(pnum) ". ";
+    color: var(--color-fg-accent);
+    font-weight: 600;
+    margin-right: 0.2em;
+}
+
+.portal-list--num li:last-child {
+    border-bottom: none;
+}
+
+.portal-list--num a {
+    color: var(--color-fg-link);
+    text-decoration: none;
+}
+
+.portal-list--num a:hover {
+    text-decoration: underline;
+}
+
+.portal-list--meta li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5em;
+    padding: 0.35em 0;
+    border-bottom: 1px dashed var(--color-box-bg-shaded);
+    font-size: 0.9em;
+}
+
+.portal-list--meta li:last-child {
+    border-bottom: none;
+}
+
+.portal-list--meta a {
+    color: var(--color-fg-link);
+    text-decoration: none;
+}
+
+.portal-list--meta a:hover {
+    text-decoration: underline;
+}
+
+.portal-list__date {
+    color: var(--opacity-fg-59);
+    white-space: nowrap;
+}
+
+/* Тема дня */
+.portal-featured {
+    border: 1px solid var(--color-box-border);
+    border-radius: 4px;
+    background-color: var(--color-box-bg);
+    padding: 1em;
+    margin-bottom: 1.5rem;
+}
+
+.portal-featured__title {
+    margin: 0 0 0.3em 0;
+    font-size: 1.2em;
+}
+
+.portal-featured__title a {
+    color: var(--color-fg);
+    text-decoration: none;
+}
+
+.portal-featured__title a:hover {
+    color: var(--color-fg-link);
+    text-decoration: underline;
+}
+
+.portal-featured__excerpt {
+    color: var(--opacity-fg-75);
+    font-size: 0.92em;
+    margin: 0.35em 0;
+}
+
+.portal-featured__thumb {
+    display: block;
+    margin-bottom: 0.75em;
+    max-width: 100%;
+}
+
+.portal-featured__thumb img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--color-box-border);
+    border-radius: 3px;
 }
 
 .portal-best {
@@ -267,10 +538,21 @@
 }
 
 /* ---------- Адаптивность портала ---------- */
-@media (max-width: 900px) {
-    .portal-home__cols,
-    .portal-cols2 {
+@media (max-width: 1100px) {
+    .portal-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .portal-col--featured {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 760px) {
+    .portal-grid {
         grid-template-columns: 1fr;
+    }
+    .portal-col--featured {
+        grid-column: auto;
     }
     .portal-header {
         flex-wrap: wrap;

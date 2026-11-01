@@ -3,6 +3,11 @@
  * Дополнительные стили Sugata (отсутствуют в базовой дизайн-системе base.css)
  */
 
+/* ---------- Защита от горизонтальной прокрутки ---------- */
+html {
+    overflow-x: hidden;
+}
+
 /* ---------- Контейнер ---------- */
 .content {
     margin: 0 auto;
@@ -68,6 +73,7 @@
 .wiki-search-results {
     position: absolute;
     top: 100%;
+    text-align: left;
     left: 0;
     right: 0;
     z-index: 50;
@@ -113,7 +119,8 @@
     padding: 0.5em 0.75em;
 }
 
-/* ---------- Кнопки (в базовой системе только btn-link/btn-danger) ---------- */
+/* ---------- Кнопки ---------- */
+/* База: один класс .btn + разновидности-модификаторы */
 .btn {
     display: inline-block;
     background-color: var(--color-button-bg);
@@ -124,6 +131,7 @@
     line-height: 18px;
     text-align: center;
     text-decoration: none;
+    vertical-align: middle;
 }
 
 .btn:hover { background-color: var(--color-button-bg-shaded); }
@@ -131,10 +139,46 @@
 .btn-primary {
     background-color: var(--color-fg-accent);
     border-color: var(--color-fg-accent);
-    color: white;
+    color: #fff;
 }
 
-.btn-primary:hover { opacity: 0.9; background-color: var(--color-fg-accent); }
+.btn-primary:hover {
+    background-color: var(--color-fg-accent);
+    opacity: 0.9;
+}
+
+.btn-danger {
+    background-color: transparent;
+    border-color: var(--color-fg-negative);
+    color: var(--color-fg-negative);
+}
+
+.btn-danger:hover {
+    background-color: var(--color-fg-negative);
+    color: var(--color-box-bg);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--color-fg-link);
+}
+
+.btn-outline:hover {
+    background-color: var(--color-button-bg-shaded);
+    color: var(--color-fg-link);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--color-fg-link);
+    text-decoration: underline;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+.btn-link:hover { opacity: 0.8; }
 
 /* ---------- Панели ---------- */
 .box {
@@ -269,6 +313,38 @@
 .type-ban { cursor: pointer; }
 .type-return { cursor: pointer; }
 .wikilink { color: var(--color-fg-link); text-decoration: underline; }
+.wikilink-ok { color: var(--color-fg-link); }
+.wikilink-missing { color: var(--color-fg-negative); }
+.wikilink-nolink {
+    color: var(--opacity-fg-59);
+    border-bottom: 1px dotted var(--opacity-fg-59);
+    cursor: help;
+}
+
+/* ---------- Плашка «Админ просмотр» ---------- */
+.preview-bar {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    box-sizing: border-box;
+    margin: 0 0 0.75em;
+    padding: 0.45em 1em;
+    border: none;
+    border-radius: 0;
+    text-align: center;
+    background-color: var(--color-flash-bg-notice);
+    color: var(--color-fg);
+    font-size: 0.85em;
+}
+
+/* ---------- Форма поиска в навбаре админки ---------- */
+.admin-navbar-search {
+    position: relative;
+    flex: 1;
+    max-width: 560px;
+    margin: 0 0 0 1.5em;
+}
 
 /* ---------- Сайты (каталог) ---------- */
 .site-favicon {

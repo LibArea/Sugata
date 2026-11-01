@@ -37,18 +37,6 @@ a.navbar-logo:hover { opacity: 0.8; }
 
 .navbar-links a:hover { color: var(--color-fg); }
 
-.btn-nav-create {
-    background-color: var(--color-button-bg);
-    border: 1px solid var(--color-box-border);
-    border-bottom-color: var(--color-fg-shape);
-    color: var(--color-fg);
-    padding: 2px 10px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.btn-nav-create:hover { background-color: var(--color-button-bg-shaded); }
-
 .navbar-user-dropdown-container {
     position: relative;
     display: inline-block;

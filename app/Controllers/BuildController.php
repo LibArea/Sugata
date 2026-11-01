@@ -191,6 +191,24 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.tcy_recalculated', ['checked' => $result['checked'], 'saved' => $result['saved']]), 'success', url('tools'));
 	}
 
+	// Рендер страницы статики: подставляет запечённый подвал вместо SSI-директивы.
+	// Возвращает готовый HTML (подвал читается из assets/footer.shtml, если он собран).
+	protected function renderStaticHtml(string $template, array $data): string
+	{
+		$html = view($template, $data);
+
+		$dir = $this->path;
+		$needle = '<!--#include virtual="/assets/footer.shtml"-->';
+
+		$footerPath = $dir . '/assets/footer.shtml';
+		if (strpos($html, $needle) !== false && is_file($footerPath)) {
+			$footer = file_get_contents($footerPath);
+			$html = str_replace($needle, $footer !== false ? $footer : '', $html);
+		}
+
+		return $html;
+	}
+
 	// Строим CSS для админки
 	protected function buildCss($putch, $key)
 	{
@@ -250,7 +268,7 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.successfully'), 'success', url('tools'));
 	}
 
-	public static function searchIndex()
+	public function searchIndex()
 	{
 		$storage = SearchModel::PdoStorage();
 
@@ -291,6 +309,10 @@ class BuildController extends Controller
 
 			$indexer->index($indexable);
 		}
+
+		// Также перестраиваем клиентский JS-индекс для статики (search-index.js),
+		// иначе новые статьи не появятся в поиске публичного сайта.
+		$this->buildSearchIndex();
 
 		Msg::redirect(__('msg.successfully'), 'success', url('tools'));
 	}
@@ -423,19 +445,20 @@ class BuildController extends Controller
 
 		Html::pageNumber();
 
-		$temp_home =  view('/site/pages/home.php', [
+		// Переносим общий подвал до рендера главной, чтобы подставить его в HTML
+		$temp_footer = view('/site/layouts/footer.php');
+		file_put_contents($this->path . '/assets/footer.shtml',$temp_footer);
+
+		$temp_home =  $this->renderStaticHtml('/site/pages/home.php', [
 			'meta' => Meta::home(),
 			'items' => $items,
 			'featuredBig' => ItemModel::getFeaturedBig(),
 			'bestFact' => ItemModel::getBestFact(),
 			'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
 			'sections' => CatalogService::sections(),
+			'popular' => ItemModel::getPopular(5),
 		]);
 		file_put_contents($this->path . '/index.html', $temp_home);
-		
-		// Переносим общий подвал
-		$temp_footer = view('/site/layouts/footer.php');
-		file_put_contents($this->path . '/assets/footer.shtml',$temp_footer);
 
 		// Случайные факты для кнопки «Случайный факт»
 		$this->buildRandomFactsFile();
@@ -568,7 +591,7 @@ class BuildController extends Controller
 
 		// Страница 1 = index.html
 		$catalog = CatalogService::data($facetId, 1, 'static');
-		file_put_contents($dirPath . '/index.html', view($temp_dit, [
+		file_put_contents($dirPath . '/index.html', $this->renderStaticHtml($temp_dit, [
 			'items' =>  $catalog['items'],
 			'breadcrumb' => $breadcrumb,
 			'childrens' => $catalog['childrens'],
@@ -582,7 +605,7 @@ class BuildController extends Controller
 		// Страницы 2..N = page-N.html
 		for ($page = 2; $page <= $catalog['pagesCount']; $page++) {
 			$catalog = CatalogService::data($facetId, $page, 'static');
-			file_put_contents($dirPath . '/page-' . $page . '.html', view($temp_dit, [
+			file_put_contents($dirPath . '/page-' . $page . '.html', $this->renderStaticHtml($temp_dit, [
 				'items' =>  $catalog['items'],
 				'breadcrumb' => $breadcrumb,
 				'childrens' => $catalog['childrens'],
@@ -643,6 +666,18 @@ class BuildController extends Controller
 					$affectedFacets[$fid] = $fid;
 				}
 			}
+
+			// Родительские категории тоже показывают этот факт в списке
+			// (childrenForFeed агрегирует факты из вложенных) — их надо перестроить.
+			$dirFirst = (int)($dir[0] ?? 0);
+			if ($dirFirst > 0) {
+				foreach (FacetModel::breadcrumb($dirFirst) as $anc) {
+					$aid = (int)($anc['id'] ?? 0);
+					if ($aid > 0) {
+						$affectedFacets[$aid] = $aid;
+					}
+				}
+			}
 		}
 
 		// Пересборка зависимых категорий
@@ -688,7 +723,7 @@ class BuildController extends Controller
 
 		$img_url = Parser::miniature($item['item_content']);
 
-		file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', view($tmp, [
+		file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', $this->renderStaticHtml($tmp, [
 			'item' =>  $item,
 			'similar' => $similar,
 			'related' => ItemModel::getRelatedItems((int)$item['item_id'], 'article'),
