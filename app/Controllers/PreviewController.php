@@ -44,7 +44,7 @@ public function site(): void
         }
 
         // Подборка «Избранные статьи» в превью админки
-        if ($previewPath === 'best' || $previewPath === 'best/index.html' || preg_match('#^best/page-(\d+)$#', $previewPath, $bm)) {
+        if ($previewPath === 'best' || $previewPath === 'best/index.html' || preg_match('#^best/page-(\d+)(\.html)?$#', $previewPath, $bm)) {
             $page  = isset($bm[1]) ? max(1, (int)$bm[1]) : 1;
             $limit = 20;
             $items = ItemModel::getBestFacts($page, $limit);

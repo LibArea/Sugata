@@ -49,6 +49,11 @@
   <h2 class="title"><?= __('app.tools_maintain'); ?></h2>
   <div class="checkbox-group">
     <div class="box">
+      <a class="btn" href="<?= url('broken.links'); ?>"><?= __('app.terms_wanted'); ?></a>
+      <div class="hint"><?= __('app.terms_wanted_total'); ?></div>
+    </div>
+
+    <div class="box">
       <a class="btn" href="<?= url('update.sources'); ?>"><?= __('app.run'); ?></a>
       <div class="hint"><?= __('app.sources_check'); ?></div>
     </div>

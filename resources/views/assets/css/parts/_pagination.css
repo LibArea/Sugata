@@ -1,6 +1,7 @@
 /* ---------- Пагинация ---------- */
 .pagination {
     margin-top: 1.5em;
+    margin-bottom: 2em;
 }
 
 .pagination a,
@@ -21,5 +22,18 @@
     background-color: var(--color-fg-accent);
     border-color: transparent;
     color: var(--color-bg);
+}
+
+/* Текущая страница (синяя цифра) рендерится как <div class="bg-blue ...">;
+   внутри пагинации она должна быть inline, иначе разрывает строку. */
+.pagination .bg-blue {
+    display: inline-block;
+    vertical-align: middle;
+    color: var(--color-bg);
+}
+.pagination .p5,
+.pagination .p5-10 {
+    display: inline-block;
+    vertical-align: middle;
 }
 

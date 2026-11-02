@@ -123,6 +123,44 @@
     white-space: nowrap;
 }
 
+/* Подпись (категории/дата) в карточке статьи — отступ и серый как в списке stories */
+.article-text .byline {
+    margin-top: 0.5em;
+    color: var(--opacity-fg-59);
+    font-size: 0.85em;
+}
+.article-text .byline a {
+    color: var(--opacity-fg-59);
+    text-decoration: none;
+}
+.article-text .byline .lowercase {
+    color: var(--opacity-fg-59);
+}
+
+/* Вертикальный список избранных статей: карточки друг под другом */
+.best-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+.best-list .best-item {
+    display: block;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--color-box-border);
+}
+.best-list .best-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+/* clearfix: миниатюра (.article-thumb) плавает и не должна выходить за блок */
+.best-list .best-item {
+    overflow: hidden;
+}
+.best-list .article-text {
+    overflow: hidden;
+}
+
 .news-item {
     font-size: 0.9em;
     line-height: 1.4;

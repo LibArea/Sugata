@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Hleb\Static\Request;
 use Hleb\Static\Container;
+use Hleb\Static\DB;
 
 /*
  * Global "helper" functions.
@@ -177,4 +178,41 @@ function urlDir($facet_path, $mod = 'dynamics')
     }
 
     return config('general', 'url') . '/mod/admin/dir/' . $path;
+}
+
+/**
+ * Безопасное выполнение набора запросов в одной транзакции.
+ *
+ * Поддерживает вложенные вызовы: транзакцию начинает только внешний уровень,
+ * вложенные уровни выполняются внутри неё без собственного commit/rollback.
+ * Возвращает результат замыкания, при исключении откатывает и пробрасывает.
+ *
+ * @template T
+ * @param  callable():T $callback
+ * @return T
+ */
+function dbTransaction(callable $callback)
+{
+    $pdo = DB::getPdoInstance();
+
+    if ($pdo->inTransaction()) {
+        // Вложенный вызов: просто выполняем внутри уже открытой транзакции.
+        return $callback();
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $result = $callback();
+    } catch (\Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
+
+    if ($pdo->inTransaction()) {
+        $pdo->commit();
+    }
+
+    return $result;
 }

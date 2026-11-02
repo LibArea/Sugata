@@ -11,10 +11,36 @@ use Html;
 
 class ItemModel extends Model
 {
+    /**
+     * Общий подзапрос дерева категорий статьи: relation_item_id -> facet_list.
+     * Используется во многих запросах, раньше дублировался в ~17 местах.
+     *
+     * @return string SQL [SELECT ... AS rel] (без внешних скобок и алиаса)
+     */
+    public static function facetListSubquery(): string
+    {
+        return "SELECT
+                    relation_item_id,
+                    GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
+                FROM facets
+                LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
+                GROUP BY relation_item_id";
+    }
+
+    /**
+     * LEFT JOIN на общий подзапрос facet_list с алиасом rel.
+     *
+     * @param string $itemExpr выражение, связывающее rel с основной таблицей,
+     *                         напр. "i.item_id", "item_id"
+     * @return string "LEFT JOIN ( ... ) AS rel ON rel.relation_item_id = {itemExpr}"
+     */
+    public static function facetListJoin(string $itemExpr): string
+    {
+        return "LEFT JOIN (\n" . self::facetListSubquery() . "\n) AS rel ON rel.relation_item_id = " . $itemExpr;
+    }
+
     public static function sorts($sheet)
     {
-		$user_id = self::container()->user()->id();
-		
         switch ($sheet) {
             case 'main':
                 $sort     = "item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact' AND item_published = 1 ORDER BY item_id DESC";
@@ -38,7 +64,7 @@ class ItemModel extends Model
                 $sort     = "item_published = 0 AND item_type = 'fact' ORDER BY item_date DESC";
                 break;
             case 'my':
-                $sort     = "item_type = 'fact' AND item_user_id = $user_id ORDER BY item_date DESC";
+                $sort     = "item_type = 'fact' AND item_user_id = :my_user_id ORDER BY item_date DESC";
                 break;
             case 'deleted':
                 $sort     = "item_is_deleted = 1 ORDER BY item_id DESC";
@@ -79,6 +105,7 @@ class ItemModel extends Model
     {
         $facets = self::facets($childrens, $category_id);
         $sort   = $facets . self::sorts($sort);
+        $params = (str_contains($sort, ':my_user_id')) ? ['my_user_id' => self::container()->user()->id()] : [];
 
         $start  = ($page - 1) * $limit;
         $sql = "SELECT DISTINCT
@@ -101,32 +128,25 @@ class ItemModel extends Model
                         LEFT JOIN items ON relation_item_id = item_id
                         LEFT JOIN article_sources a_s ON a_s.article_id = item_id AND a_s.sort_order = 0
                         LEFT JOIN sources s ON s.id = a_s.source_id
-                        LEFT JOIN (
-                            SELECT  		 
-                                relation_item_id,
-                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@',  facet_title SEPARATOR '@') AS facet_list
-                                FROM facets
-                                LEFT JOIN facets_items_relation on facet_id = relation_facet_id
-                                    GROUP BY relation_item_id
-                        ) AS rel
-                            ON rel.relation_item_id = item_id
+                        " . self::facetListJoin('item_id') . "
 							LEFT JOIN users u ON u.id = item_user_id
                                     WHERE  $sort LIMIT :start, :limit";
 
-        return DB::run($sql, ['start' => $start, 'limit' => $limit])->fetchAll();
+        return DB::run($sql, ['start' => $start, 'limit' => $limit] + $params)->fetchAll();
     }
 
     public static function feedItemCount($childrens, $category_id, $sort = 'main')
     {
         $facets = self::facets($childrens, $category_id);
         $sort   = $facets . self::sorts($sort);
+        $params = (str_contains($sort, ':my_user_id')) ? ['my_user_id' => self::container()->user()->id()] : [];
 
         $sql = "SELECT COUNT(DISTINCT item_id) AS cnt
 							FROM facets_items_relation 
 								LEFT JOIN items ON relation_item_id = item_id 
 									WHERE $sort ";
 
-        $row = DB::run($sql)->fetch();
+        $row = DB::run($sql, $params)->fetch();
         return (int)($row['cnt'] ?? 0);
     }
 
@@ -169,16 +189,18 @@ class ItemModel extends Model
                        :item_published,
                        :item_user_id)";
 
-        DB::run($sql, $params);
+        return dbTransaction(function () use ($sql, $params, $data) {
+            DB::run($sql, $params);
 
-        $item_id =  DB::run("SELECT LAST_INSERT_ID() as item_id")->fetch();
+            $item_id = DB::run("SELECT LAST_INSERT_ID() as item_id")->fetch();
 
-        // Источник — отдельная таблица sources + связь article_sources
-        if (!empty($data['item_source_url'])) {
-            self::setItemSource((int)$item_id['item_id'], $data['item_source_url']);
-        }
+            // Источник — отдельная таблица sources + связь article_sources
+            if (!empty($data['item_source_url'])) {
+                self::setItemSource((int)$item_id['item_id'], $data['item_source_url']);
+            }
 
-        return $item_id;
+            return $item_id;
+        });
     }
 
     public static function edit($data)
@@ -198,12 +220,11 @@ class ItemModel extends Model
 			$user_id = self::container()->user()->id();
 		}	
 
-		// История версий: фиксируем состояние ДО правки (контент, slug и метаданные)
+		// История версий: фиксируем состояние ДО правки (контент, slug и метаданные).
+		// Снимок создаётся ВНУТРИ транзакции ниже, чтобы правка и снимок были атомарны.
 		$current = (int)$data['item_id'] > 0 ? self::getItem((int)$data['item_id'], 'id') : false;
-		if ($current && !empty($current['item_id'])) {
-			\App\Models\VersionModel::snapshot($current, (string)($data['item_edit_comment'] ?? ''), (int)$user_id);
-		}
-		
+		$editComment = (string)($data['item_edit_comment'] ?? '');
+
 		$params =  [
 				'item_id'           	=> $data['item_id'],
                 'item_title'            => $data['item_title'],
@@ -232,14 +253,21 @@ class ItemModel extends Model
                     item_best           = :item_best
                         WHERE item_id   = :item_id";
 
-        DB::run($sql, $params);
+        return dbTransaction(function () use ($sql, $params, $data, $current, $editComment, $user_id) {
+            // Снимок состояния ДО правки — в той же транзакции, что и UPDATE.
+            if ($current && !empty($current['item_id'])) {
+                \App\Models\VersionModel::snapshot($current, $editComment, (int)$user_id);
+            }
 
-        // Источник — отдельная таблица sources + связь article_sources
-        if (array_key_exists('item_source_url', $data)) {
-            self::setItemSource((int)$data['item_id'], (string)($data['item_source_url'] ?? ''));
-        }
+            DB::run($sql, $params);
 
-        return true;
+            // Источник — отдельная таблица sources + связь article_sources
+            if (array_key_exists('item_source_url', $data)) {
+                self::setItemSource((int)$data['item_id'], (string)($data['item_source_url'] ?? ''));
+            }
+
+            return true;
+        });
     }
 
     // Сохранить/заменить источник факта в таблицах sources + article_sources
@@ -508,13 +536,7 @@ class ItemModel extends Model
                        u.login,
                        rel.*
                 FROM items
-                LEFT JOIN (
-                    SELECT relation_item_id,
-                           GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = item_id
+                " . self::facetListJoin('item_id') . "
                 LEFT JOIN users u ON u.id = item_user_id
                 WHERE item_id IN ($in) $typeCond
                   AND item_published = 1 AND item_is_deleted = 0
@@ -583,16 +605,7 @@ class ItemModel extends Model
                         LEFT JOIN article_sources a_s ON a_s.article_id = item_id
                         LEFT JOIN sources s ON s.id = a_s.source_id
 
-                        LEFT JOIN
-                        (
-                            SELECT 
-                                relation_item_id,
-                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@',  facet_title SEPARATOR '@') AS facet_list
-                                FROM facets  
-                                LEFT JOIN facets_items_relation on facet_id = relation_facet_id
-                                        GROUP BY relation_item_id
-                        ) AS rel
-                            ON rel.relation_item_id = item_id 
+                        " . self::facetListJoin('item_id') . "
 						
 						
                         LEFT JOIN users u ON u.id = item_user_id
@@ -624,14 +637,7 @@ class ItemModel extends Model
                 INNER JOIN facets f ON f.facet_id = fir.relation_facet_id
                 LEFT JOIN article_sources a_s ON a_s.article_id = i.item_id
                 LEFT JOIN sources s ON s.id = a_s.source_id
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = i.item_id
+                " . self::facetListJoin('i.item_id') . "
                 WHERE i.item_slug = :slug
                     AND i.item_published = 1
                     AND i.item_is_deleted = 0
@@ -655,14 +661,7 @@ class ItemModel extends Model
                     i.item_type,
                     rel.facet_list
                 FROM items i
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = i.item_id
+                " . self::facetListJoin('i.item_id') . "
                 WHERE i.item_slug = :slug
                     AND i.item_published = 1
                     AND i.item_is_deleted = 0
@@ -694,14 +693,7 @@ class ItemModel extends Model
                     i.item_type,
                     rel.facet_list
                 FROM items i
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = i.item_id
+                " . self::facetListJoin('i.item_id') . "
                 WHERE i.item_published = 1
                     AND i.item_is_deleted = 0
                     AND (
@@ -763,16 +755,7 @@ class ItemModel extends Model
                         FROM items
                         LEFT JOIN article_sources a_s ON a_s.article_id = item_id
                         LEFT JOIN sources s ON s.id = a_s.source_id
-                        LEFT JOIN
-                        (
-                            SELECT 
-                                relation_item_id,
-                                GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@',  facet_title SEPARATOR '@') AS facet_list
-                                FROM facets  
-                                LEFT JOIN facets_items_relation on facet_id = relation_facet_id
-                                        GROUP BY relation_item_id
-                        ) AS rel
-                            ON rel.relation_item_id = item_id 
+                        " . self::facetListJoin('item_id') . "
     
                         WHERE item_published = 1 AND item_is_deleted = 0";
 
@@ -800,14 +783,7 @@ class ItemModel extends Model
 
         $sql = "SELECT item_id, item_title, item_slug, rel.*
                 FROM items
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = item_id
+                " . self::facetListJoin('item_id') . "
                 WHERE item_id >= :rand
                   AND item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
                 ORDER BY item_id ASC
@@ -856,14 +832,7 @@ class ItemModel extends Model
                     FROM items i
                     INNER JOIN facets_items_relation fir ON fir.relation_item_id = i.item_id
                     INNER JOIN facets f ON f.facet_id = fir.relation_facet_id
-                    LEFT JOIN (
-                        SELECT
-                            relation_item_id,
-                            GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                        FROM facets
-                        LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                        GROUP BY relation_item_id
-                    ) AS rel ON rel.relation_item_id = i.item_id
+                    " . self::facetListJoin('i.item_id') . "
                     WHERE i.item_id >= :rand
                       AND i.item_published = 1 AND i.item_is_deleted = 0 AND i.item_type = 'fact'
                       AND f.facet_type = 'category' AND f.facet_is_deleted = 0
@@ -917,14 +886,7 @@ class ItemModel extends Model
             $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
                            item_date, item_modified, rel.facet_list
                     FROM items
-                    LEFT JOIN (
-                        SELECT
-                            relation_item_id,
-                            GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                        FROM facets
-                        LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                        GROUP BY relation_item_id
-                    ) AS rel ON rel.relation_item_id = item_id
+                    " . self::facetListJoin('item_id') . "
                     WHERE item_id >= :rand
                       AND item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
                       AND CHAR_LENGTH(item_content) >= :min
@@ -956,14 +918,7 @@ class ItemModel extends Model
             $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
                            item_date, item_modified, rel.facet_list
                     FROM items
-                    LEFT JOIN (
-                        SELECT
-                            relation_item_id,
-                            GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                        FROM facets
-                        LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                        GROUP BY relation_item_id
-                    ) AS rel ON rel.relation_item_id = item_id
+                    " . self::facetListJoin('item_id') . "
                     WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
                       AND $cond
                     ORDER BY item_id DESC
@@ -992,14 +947,7 @@ class ItemModel extends Model
 
         $sql = "SELECT item_id, item_title, item_slug, item_content, rel.facet_list
                 FROM items
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = item_id
+                " . self::facetListJoin('item_id') . "
                 WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
                   AND CHAR_LENGTH(item_content) < :min
                 ORDER BY RAND()
@@ -1017,14 +965,7 @@ class ItemModel extends Model
         $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
                        item_date, rel.facet_list
                 FROM items
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = item_id
+                " . self::facetListJoin('item_id') . "
                 WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
                   AND item_best = 1
                   AND (
@@ -1054,14 +995,7 @@ class ItemModel extends Model
         $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
                        item_date, rel.facet_list
                 FROM items
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = item_id
+                " . self::facetListJoin('item_id') . "
                 WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
                   AND item_best = 1
                 ORDER BY item_best DESC, item_id DESC
@@ -1117,14 +1051,7 @@ class ItemModel extends Model
                     i.item_views,
                     rel.facet_list
                 FROM items i
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = i.item_id
+                " . self::facetListJoin('i.item_id') . "
                 WHERE i.item_published = 1 AND i.item_is_deleted = 0 AND i.item_type = 'fact'
                 ORDER BY i.item_views DESC, i.item_id DESC
                 LIMIT :limit";
@@ -1164,13 +1091,7 @@ class ItemModel extends Model
                        u.login,
                        rel.*
                 FROM items
-                LEFT JOIN (
-                    SELECT relation_item_id,
-                           GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = item_id
+                " . self::facetListJoin('item_id') . "
                 LEFT JOIN users u ON u.id = item_user_id
                 WHERE item_slug IN ($in)
                   AND item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'

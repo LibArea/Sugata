@@ -167,51 +167,78 @@ class Html
     }
 
     // Page pagination
-    public static function pagination($pNum, $pagesCount, $sheet, $other, $sign = '?', $sort = '')
+    /**
+     * Пагинация в едином «админском» виде:
+     *   «<< N-1 [текущая] N+1 N+2 ... Страница N+1 >>»
+     *
+     * Поддерживает два формата URL (единый визуал):
+     *  - query-стиль:   $other = '/mod/admin/facts/my', $sign='?'  → ?page=N
+     *  - статический:   $static = ['url' => '/', 'base' => 'facts/', 'ext'=>'.html'],
+     *                   тогда ссылки → /facts/page-2.html, первая страница → /facts/
+     *
+     * @param int|string $pNum
+     * @param int|string $pagesCount
+     * @param string|null $sheet
+     * @param string      $other
+     * @param string      $sign
+     * @param string      $sort
+     * @param array|null  $static  ['url'=>префикс сайта, 'base'=>сегмент категории, 'ext'=>расширение]
+     */
+    public static function pagination($pNum, $pagesCount, $sheet = null, $other = '', $sign = '?', $sort = '', ?array $static = null)
     {
+        $pNum       = max(1, (int)$pNum);
+        $pagesCount = max(1, (int)$pagesCount);
         if ($pNum > $pagesCount) {
             return null;
         }
 
-        $other = empty($other) ? '' : $other;
-        $first = empty($other) ? '/' : $other;
-
-        $page = $other . '';
-        if (in_array($sheet, ['all', 'questions', 'posts'])) {
-            $page  = $other . '/' . $sheet;
-        }
-
-        $html = '<div class="pagination">';
-
-        if ($pNum != 1) {
-            if (($pNum - 1) == 1) {
-                $html .= '<a class="p5" href="' . $first . $sort . '"><< ' . ($pNum - 1) . '</a>';
-            } else {
-                $html .= '<a class="p5" href="' . $page . $sign . 'page=' . ($pNum - 1) . $sort . '"><< ' . ($pNum - 1) . '</a>';
+        // Функция построения ссылки на номер страницы.
+        $link = function (int $page) use ($other, $sign, $sort, $static, $sheet) {
+            if ($static !== null) {
+                $url  = rtrim($static['url'] ?? '/', '/') . '/';
+                $base = trim((string)($static['base'] ?? ''), '/');
+                $base = $base !== '' ? $base . '/' : '';
+                $ext  = $static['ext'] ?? '.html';
+                // Первая страница — без page-суффикса (index), остальные — page-N.ext.
+                $name = $page <= 1 ? '' : 'page-' . $page . $ext;
+                return $url . $base . $name;
             }
+
+            $pageBase = $other . '';
+            if (in_array($sheet, ['all', 'questions', 'posts'])) {
+                $pageBase = $other . '/' . $sheet;
+            }
+            if ($page <= 1) {
+                return ($other === '' ? '/' : $other) . $sort;
+            }
+            return $pageBase . $sign . 'page=' . $page . $sort;
+        };
+
+        $html = '<nav class="pagination">';
+
+        // «<< N-1»
+        if ($pNum != 1) {
+            $html .= '<a class="p5" href="' . $link($pNum - 1) . '"><< ' . ($pNum - 1) . '</a>';
         }
 
-        if ($pagesCount > $pNum) {
-            $html .= '<div class="bg-blue p5-10 white">' . ($pNum) . '</div>';
-        }
+        // Текущая страница (всегда подсвечена).
+        $html .= '<div class="bg-blue p5-10 white">' . $pNum . '</div>';
 
+        // Следующие номера + «Страница N+1 >>»
         if ($pagesCount > $pNum) {
             if ($pagesCount > $pNum + 1) {
-                $html .= '<a class="p5" href="' . $page . $sign . 'page=' . ($pNum + 1) . $sort . '"> ' . ($pNum + 1) . ' </a>';
+                $html .= '<a class="p5" href="' . $link($pNum + 1) . '"> ' . ($pNum + 1) . ' </a>';
             }
-
             if ($pagesCount > $pNum + 2) {
-                $html .= '<a class="p5" href="' . $page . $sign . 'page=' . ($pNum + 2) . $sort . '"> ' . ($pNum + 2) . '</a>';
+                $html .= '<a class="p5" href="' . $link($pNum + 2) . '"> ' . ($pNum + 2) . '</a>';
             }
-
             if ($pagesCount > $pNum + 3) {
                 $html .= '...';
             }
-
-            $html .= '<a class="p5 lowercase gray-600" href="' . $page . $sign . 'page=' . ($pNum + 1) . $sort . '"><span class="mb-none">' . __('app.page') . '</span> ' . ($pNum + 1) . ' >></a>';
+            $html .= '<a class="p5 lowercase gray-600" href="' . $link($pNum + 1) . '"><span class="mb-none">' . __('app.page') . '</span> ' . ($pNum + 1) . ' >></a>';
         }
 
-        $html .= '</div>';
+        $html .= '</nav>';
 
         return $html;
     }

@@ -33,13 +33,7 @@ class SearchModel extends Model
 			fav.tid, fav.user_id, fav.action_type 
 		
 				FROM items 
-				 LEFT JOIN ( SELECT  
-								relation_item_id,  
-								GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list  
-								FROM facets  
-								LEFT JOIN facets_items_relation on facet_id = relation_facet_id  
-									GROUP BY relation_item_id  
-						) AS rel ON rel.relation_item_id = item_id  
+				 " . \App\Models\ItemModel::facetListJoin('item_id') . "
 		
 							LEFT JOIN favorites fav ON fav.tid = item_id AND fav.user_id = 1 AND fav.action_type = 'website'
 							LEFT JOIN votes_item ON votes_item_item_id = item_id AND votes_item_user_id = 1
@@ -112,14 +106,8 @@ class SearchModel extends Model
 						item_slug,
 						rel.*
 							FROM items 
-								LEFT JOIN ( SELECT  
-											relation_item_id,  
-											GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list  
-											FROM facets  
-											LEFT JOIN facets_items_relation on facet_id = relation_facet_id  
-												GROUP BY relation_item_id  
-									) AS rel ON rel.relation_item_id = item_id  
-										WHERE item_is_deleted = 0 AND item_published = 1";
+								" . \App\Models\ItemModel::facetListJoin('item_id') . "
+									WHERE item_is_deleted = 0 AND item_published = 1";
 
 		return DB::run($sql)->fetchAll();
 	}

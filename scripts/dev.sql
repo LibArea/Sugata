@@ -91,6 +91,18 @@ CREATE TABLE `facets_signed` (
   PRIMARY KEY (`signed_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+DROP TABLE IF EXISTS `facets_users_team`;
+CREATE TABLE `facets_users_team` (
+  `team_id` int NOT NULL AUTO_INCREMENT,
+  `team_facet_id` int NOT NULL,
+  `team_user_id` int NOT NULL,
+  `team_user_access` int NOT NULL DEFAULT '0',
+  `team_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`team_id`),
+  KEY `team_facet_id` (`team_facet_id`),
+  KEY `team_user_id` (`team_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 DROP TABLE IF EXISTS `facets_types`;
 CREATE TABLE `facets_types` (
   `type_id` int NOT NULL AUTO_INCREMENT,
@@ -180,6 +192,35 @@ CREATE TABLE `broken_links` (
   PRIMARY KEY (`id`),
   KEY `idx_item` (`item_id`),
   KEY `idx_link` (`link`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Канонический реестр терминов (аналог linktarget в MediaWiki).
+-- Один канонический термин связывается с одной статьёй (item_id);
+-- item_id = 0 означает «статья ещё не создана» (красная ссылка / востребованный термин).
+DROP TABLE IF EXISTS `terms`;
+CREATE TABLE `terms` (
+  `term_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `term` varchar(250) COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Канонический термин (цель вики-ссылки)',
+  `term_slug` varchar(90) COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Слагифицированный термин, по нему создаётся/ищется статья',
+  `item_id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Статья по этому термину; 0 = статья не создана',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`term_id`),
+  UNIQUE KEY `uq_term` (`term`),
+  KEY `idx_term_item` (`item_id`),
+  KEY `idx_term_slug` (`term_slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Связи «статья ссылается на термин» (аналог pagelinks в MediaWiki).
+-- Позволяет считать число входящих ссылок на каждый термин («востребованность»).
+DROP TABLE IF EXISTS `terms_links`;
+CREATE TABLE `terms_links` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `item_id` int unsigned NOT NULL COMMENT 'Статья-источник',
+  `term_id` int unsigned NOT NULL COMMENT 'Термин, на который ссылается статья',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_item_term` (`item_id`,`term_id`),
+  KEY `idx_term` (`term_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `item_faq`;
@@ -356,6 +397,8 @@ CREATE TABLE `item_history` (
   `item_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `item_note` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `item_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `item_content_diff` longblob NULL COMMENT 'Сжатый накопительный diff относительно первой полной версии (null = контент в item_content хранится полностью)',
+  `is_full_content` tinyint(1) NOT NULL DEFAULT '1' COMMENT '1 = полный снимок в item_content; 0 = в item_content_diff накопительный diff от первой полной версии',
   `item_thumb_img` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `facet_ids` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `source_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -481,3 +524,24 @@ INSERT INTO `users` (id, login, name, email, password, activated, limiting_mode,
 (1, 'AdreS', 'Олег', 'ss@sdf.ru', '$2y$10$oR5VZ.zk7IN/og70gQq/f.0Sb.GQJ33VZHIES4pyIpU3W2vF6aiaW', 1, 0, '127.0.0.1', 10, '2021-03-08 21:37:04', '2021-03-08 21:37:04', 0, 0, 'default', 'ru', 0, '', 'img_1.jpg', 'cover_art.jpeg', '#f56400', 'Тестовый аккаунт', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+-- Миграция: хранение истории версий как накопительного diff.
+--
+-- Добавляет в item_history две колонки:
+--   * item_content_diff  LONGBLOB  — сжатый (gzcompress) накопительный diff
+--                                    относительно первой полной версии статьи;
+--   * is_full_content    TINYINT   — 1 = полный снимок в item_content,
+--                                    0 = контент хранится как diff в item_content_diff.
+--
+-- Существующие версии помечаются полными (is_full_content = 1), их содержимое
+-- не меняется. Режим хранения включается автоматически на уровне приложения:
+-- новые выпадающие из окна последних N версий конвертируются в diff.
+
+ALTER TABLE `item_history`
+    ADD COLUMN `item_content_diff` longblob NULL COMMENT 'Сжатый накопительный diff относительно первой полной версии (null = контент в item_content)'
+        AFTER `item_content`,
+    ADD COLUMN `is_full_content` tinyint(1) NOT NULL DEFAULT '1' COMMENT '1 = полный снимок; 0 = накопительный diff'
+        AFTER `item_content_diff`;
+
+UPDATE `item_history` SET `is_full_content` = 1 WHERE `is_full_content` IS NULL;

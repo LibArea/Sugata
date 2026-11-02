@@ -287,7 +287,8 @@ html {
 }
 
 .foto img {
-    max-width: 100%;
+    max-width: 600px;
+    width: auto;
     height: auto;
     display: block;
     margin: 0 auto 0.4em;
@@ -298,6 +299,29 @@ html {
     font-style: italic;
     color: var(--opacity-fg-63);
     font-size: 0.9em;
+}
+
+/* ---------- Увеличение изображений по клику (lightbox) ---------- */
+.foto img {
+    cursor: zoom-in;
+}
+/* Оверлей поверх страницы при увеличении */
+.wiki-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    padding: 2vw;
+}
+.wiki-lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
 }
 
 /* ---------- Прочее ---------- */

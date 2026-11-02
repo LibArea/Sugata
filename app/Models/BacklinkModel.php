@@ -47,14 +47,7 @@ class BacklinkModel extends Model
                     i.item_content,
                     rel.facet_list
                 FROM items i
-                LEFT JOIN (
-                    SELECT
-                        relation_item_id,
-                        GROUP_CONCAT(facet_id, '@', facet_type, '@', facet_path, '@', facet_title SEPARATOR '@') AS facet_list
-                    FROM facets
-                    LEFT JOIN facets_items_relation ON facet_id = relation_facet_id
-                    GROUP BY relation_item_id
-                ) AS rel ON rel.relation_item_id = i.item_id
+                " . \App\Models\ItemModel::facetListJoin('i.item_id') . "
                 WHERE i.item_published = 1
                   AND i.item_is_deleted = 0
                   AND i.item_id <> :item_id
@@ -98,15 +91,12 @@ class BacklinkModel extends Model
     // где цель резолвится (по слагифицированному slug) в текущий факт.
     protected static function contentLinksTo(string $content, string $slug): bool
     {
-        if (!preg_match_all('/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u', $content, $m, PREG_SET_ORDER)) {
-            return false;
-        }
-
         $slugify = new \Cocur\Slugify\Slugify();
         $targetSlug = $slugify->slugify($slug); // slug уже слагифицирован, но нормализуем
 
-        foreach ($m as $match) {
-            $target = trim((string)($match[2] ?? $match[1] ?? ''));
+        // Извлечение через единый Parser::extractWikilinks() — игнорирует [[...]] в коде.
+        foreach (\Parser::extractWikilinks($content) as $wl) {
+            $target = $wl['target'];
             if ($target === '') {
                 continue;
             }

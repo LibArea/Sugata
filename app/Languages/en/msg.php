@@ -26,6 +26,7 @@ return [
     'sources_checked'       => 'Sources checked: {checked}. OK: {ok}, broken: {broken}, timeout: {timeout}, left: {left}',
     'sitemap_built'         => 'Sitemap.xml built: {total} URLs',
     'broken_links_checked'  => 'Checked. Broken links found: {count}',
+    'terms_rebuilt'         => 'Term dictionary rebuilt: {terms} terms, {links} links, wanted (no article): {wanted}',
     'successfully'          => 'Successfully!',
     'yes_repost'            => 'Complaint sent!',
     'post_added'            => 'Post added!',

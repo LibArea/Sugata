@@ -42,22 +42,32 @@ class BrokenLinkModel extends Model
         DB::run("TRUNCATE TABLE broken_links");
     }
 
-    // Количество битых
-    public static function count(): int
+    // Количество жёстких битых ссылок (выделяем только URL-ссылки, не вики-термины)
+    public static function countUrls(): int
     {
-        return (int)DB::run("SELECT COUNT(*) c FROM broken_links")->fetch()['c'];
+        return (int)DB::run(
+            "SELECT COUNT(*) c FROM broken_links WHERE link <> ''"
+        )->fetch()['c'];
     }
 
-    // Список битых ссылок (с пагинацией)
-    public static function all(int $page = 1, int $limit = 50): false|array
+    // Список жёстких битых ссылок [текст](/путь/slug.html) с пагинацией.
+    // Вики-термины (word != '', link = '') показывает отдельная секция терминов — не дублируем.
+    public static function allUrls(int $page = 1, int $limit = 50): false|array
     {
         $start = ($page - 1) * $limit;
 
         $sql = "SELECT id, item_id, article_title, link, word, created_at
                 FROM broken_links
+                WHERE link <> ''
                 ORDER BY id DESC
                 LIMIT :start, :limit";
 
         return DB::run($sql, ['start' => $start, 'limit' => $limit])->fetchAll();
+    }
+
+    // Количество битых
+    public static function count(): int
+    {
+        return (int)DB::run("SELECT COUNT(*) c FROM broken_links")->fetch()['c'];
     }
 }

@@ -20,6 +20,38 @@
 <!-- /Yandex.Metrika counter -->
 <?php endif; ?>
 
+<script>
+(function () {
+  var overlay = null;
+  function close() {
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    overlay = null;
+  }
+  function open(src) {
+    close();
+    overlay = document.createElement('div');
+    overlay.className = 'wiki-lightbox';
+    var img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    overlay.appendChild(img);
+    overlay.addEventListener('click', close);
+    document.body.appendChild(overlay);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG' && t.closest && t.closest('.foto')) {
+      // Открываем увеличенное изображение при клике на фото в блоке .foto
+      e.preventDefault();
+      open(t.currentSrc || t.src);
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+})();
+</script>
+
 </body>
 
 </html>

@@ -56,24 +56,27 @@ class AddItemController extends Controller
 
         $data['item_slug'] = self::getSlug($data['item_title']);
 
-        $item_last = ItemModel::add($data);
+        dbTransaction(function () use ($data) {
+            $item_last = ItemModel::add($data);
 
-        // Категории: зависимый селект присылает массив id (facet_select[])
-        $facetIds = facetIdsFromInput($data['facet_select'] ?? []);
-
-        if ($facetIds) {
-            $arr = [];
-            foreach ($facetIds as $id) {
-                $arr[] = ['id' => $id];
+            // Категории: зависимый селект присылает массив id (facet_select[])
+            $facetIds = facetIdsFromInput($data['facet_select'] ?? []);
+            if ($facetIds) {
+                $arr = [];
+                foreach ($facetIds as $id) {
+                    $arr[] = ['id' => $id];
+                }
+                ItemModel::addItemFacets($arr, (int)$item_last['item_id']);
             }
-            ItemModel::addItemFacets($arr, (int)$item_last['item_id']);
-        }
 
-        // Связанные факты/статьи (поле related_ids)
-        $relatedIds = facetIdsFromInput($data['related_ids'] ?? []);
-        if ($relatedIds) {
-            ItemModel::setRelations((int)$item_last['item_id'], $relatedIds);
-        }
+            // Связанные факты/статьи (поле related_ids)
+            $relatedIds = facetIdsFromInput($data['related_ids'] ?? []);
+            if ($relatedIds) {
+                ItemModel::setRelations((int)$item_last['item_id'], $relatedIds);
+            }
+
+            return null;
+        });
 
         Msg::redirect(__('app.site_added'), 'success', url('homepage'));
     }

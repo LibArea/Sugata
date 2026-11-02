@@ -31,18 +31,19 @@
   <?= insert('/site/components/story-list', ['items' => $items, 'preview' => !empty($preview)]); ?>
 
   <?php if (($pagesCount ?? 1) > 1) : ?>
-    <?php $baseUrl = ($facet['facet_path'] ?? '') . '/'; ?>
-    <?php $curPage = $pNum ?? 1; ?>
-    <?php $pref = !empty($preview) ? '/mod/admin/preview/' : '/'; ?>
-    <nav class="pagination">
-      <?php if ($curPage > 1) : ?>
-        <a href="<?= $pref . $baseUrl . (($curPage == 2) ? 'index.html' : 'page-' . ($curPage - 1) . '.html'); ?>">← <?= __('app.page'); ?> <?= $curPage - 1; ?></a>
-      <?php endif; ?>
-      <span class="current"><?= $curPage; ?> / <?= $pagesCount; ?></span>
-      <?php if ($curPage < $pagesCount) : ?>
-        <a href="<?= $pref . $baseUrl; ?>page-<?= $curPage + 1; ?>.html"><?= __('app.page'); ?> <?= $curPage + 1; ?> →</a>
-      <?php endif; ?>
-    </nav>
+    <?= Html::pagination(
+        $pNum ?? 1,
+        (int)($pagesCount ?? 1),
+        null,
+        '',
+        '?',
+        '',
+        [
+            'url'  => !empty($preview) ? '/mod/admin/preview' : '/',
+            'base' => trim((string)($facet['facet_path'] ?? ''), '/'),
+            'ext'  => '.html',
+        ]
+    ); ?>
   <?php endif; ?>
 </main>
 

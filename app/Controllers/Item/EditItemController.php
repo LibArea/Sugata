@@ -74,35 +74,39 @@ public function edit()
             }
         }
 
-        ItemModel::edit($data);
+        dbTransaction(function () use ($data) {
+            ItemModel::edit($data);
 
-        // FAQ: пары вопрос/ответ из формы
-        $faqRows = [];
-        $questions = $data['faq_question'] ?? [];
-        $answers   = $data['faq_answer'] ?? [];
-        foreach ($questions as $i => $q) {
-            $faqRows[] = [
-                'question'   => trim((string)$q),
-                'answer'     => trim((string)($answers[$i] ?? '')),
-                'sort_order' => $i,
-            ];
-        }
-        \App\Models\FaqModel::replace((int)$data['item_id'], $faqRows);
-
-        // Категории: зависимый селект присылает массив id (facet_select[])
-        $facetIds = facetIdsFromInput($data['facet_select'] ?? []);
-        if ($facetIds) {
-            $arr = [];
-            foreach ($facetIds as $id) {
-                $arr[] = ['id' => $id];
+            // FAQ: пары вопрос/ответ из формы
+            $faqRows = [];
+            $questions = $data['faq_question'] ?? [];
+            $answers   = $data['faq_answer'] ?? [];
+            foreach ($questions as $i => $q) {
+                $faqRows[] = [
+                    'question'   => trim((string)$q),
+                    'answer'     => trim((string)($answers[$i] ?? '')),
+                    'sort_order' => $i,
+                ];
             }
-            ItemModel::addItemFacets($arr, (int)$data['item_id']);
-        }
+            \App\Models\FaqModel::replace((int)$data['item_id'], $faqRows);
 
-        // Связанные статьи (поле related_ids). Отбираем только статьи (факты нельзя связать).
-        $relatedIds = facetIdsFromInput($data['related_ids'] ?? []);
-        $relatedIds = \App\Models\ItemModel::filterIdsByType($relatedIds, 'article');
-        ItemModel::setRelations((int)$data['item_id'], $relatedIds);
+            // Категории: зависимый селект присылает массив id (facet_select[])
+            $facetIds = facetIdsFromInput($data['facet_select'] ?? []);
+            if ($facetIds) {
+                $arr = [];
+                foreach ($facetIds as $id) {
+                    $arr[] = ['id' => $id];
+                }
+                ItemModel::addItemFacets($arr, (int)$data['item_id']);
+            }
+
+            // Связанные статьи (поле related_ids). Отбираем только статьи (факты нельзя связать).
+            $relatedIds = facetIdsFromInput($data['related_ids'] ?? []);
+            $relatedIds = \App\Models\ItemModel::filterIdsByType($relatedIds, 'article');
+            ItemModel::setRelations((int)$data['item_id'], $relatedIds);
+
+            return null;
+        });
 
         Msg::redirect(__('msg.change_saved'), 'success', $redirect);
     }

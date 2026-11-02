@@ -26,6 +26,7 @@ return [
     'sources_checked'       => 'Проверено источников: {checked}. Работают: {ok}, битые: {broken}, таймаут: {timeout}, осталось проверить: {left}',
     'sitemap_built'         => 'Sitemap.xml создан: {total} URL',
     'broken_links_checked'  => 'Проверено. Найдено битых ссылок: {count}',
+    'terms_rebuilt'         => 'Словарь терминов пересобран: {terms} терминов, {links} ссылок, из них востребованных (без статьи): {wanted}',
     'successfully'          => 'Успешно!',
     'yes_repost'            => 'Жалоба отправлена!',
     'post_added'            => 'Пост добавлен!',

@@ -36,6 +36,64 @@ class Parser
         return $env;
     }
 
+    /**
+     * Надёжное извлечение вики-ссылок [[текст|цель]] / [[цель]].
+     *
+     * В отличие от прямого preg_match_all по сырому тексту:
+     *  - экранированные \[\[...\]\] не считаются ссылками;
+     *  - содержимое инлайн-кода (`...`), код-блоков (```) и таблиц GFM
+     *    исключается, чтобы [[...]]-подобные фрагменты там не ловились.
+     *
+     * Возвращает массив ['text' => ..., 'target' => ...] в порядке появления.
+     *
+     * @param string $content исходный markdown
+     * @return array<int, array{text:string, target:string}>
+     */
+    public static function extractWikilinks(string $content): array
+    {
+        $links = [];
+
+        // Защищаем код и таблицы: заменяем их содержимое на неразбираемые заглушки.
+        $content = self::maskProtectedBlocks($content);
+
+        if (preg_match_all('/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u', $content, $m, PREG_SET_ORDER)) {
+            foreach ($m as $match) {
+                $text   = trim((string)($match[1] ?? ''));
+                $target = trim((string)($match[2] ?? $match[1] ?? ''));
+                if ($text === '' || $target === '') {
+                    continue;
+                }
+                $links[] = ['text' => $text, 'target' => $target];
+            }
+        }
+
+        return $links;
+    }
+
+    /**
+     * Временно маскирует содержимое инлайн-кода и код-блоков, чтобы
+     * вики-ссылки внутри них не извлекались основным regex.
+     * Маскировка сохраняет структуру строк (длину/переносы), меняя лишь символы.
+     */
+    protected static function maskProtectedBlocks(string $content): string
+    {
+        // Инлайн-код: `...` — заменяем символы, сохраняя длину строки.
+        $content = preg_replace_callback(
+            '/`[^`]*`/u',
+            fn($m) => str_repeat('X', mb_strlen($m[0])),
+            $content
+        );
+
+        // Код-блоки GFM: ``` ... ``` — сохраняем переносы строк.
+        $content = preg_replace_callback(
+            '/```[^\n]*\n.*?```/su',
+            fn($m) => str_repeat("\n", substr_count($m[0], "\n")),
+            $content
+        );
+
+        return $content;
+    }
+
     public static function parse(string $content, string $type = 'text', bool $preview = false)
     {
         $content = str_replace('{cut}', '', $content);
@@ -291,6 +349,11 @@ class Parser
     {
         $redLinks = [];
 
+        // Маскируем инлайн-код и код-блоки, чтобы [[...]] внутри них не резолвились
+        // как вики-ссылки (единая логика с extractWikilinks). Структура строк
+        // сохраняется, поэтому последующая замена маркеров корректна.
+        $content = self::maskProtectedBlocks($content);
+
         $resolved = preg_replace_callback(
             '/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u',
             function ($m) use ($preview, &$redLinks) {
@@ -332,7 +395,7 @@ class Parser
                 if ($preview) {
                     $marker = "\x1AWIKIRED" . count($redLinks) . "\x1A";
                     $createUrl = rtrim(config('general', 'url'), '/') . '/mod/admin/add/item?title=' . rawurlencode($target);
-                    $redLinks[$marker] = '<a href="' . $createUrl . '" class="red-link">' . htmlspecialchars($text, ENT_QUOTES) . '</a>';
+                    $redLinks[$marker] = '<a href="' . $createUrl . '" class="red">' . htmlspecialchars($text, ENT_QUOTES) . '</a>';
                     return $marker;
                 }
 

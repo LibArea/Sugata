@@ -821,7 +821,10 @@ class BuildController extends Controller
 					}
 
 					if (is_file($path)) {
-						if (!is_file($dest . '/' . $file || $over))
+						// Копируем, если файл ещё не существует ИЛИ разрешена перезапись ($over).
+						// Раньше из-за приоритета операторов (`$dest.'/'.$file || $over`) в is_file()
+						// всегда попадало true, и $over игнорировался — файлы перезаписывались всегда.
+						if ($over || !is_file($dest . '/' . $file))
 							if (!copy($path, $dest . '/' . $file)) {
 								echo "('.$path.') Ошибка!!! ";
 							}
@@ -862,43 +865,49 @@ class BuildController extends Controller
 		foreach ($items as $item) {
 			$haystack = (string)$item['item_content'];
 
-			// Авто-ссылки [[Термин]]: применяем резолвер, чтобы получить реальные URL.
-			// Оставшиеся [[...]] (не резолвленные) считаем потенциально битыми терминами.
-			if (preg_match_all('/\[\[[^\[\]]+\]\]/u', $haystack, $wikiAll)) {
-				[$resolved] = Parser::wikiLinks($haystack); // возвращает [контент, redLinks]
-				// Найденные после резолва ссылки-кандидаты (битые или нет)
-				if (preg_match_all('/\[([^\]]*)\]\((\/[^)\s]+\.html)\)/u', $resolved, $wr, PREG_SET_ORDER)) {
-					foreach ($wr as $w) {
-						$url = $w[2] ?? '';
-						$key = (int)$item['item_id'] . '|' . $url;
-						if (!str_starts_with($url, '/') || isset($broken[$key])) {
-							continue;
-						}
-						$broken[$key] = [
-							'item_id'       => (int)$item['item_id'],
-							'article_title' => $item['item_title'],
-							'link'          => $url,
-							'word'          => trim((string)($w[1] ?? '')),
-						];
-					}
+			// Авто-ссылки [[Термин]] / [[текст|Термин]].
+			// Детектируем битые ссылки по ИСХОДНОМУ контенту: цель резолвим так же,
+			// как это делает Parser::wikiLinks (однозначное попадание = существует,
+			// иначе — битая/несозданная). Не полагаемся на парсер: при preview=false
+			// битые [[...]] поглощаются в <span class="wikilink-nolink"> и теряются.
+			// Извлечение через единый Parser::extractWikilinks() (не по сырому regex),
+			// который исключает [[...]] внутри инлайн-кода и код-блоков.
+			foreach (Parser::extractWikilinks($haystack) as $wl) {
+				$text   = $wl['text'];
+				$target = $wl['target'];
+				if ($target === '' || $text === '') {
+					continue;
 				}
-				// Оставшиеся в $resolved непереведённые [[Термин]] — красные ссылки.
-				// Используем ЦЕЛЬ (правую часть при pipe, иначе сам термин),
-				// т.к. резолвер пытался найти именно её.
-				if (preg_match_all('/\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/u', $resolved, $uw, PREG_SET_ORDER)) {
-					foreach ($uw as $u) {
-						$word = trim((string)($u[2] ?? $u[1] ?? ''));
-						$key  = (int)$item['item_id'] . '|[[word]]' . $word;
-						if ($word === '' || isset($broken[$key])) {
-							continue;
-						}
+
+				// Явный путь: [[текст|/путь/slug.html]] — проверяется как обычная ссылка ниже.
+				if (str_starts_with($target, '/') && str_ends_with($target, '.html')) {
+					$key = (int)$item['item_id'] . '|' . $target;
+					if (!isset($broken[$key]) && !isset($existing[$target])) {
 						$broken[$key] = [
 							'item_id'       => (int)$item['item_id'],
 							'article_title' => $item['item_title'],
-							'link'          => '',
-							'word'          => $word,
+							'link'          => $target,
+							'word'          => $text,
 						];
 					}
+					continue;
+				}
+
+				// Резолв по термину — та же логика, что в Parser::wikiLinks:
+				// битой считаем, только если цель не резолвится в реальный URL.
+				$found = ItemModel::findByTerm($target);
+				$resolvedLink = self::resolveWikiTarget($found, $target);
+				if ($resolvedLink === '') {
+					$key = (int)$item['item_id'] . '|[[word]]' . $target;
+					if (isset($broken[$key])) {
+						continue;
+					}
+					$broken[$key] = [
+						'item_id'       => (int)$item['item_id'],
+						'article_title' => $item['item_title'],
+						'link'          => '',
+						'word'          => $target,
+					];
 				}
 			}
 
@@ -930,6 +939,10 @@ class BuildController extends Controller
 
 		BrokenLinkModel::replace(array_values($broken));
 
+		// Словарь терминов пересобираем вместе с отчётом битых ссылок, чтобы обе
+		// страницы всегда были согласованы во времени (одна кнопка/сборка → оба отчёта).
+		\App\Models\TermModel::rebuild();
+
 		return count($broken);
 	}
 
@@ -943,5 +956,50 @@ class BuildController extends Controller
 			'success',
 			url('broken.links')
 		);
+	}
+
+	// Пересборка реестра терминов полным проходом по статьям (как «востребованные страницы»).
+	public function rebuildTermsAction(): void
+	{
+		$result = \App\Models\TermModel::rebuild();
+
+		Msg::redirect(
+			__('msg.terms_rebuilt', $result),
+			'success',
+			url('tools')
+		);
+	}
+
+	/**
+	 * Резолвит вики-термин в реальный URL статики (/путь/slug.html),
+	 * если цель однозначно соответствует существующей статье.
+	 * Дублирует логику Parser::wikiLinks, но возвращает путь, а не HTML.
+	 *
+	 * @param array  $found  результат ItemModel::findByTerm($target)
+	 * @param string $target термин-цель вики-ссылки
+	 * @return string URL статьи или '' если статья не найдена/неоднозначна
+	 */
+	protected function resolveWikiTarget(array $found, string $target): string
+	{
+		if ($found && isset($found[0])) {
+			$bestRank = $found[0]['_rank'] ?? 2;
+			if ($bestRank < 2) {
+				$ties = 0;
+				foreach ($found as $r) {
+					if (($r['_rank'] ?? 2) === $bestRank) {
+						$ties++;
+					}
+				}
+				if ($ties === 1) {
+					$row  = $found[0];
+					$path = Html::facets_puth($row['facet_list'] ?? '', 'category');
+					if ($path !== '') {
+						return '/' . trim($path, '/') . '/' . $row['item_slug'] . '.html';
+					}
+				}
+			}
+		}
+
+		return '';
 	}
 }
