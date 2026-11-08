@@ -11,7 +11,7 @@
   <link rel="icon" sizes="16x16" href="/favicon.ico" type="image/x-icon">
   <link rel="icon" sizes="120x120" href="/favicon-120.png" type="image/png">
   <link rel="icon" sizes="144x144" href="/favicon-144.png" type="image/png">
-  <link rel="stylesheet" href="/assets/css/style.css?<?= config('general', 'version'); ?>" type="text/css">
+  <link rel="stylesheet" href="/assets/css/site.css?<?= config('general', 'version'); ?>" type="text/css">
   <script defer src="/assets/js/random-facts.js?<?= config('general', 'version'); ?>"></script>
   <script defer src="/assets/js/theme.js?<?= config('general', 'version'); ?>"></script>
   <script defer src="/assets/js/minisearch.min.js?<?= config('general', 'version'); ?>"></script>
@@ -19,12 +19,7 @@
   <script defer src="/assets/js/wiki-search.js?<?= config('general', 'version'); ?>"></script>
 </head>
 
-<body class="<?= !empty($preview) ? 'light wiki-preview' : 'wiki-site'; ?>">
-<?php if (!empty($preview)) : ?>
-  <div class="preview-bar" role="note">
-    <?= __('app.admin_preview_bar'); ?>
-  </div>
-<?php endif; ?>
+<body class="antialiased <?= !empty($preview) ? 'light wiki-preview' : 'wiki-site'; ?>">
 <script>
   (function () {
     try {
@@ -36,68 +31,54 @@
   })();
 </script>
 
-<div class="portal-wrap">
-<?php $searchAction = !empty($preview) ? url('search.go') : '/search/go'; ?>
-
-<?php if (!empty($hero)) : ?>
-  <!-- Главная: строка сервисов справа -->
-  <div class="portal-topbar">
-    <a href="<?= urlDir('facts', !empty($preview) ? 'preview' : 'static'); ?>"><?= __('app.nav_categories'); ?></a>
-    <a href="<?= !empty($preview) ? rtrim(config('general', 'url'), '/') . '/mod/admin/preview/best' : '/best/'; ?>"><?= __('app.nav_featured'); ?></a>
-    <a href="<?= !empty($preview) ? url('random') : '/random'; ?>" data-random-fact><?= __('app.nav_random'); ?></a>
-    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Тёмная тема" title="Тёмная тема">
-      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1zM4 11a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2H5a1 1 0 0 1-1-1zm12 0a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2h-2a1 1 0 0 1-1-1zM3.5 4.5a1 1 0 0 1 1.41 0l1.41 1.41a1 1 0 1 1-1.41 1.42l-1.42-1.42a1 1 0 0 1 0-1.41zm12.72 12.72a1 1 0 0 1 1.41 0l1.41 1.41a1 1 0 1 1-1.41 1.42l-1.41-1.42a1 1 0 0 1 0-1.41zM21 11a1 1 0 0 1-1 1h-2a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1zM7 11a1 1 0 0 1-1 1H3a1 1 0 0 1 0-2h3a1 1 0 0 1 1 1z"/></svg>
-    </button>
-  </div>
-
-  <!-- Главная: центр — логотип и поиск -->
-  <div class="hero">
-    <a class="hero-logo" href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>"><?= htmlEncode(config('general', 'site_name')); ?></a>
-
-    <form class="hero-search" method="get" action="<?= $searchAction; ?>" onsubmit="return false;" autocomplete="off">
-      <div class="form-search-telo">
-        <div class="table-cell w-100">
-          <input type="text" name="q" id="wiki-search-input" placeholder="<?= __('app.find'); ?>" autocomplete="off" class="search">
-        </div>
-        <div class="table-cell">
-          <button type="submit" class="btn-search"><?= __('app.find'); ?></button>
-        </div>
-      </div>
-      <div id="wiki-search-results" class="wiki-search-results" data-empty="<?= trim(strip_tags(__('search.no_results'))); ?>" hidden></div>
-    </form>
-
-    <div class="under-search"><?= __('app.search_adv'); ?></div>
-  </div>
-
-<?php else : ?>
-  <!-- Внутренние страницы: компактная шапка -->
-  <div class="portal-topbar">
-    <a href="<?= urlDir('facts', !empty($preview) ? 'preview' : 'static'); ?>"><?= __('app.nav_categories'); ?></a>
-    <a href="<?= !empty($preview) ? rtrim(config('general', 'url'), '/') . '/mod/admin/preview/best' : '/best/'; ?>"><?= __('app.nav_featured'); ?></a>
-    <a href="<?= !empty($preview) ? url('random') : '/random'; ?>" data-random-fact><?= __('app.nav_random'); ?></a>
-    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Тёмная тема" title="Тёмная тема">
-        <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1zM4 11a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2H5a1 1 0 0 1-1-1zm12 0a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2h-2a1 1 0 0 1-1-1zM3.5 4.5a1 1 0 0 1 1.41 0l1.41 1.41a1 1 0 1 1-1.41 1.42l-1.42-1.42a1 1 0 0 1 0-1.41zm12.72 12.72a1 1 0 0 1 1.41 0l1.41 1.41a1 1 0 1 1-1.41 1.42l-1.41-1.42a1 1 0 0 1 0-1.41zM21 11a1 1 0 0 1-1 1h-2a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1zM7 11a1 1 0 0 1-1 1H3a1 1 0 0 1 0-2h3a1 1 0 0 1 1 1z"/></svg>
-    </button>
-  </div>
-
-  <div class="portal-header">
-    <a class="portal-logo" href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>">
-      <?= htmlEncode(config('general', 'site_name')); ?>
-    </a>
-
-    <form class="portal-search" method="get" action="<?= $searchAction; ?>" onsubmit="return false;" autocomplete="off">
-      <div class="form-search-telo">
-        <div class="table-cell w-100">
-          <input type="text" name="q" id="wiki-search-input" placeholder="<?= __('app.find'); ?>" autocomplete="off" class="search">
-        </div>
-        <div class="table-cell">
-          <button type="submit" class="btn-search"><?= __('app.find'); ?></button>
-        </div>
-      </div>
-      <div id="wiki-search-results" class="wiki-search-results" data-empty="<?= trim(strip_tags(__('search.no_results'))); ?>" hidden></div>
-    </form>
+<div class="site">
+<?php if (!empty($preview)) : ?>
+  <div class="preview-bar" role="note">
+    <?= __('app.admin_preview_bar'); ?>
   </div>
 <?php endif; ?>
-</div>
+<a class="skip-link" href="#home-main"><?= __('app.to_content', ['default' => 'Перейти к содержимому']); ?></a>
+
+<header class="header wrap">
+  <a href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>" class="brand" aria-label="Sugata — главная">
+    <?= htmlEncode(config('general', 'site_name')); ?><span class="brand-dot">.</span>
+    <span class="brand-caption"><?= __('app.brand_caption'); ?></span>
+  </a>
+
+  <div class="search-area">
+    <form role="search" class="search-form" method="get" action="<?= !empty($preview) ? url('search.go') : '/search/go'; ?>" onsubmit="return false;" autocomplete="off">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+      <input type="text" name="q" id="wiki-search-input" aria-label="<?= __('app.find'); ?>" placeholder="<?= __('app.find_placeholder'); ?>" value="">
+      <button type="submit" aria-label="<?= __('app.find'); ?>">
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </form>
+    <div id="wiki-search-results" class="search-results" data-empty="<?= trim(strip_tags(__('search.no_results'))); ?>" hidden></div>
+  </div>
+
+  <div class="header-actions">
+    <a href="<?= !empty($preview) ? rtrim(config('general', 'url'), '/') . '/mod/admin/preview/best' : '/best/'; ?>">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bookmark" aria-hidden="true"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"/></svg>
+      <span><?= __('app.nav_featured'); ?></span>
+    </a>
+    <button class="theme-button" data-theme-toggle type="button" aria-label="<?= __('app.theme_toggle'); ?>">
+      <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="nav-border" aria-label="<?= __('app.main_nav'); ?>">
+  <div class="wrap nav-inner">
+    <div class="nav-links">
+      <a class="<?= (trim((string)($activeRoot ?? ''), '/') === '' ? 'active' : ''); ?>" href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>"><?= __('app.nav_home'); ?></a>
+      <a class="<?= (trim((string)($activeRoot ?? ''), '/') === 'facts' ? 'active' : ''); ?>" href="<?= urlDir('facts', !empty($preview) ? 'preview' : 'static'); ?>"><?= __('app.nav_facts'); ?></a>
+      <a class="<?= (trim((string)($activeRoot ?? ''), '/') === 'articles' ? 'active' : ''); ?>" href="<?= urlDir('articles', !empty($preview) ? 'preview' : 'static'); ?>"><?= __('app.nav_articles'); ?></a>
+      <a href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>#home-categories"><?= __('app.nav_categories'); ?>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </a>
+    </div>
+    <a class="random-button" href="<?= !empty($preview) ? url('random') : '/random'; ?>" data-random-fact>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shuffle" aria-hidden="true"><path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"/><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"/></svg> <?= __('app.nav_random'); ?>
+    </a>
+  </div>
+</nav>

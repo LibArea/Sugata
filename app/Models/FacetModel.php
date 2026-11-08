@@ -79,6 +79,16 @@ class FacetModel extends Model
 
         return DB::run($sql, ['start' => $start, 'limit' => $limit, 'type' => $type])->fetchAll();
     }
+
+    // Количество видимых категорий
+    public static function countVisible(string $type = 'category'): int
+    {
+        return (int)DB::run(
+            "SELECT COUNT(*) c FROM facets
+             WHERE facet_type = :type AND facet_is_deleted = 0",
+            ['type' => $type]
+        )->fetch()['c'];
+    }
 	
     /**
      * Theme Tree

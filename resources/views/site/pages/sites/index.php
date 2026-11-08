@@ -1,86 +1,75 @@
-<?= insert('/site/layouts/header', ['meta' => $meta, 'preview' => !empty($preview)]); ?>
+<?= insert('/site/layouts/header', ['meta' => $meta, 'preview' => !empty($preview), 'activeRoot' => 'web']); ?>
 
-<main class="content">
+<?php
+$mod = !empty($preview) ? 'preview' : 'static';
+?>
+
+<main class="wrap" id="article-main">
   <?= insert('/shared/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
-  <div class="flex justify-between items-center">
-    <h1 class="title"><?= htmlEncode($facet['facet_title']); ?></h1>
+  <div class="category-heading">
+    <h1><?= htmlEncode($facet['facet_title']); ?></h1>
     <?php if (!empty($facet['facet_info'])) : ?>
-      <span class="tag"><?= htmlEncode($facet['facet_info']); ?></span>
+      <span class="eyebrow"><?= htmlEncode($facet['facet_info']); ?></span>
     <?php endif; ?>
   </div>
 
   <?php if ($childrens) : ?>
-    <div class="item-categories">
+    <div class="category-links" style="margin-bottom:20px;">
       <?php foreach ($childrens as $lt) : ?>
-        <div class="categories-telo">
-          <a href="<?= urlDir($lt['facet_path'], !empty($preview) ? 'preview' : 'static'); ?>">
-            <?= htmlEncode($lt['facet_title']); ?>
-          </a>
-          <sup class="gray"><?= (int)$lt['facet_count']; ?></sup>
-          <?php if (!empty($preview)) : ?>
-            <a class="ml5 gray" href="<?= url('facet.form.edit', ['type' => 'category', 'id' => $lt['facet_id']]); ?>">
-              <sup><svg class="icon"><use xlink:href="/assets/svg/icons.svg#edit"></use></svg></sup>
-            </a>
-          <?php endif; ?>
-        </div>
+        <a href="<?= urlDir($lt['facet_path'], $mod); ?>" style="padding:12px 0;font-size:18px;">
+          <span><?= htmlEncode($lt['facet_title']); ?><small><?= (int)$lt['facet_count']; ?> <?= __('app.items'); ?></small></span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+        </a>
       <?php endforeach; ?>
     </div>
   <?php endif; ?>
 
-  <ol class="stories">
-    <?php foreach ($items as $item) :
-      $dir  = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
-      $path = urlItem(isset($dir[2]) ? trim($dir[2], '/') : '', (string)$item['item_slug'], !empty($preview) ? 'preview' : 'static');
-      $srcUrl = trim((string)($item['item_source_url'] ?? ''));
-      ?>
-      <li class="story">
-        <div class="story_liner">
-          <div class="link">
-            <a href="<?= $path; ?>"><?= htmlEncode($item['item_title']); ?></a>
-          </div>
-          <?php if (!empty($preview) && !empty($item['item_yandex_tcy'])) : ?>
-              <span class="site-tcy" title="<?= __('app.tcy'); ?>"><?= htmlEncode($item['item_yandex_tcy']); ?></span>
-            <?php endif; ?>
-          <div class="story_content"><?= htmlEncode(Parser::noHTML($item['item_content'], 320)); ?></div>
-          <div class="byline">
-            <?php if (!empty($item['item_favicon_img'])) : ?>
-              <img class="site-favicon" src="/uploads/favicons/<?= htmlEncode($item['item_favicon_img']); ?>" alt="" width="16" height="16" loading="lazy">
-            <?php endif; ?>
-            <?php if ($srcUrl !== '') : ?>
-              <?php $host = parse_url($srcUrl, PHP_URL_HOST); ?>
+  <?php if ($items) : ?>
+    <div class="new-grid">
+      <?php $ni = 0; ?>
+      <?php foreach ($items as $item) :
+        $dir  = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
+        $path = urlItem(isset($dir[2]) ? trim($dir[2], '/') : '', (string)$item['item_slug'], $mod);
+        $srcUrl = trim((string)($item['item_source_url'] ?? ''));
+        $ni++;
+        ?>
+        <article class="new-card">
+          <div class="article-meta">
+            <?= Html::facetDir($item['facet_list'] ?? '', $mod); ?>
+            <?php if ($srcUrl !== '') : $host = parse_url($srcUrl, PHP_URL_HOST); ?>
               <?php if ($host) : ?>
-                <span class="site-domain"><?= htmlEncode($host); ?></span>
+                · <?= htmlEncode($host); ?>
               <?php endif; ?>
             <?php endif; ?>
-            <?= Html::facetDir($item['facet_list'] ?? '', !empty($preview) ? 'preview' : 'static'); ?>
-            <span class="divider">·</span>
-            <span class="lowercase"><?= langDate($item['item_date']); ?></span>
-            <?php if (!empty($preview)) : ?>
-              <a class="admin-icon-action" aria-label="<?= __('app.edit'); ?>" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
-                <svg class="icon text-sm" aria-hidden="true"><use xlink:href="/assets/svg/icons.svg#edit"></use></svg>
-              </a>
-            <?php endif; ?>
           </div>
-        </div>
-      </li>
-    <?php endforeach; ?>
-  </ol>
+          <h3><a href="<?= $path; ?>"><?= htmlEncode($item['item_title'] ?? ''); ?></a></h3>
+          <p><?= htmlEncode(Parser::noHTML((string)($item['item_content'] ?? ''), 130)); ?></p>
+          <a class="card-arrow" href="<?= $path; ?>" aria-label="<?= __('app.read_btn'); ?>: <?= htmlEncode($item['item_title'] ?? ''); ?>">
+            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+          </a>
+          <span class="card-number" aria-hidden="true"><?= sprintf('%02d', $ni); ?></span>
+        </article>
+      <?php endforeach; ?>
+    </div>
 
-  <?php if (($pagesCount ?? 1) > 1) : ?>
-    <?= Html::pagination(
-        $pNum ?? 1,
-        (int)($pagesCount ?? 1),
-        null,
-        '',
-        '?',
-        '',
-        [
-            'url'  => !empty($preview) ? '/mod/admin/preview' : '/',
-            'base' => trim((string)($facet['facet_path'] ?? ''), '/'),
-            'ext'  => '.html',
-        ]
-    ); ?>
+    <?php if (($pagesCount ?? 1) > 1) : ?>
+      <?= Html::pagination(
+          $pNum ?? 1,
+          (int)($pagesCount ?? 1),
+          null,
+          '',
+          '?',
+          '',
+          [
+              'url'  => !empty($preview) ? '/mod/admin/preview' : '/',
+              'base' => trim((string)($facet['facet_path'] ?? ''), '/'),
+              'ext'  => '.html',
+          ]
+      ); ?>
+    <?php endif; ?>
+  <?php else : ?>
+    <?= insert('/shared/no-content', ['type' => 'small', 'text' => __('app.no_content'), 'icon' => 'info']); ?>
   <?php endif; ?>
 </main>
 

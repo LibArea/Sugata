@@ -453,10 +453,14 @@ class BuildController extends Controller
 			'meta' => Meta::home(),
 			'items' => $items,
 			'featuredBig' => ItemModel::getFeaturedBig(),
-			'bestFact' => ItemModel::getBestFact(),
+			'bestFacts' => ItemModel::getRecentBest(2),
 			'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
 			'sections' => CatalogService::sections(),
 			'popular' => ItemModel::getPopular(5),
+			'stats' => array_merge(
+				ItemModel::getStats(),
+				['categories' => FacetModel::countVisible('category')]
+			),
 		]);
 		file_put_contents($this->path . '/index.html', $temp_home);
 
@@ -600,6 +604,7 @@ class BuildController extends Controller
 			'pNum' => 1,
 			'pagesCount' => $catalog['pagesCount'],
 			'sideNav' => $sideNav,
+			'activeRoot' => strtok(trim((string)$facet['facet_path'], '/'), '/'),
 		]));
 
 		// Страницы 2..N = page-N.html
@@ -614,6 +619,7 @@ class BuildController extends Controller
 				'pNum' => $page,
 				'pagesCount' => $catalog['pagesCount'],
 				'sideNav' => $sideNav,
+				'activeRoot' => strtok(trim((string)$facet['facet_path'], '/'), '/'),
 			]));
 		}
 	}
@@ -733,6 +739,7 @@ class BuildController extends Controller
 			'faq' => \App\Models\FaqModel::forItem((int)$item['item_id']),
 			'backlinks' => $backlinks,
 			'sideNav' => $sideNav ?? CatalogService::sidebar(),
+			'activeRoot' => strtok(trim((string)($dir[2] ?? ''), '/'), '/'),
 		]));
 	}
 

@@ -19,10 +19,14 @@ public function site(): void
             'meta' => Meta::home(),
             'items' => $items,
             'featuredBig' => ItemModel::getFeaturedBig(),
-            'bestFact' => ItemModel::getBestFact(),
+            'bestFacts' => ItemModel::getRecentBest(2),
             'didYouKnow' => ItemModel::getFactsDidYouKnow(5),
             'sections' => \App\Content\CatalogService::sections(),
             'popular' => ItemModel::getPopular(5),
+            'stats' => array_merge(
+                ItemModel::getStats(),
+                ['categories' => FacetModel::countVisible('category')]
+            ),
             'preview' => true,
         ]));
     }
@@ -101,6 +105,7 @@ public function site(): void
                 'backlinks' => $backlinks,
                 'sideNav' => \App\Content\CatalogService::sidebar(),
                 'preview' => true,
+                'activeRoot' => strtok(trim($facetPath, '/'), '/'),
             ]));
             return;
         }
@@ -134,6 +139,7 @@ public function site(): void
             'pagesCount' => $catalog['pagesCount'],
             'sideNav' => \App\Content\CatalogService::sidebar(),
             'preview' => true,
+            'activeRoot' => strtok($facetPath, '/'),
         ]));
     }
 }

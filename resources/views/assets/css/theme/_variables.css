@@ -36,6 +36,8 @@
     /* Фоны и границы */
     --color-bg: rgb(var(--base-bg));
     --color-fg: rgb(var(--base-fg) / var(--opacity-fg));
+    --color-page-outside: #f8f9fa;
+    --color-shell-bg: #ffffff;
     --color-box-bg: #ffffff;
     --color-box-bg-shaded: #f5f5f5;
     --color-box-border: #cccccc;
@@ -87,6 +89,8 @@
 		--base-color: #fff;
         --color-bg: rgb(20 20 20);
         --color-fg: rgb(220 220 220);
+        --color-page-outside: #1a1a1a;
+        --color-shell-bg: #202020;
         --opacity-fg: rgb(var(--base-fg) / 100%);
         --opacity-fg-84: rgb(var(--base-fg) / 84%);
         --opacity-fg-75: rgb(var(--base-fg) / 75%);
@@ -136,6 +140,8 @@
 	--base-color: #fff;
     --color-bg: rgb(20 20 20);
     --color-fg: rgb(220 220 220);
+    --color-page-outside: #1a1a1a;
+    --color-shell-bg: #202020;
     --opacity-fg: rgb(var(--base-fg) / 100%);
     --opacity-fg-84: rgb(var(--base-fg) / 84%);
     --opacity-fg-75: rgb(var(--base-fg) / 75%);

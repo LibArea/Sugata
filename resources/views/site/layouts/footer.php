@@ -1,8 +1,15 @@
-<footer>
-  <div>© 2026 sugata — <?= __('app.facts_archive'); ?></div>
-  <div class="footer-rebuilt"><?= __('app.page_rebuilt'); ?> <?= date('d.m.Y H:i:s'); ?></div>
-  <div><a href="/info/about.html">О сайте</a></div>
+<footer class="wrap footer">
+  <div>
+    <a class="footer-brand" href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>"><?= htmlEncode(config('general', 'site_name')); ?>.</a>
+    <p><?= __('app.footer_tagline'); ?></p>
+  </div>
+  <p class="footer-note"><?= __('app.footer_note'); ?></p>
+  <a href="#home-main">
+    <?= __('app.to_start'); ?>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right up-arrow" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </a>
 </footer>
+</div>
 
 <?php if ((int)config('general', 'metrika_id') > 0) : ?>
 <!-- Yandex.Metrika counter -->

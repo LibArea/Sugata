@@ -1,59 +1,47 @@
-<?= insert('/site/layouts/header', ['meta' => $meta, 'preview' => !empty($preview)]); ?>
+<?= insert('/site/layouts/header', ['meta' => $meta, 'preview' => !empty($preview), 'activeRoot' => 'facts']); ?>
 
-<main class="content">
-  <h1 class="title"><?= __('app.best_facts'); ?></h1>
+<?php
+$mod = !empty($preview) ? 'preview' : 'static';
+?>
+
+<main class="wrap" id="article-main">
+  <div class="category-heading category-heading--page">
+    <h1><?= __('app.best_facts'); ?></h1>
+  </div>
 
   <?php if ($items) :
-    $mod = !empty($preview) ? 'preview' : 'static';
     ?>
-    <div class="best-list">
-      <?php foreach ($items as $item) :
+    <div class="new-grid">
+      <?php foreach ($items as $i => $item) :
         $dir  = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
         $path = urlItem(isset($dir[2]) ? trim($dir[2], '/') : '', (string)$item['item_slug'], $mod);
-        $img  = !empty($item['item_thumb_img'])
-            ? Img::PATH['thumbs'] . $item['item_thumb_img']
-            : Parser::miniature($item['item_content'] ?? '');
+        $ni = $i + 1;
         ?>
-        <article class="best-item">
-          <div class="article-text">
-            <?php if ($img) : ?>
-              <a href="<?= $path; ?>"><img class="article-thumb" alt="<?= htmlEncode($item['item_title']); ?>" src="<?= htmlEncode($img); ?>"></a>
-            <?php endif; ?>
-            <a class="article-title" href="<?= $path; ?>"><?= htmlEncode($item['item_title']); ?></a> —
-            <?= htmlEncode(Parser::noHTML($item['item_content'], 260)); ?>
-            <a class="more" href="<?= $path; ?>"><?= __('app.read_more'); ?> →</a>
-            <div class="byline">
-              <?= Html::facetDir($item['facet_list'] ?? '', $mod); ?>
-              <span class="divider">·</span>
-              <span class="lowercase"><?= langDate($item['item_date']); ?></span>
-              <?php if (!empty($preview)) : ?>
-                <a class="admin-icon-action" aria-label="<?= __('app.edit'); ?>" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
-                  <svg class="icon text-sm" aria-hidden="true"><use xlink:href="/assets/svg/icons.svg#edit"></use></svg>
-                </a>
-              <?php endif; ?>
-            </div>
-          </div>
+        <article class="new-card">
+          <div class="article-meta"><?= Html::facetDir($item['facet_list'] ?? '', $mod); ?></div>
+          <h3><a href="<?= $path; ?>"><?= htmlEncode($item['item_title'] ?? ''); ?></a></h3>
+          <p><?= htmlEncode(Parser::noHTML((string)($item['item_content'] ?? ''), 150)); ?></p>
+          <a class="card-arrow" href="<?= $path; ?>" aria-label="<?= __('app.read_btn'); ?>: <?= htmlEncode($item['item_title'] ?? ''); ?>">
+            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+          </a>
+          <span class="card-number" aria-hidden="true"><?= sprintf('%02d', $ni); ?></span>
         </article>
       <?php endforeach; ?>
     </div>
 
-    <?php
-    $pref = !empty($preview) ? '/mod/admin/preview/' : '/';
-    $curPage = $pNum ?? 1;
-    ?>
     <?php if (($pagesCount ?? 1) > 1) : ?>
       <?= Html::pagination(
-        $pNum ?? 1,
-        (int)($pagesCount ?? 1),
-        null,
-        '',
-        '?',
-        '',
-        [
-          'url'  => !empty($preview) ? '/mod/admin/preview' : '/',
-          'base' => 'best',
-          'ext'  => '.html',
-        ]
+          $pNum ?? 1,
+          (int)($pagesCount ?? 1),
+          null,
+          '',
+          '?',
+          '',
+          [
+              'url'  => !empty($preview) ? '/mod/admin/preview' : '/',
+              'base' => 'best',
+              'ext'  => '.html',
+          ]
       ); ?>
     <?php endif; ?>
   <?php else : ?>

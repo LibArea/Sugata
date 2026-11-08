@@ -1,8 +1,13 @@
 ﻿/* ---------- Р“Р»Р°РІРЅР°СЏ ---------- */
 
+.portal-home {
+    padding-left: 4em;
+    padding-right: 4em;
+}
+
 /* ---------- Главная-портал: интро (SEO-заголовок) ---------- */
 .home-intro {
-    margin: 2.75em 0 1em 0;
+    margin: 1.5em 0 1em 0;
 }
 
 .home-intro__title {
@@ -35,51 +40,147 @@
     text-decoration: underline;
 }
 
-/* ---------- Главная: hero (логотип + поиск по центру) ---------- */
-.hero {
-    max-width: 44rem;
-    margin: 0 auto;
-    padding: 2.5em 0 0;
-    text-align: center;
+/* ---------- Главная: избранные статьи (последние 2, полный формат) ---------- */
+.featured-articles {
+    margin: 0 0 2.5rem 0;
 }
 
-.hero-logo {
-    display: inline-block;
-    font-size: 3em;
-    font-weight: bold;
-    letter-spacing: -1px;
-    color: var(--color-fg-accent);
-    text-decoration: none;
-    line-height: 1.1;
+.featured-articles--grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
 }
 
-.hero-search {
-    position: relative;
-    max-width: 34rem;
-    margin: 1.1em auto 0;
-}
-
-.under-search {
-    margin-top: 0.6em;
-    font-size: 0.78em;
-    color: var(--opacity-fg-59);
-}
-
-/* ---------- Главная: три колонки без рамок ---------- */
-.portal-columns {
-    display: flex;
-    gap: 1.75rem;
-    align-items: flex-start;
-    margin-top: 2.5rem;
-}
-
-.portal-columns .col {
-    flex: 1;
+.featured-article {
+    padding: 0;
+    border: none;
     min-width: 0;
+    overflow-wrap: break-word;
 }
 
-.portal-columns .col--wide {
-    flex: 1.4;
+.featured-article__title {
+    font-size: 1.2em;
+    display: inline-block;
+    margin-bottom: 0.4em;
+}
+
+.featured-article__content {
+    font-size: 0.95em;
+    line-height: 1.6;
+    color: var(--opacity-fg-85);
+    overflow-wrap: break-word;
+}
+
+/* Длинная статья: обрезаем по высоте с мягким переходом внизу */
+.featured-article__content--clip {
+    max-height: 900px;
+    overflow: hidden;
+    position: relative;
+}
+
+.featured-article__content--clip::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 70px;
+    background: linear-gradient(to bottom, transparent, var(--color-bg));
+}
+
+.featured-article__content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.featured-article__content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.featured-article__content pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.featured-article__content p {
+    margin: 0 0 0.6em 0;
+}
+
+.featured-article__content p:last-child {
+    margin-bottom: 0;
+}
+
+.featured-article .more {
+    display: inline-block;
+    margin-top: 0.6em;
+}
+
+/* ---------- Главная: сетка карточек фактов ---------- */
+.card-section {
+    margin: 0 0 2.5rem 0;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.fact-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-box-border);
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: var(--color-box-bg);
+}
+
+.fact-card__thumb {
+    display: block;
+}
+
+.fact-card__thumb img {
+    display: block;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.fact-card__body {
+    padding: 0.75em 1em;
+}
+
+.fact-card__excerpt {
+    margin: 0.4em 0 0 0;
+    font-size: 0.85em;
+    line-height: 1.45;
+    color: var(--opacity-fg-75);
+}
+
+/* ---------- Главная: категории чипсами ---------- */
+.category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6em;
+}
+
+.category-chip {
+    display: inline-block;
+    padding: 0.4em 0.9em;
+    border: 1px solid var(--color-box-border);
+    border-radius: 999px;
+    background-color: var(--color-box-bg-shaded);
+    color: var(--color-fg-link);
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.category-chip:hover {
+    border-color: var(--color-fg-link);
+    background-color: var(--color-button-bg-shaded);
 }
 
 .block-title {
@@ -99,14 +200,21 @@
     line-height: 1.5;
 }
 
-.article-thumb {
-    float: left;
-    width: 120px;
-    height: 90px;
-    object-fit: cover;
-    margin: 2px 10px 4px 0;
-    border: 1px solid var(--color-box-border);
-    background-color: var(--color-box-bg-shaded);
+/* ---------- Главная: счётчики ---------- */
+.home-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5em;
+    margin: 2.5rem 0 0;
+    padding: 0.75em 0 0.25em;
+    border-top: 1px solid var(--color-box-border);
+    font-size: 0.9em;
+    color: var(--opacity-fg-75);
+}
+
+.home-stats .home-stat b {
+    font-size: 1.15em;
+    color: var(--color-fg);
 }
 
 .article-title {
@@ -198,22 +306,45 @@
 }
 
 @media (max-width: 900px) {
-    .portal-columns {
-        flex-direction: column;
+    .portal-home {
+        padding-left: 1.5em;
+        padding-right: 1.5em;
+    }
+    .featured-articles--grid {
+        grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    .portal-columns .col,
-    .portal-columns .col--wide {
-        flex: 1 1 auto;
-        width: 100%;
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+    .home-stats {
+        gap: 1em;
+        font-size: 0.85em;
+    }
+    .featured-article__title {
+        font-size: 1.1em;
     }
 }
 
 /* ---------- Портал: шапка ---------- */
-.portal-wrap {
-    max-width: 968px;
-    margin: 0 auto;
+.portal-header-bar {
+    width: 100%;
     padding: 0 1em;
+    box-sizing: border-box;
+}
+
+.portal-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
+    padding: 1.25em 0 1em 0;
+    margin-bottom: 1.5em;
 }
 
 .portal-top {
@@ -257,14 +388,6 @@
     text-decoration: underline;
 }
 
-.portal-header {
-    display: flex;
-    align-items: center;
-    gap: 1.5em;
-    padding: 1.25em 0 1em 0;
-    margin-bottom: 1.5em;
-}
-
 .portal-logo {
     display: block;
     height: 38px;
@@ -286,6 +409,13 @@
 .portal-search .form-search {
     margin: 0;
     padding: 0;
+}
+
+.portal-actions {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding-top: 0;
+    margin-left: auto;
 }
 
 /* ---------- Главная-портал: трёхколоночная сетка ---------- */
@@ -594,6 +724,29 @@
     }
     .portal-header {
         flex-wrap: wrap;
+        gap: 0.75em;
+    }
+    .portal-header .portal-search {
+        flex: 1 1 100%;
+        order: 3;
+        max-width: none;
+        margin: 0;
+    }
+    .portal-logo {
+        font-size: 1.3em;
+    }
+    .portal-actions {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .portal-header {
+        gap: 0.5em;
+    }
+    .portal-actions {
+        font-size: 0.78em;
+        gap: 0.6em;
     }
 }
 

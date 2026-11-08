@@ -987,6 +987,41 @@ class ItemModel extends Model
         )->fetch()['c'];
     }
 
+    // Последние добавленные избранные статьи (по дате добавления), без требования фото
+    public static function getRecentBest(int $limit = 2): false|array
+    {
+        $sql = "SELECT item_id, item_title, item_slug, item_content, item_thumb_img,
+                       item_date, rel.facet_list
+                FROM items
+                " . self::facetListJoin('item_id') . "
+                WHERE item_published = 1 AND item_is_deleted = 0 AND item_type = 'fact'
+                  AND item_best = 1
+                ORDER BY item_date DESC, item_id DESC
+                LIMIT :limit";
+
+        return DB::run($sql, ['limit' => $limit])->fetchAll();
+    }
+
+    // Статистика для главной: количество публичных материалов по типам
+    public static function getStats(): array
+    {
+        $rows = DB::run(
+            "SELECT item_type, COUNT(*) AS c FROM items
+             WHERE item_published = 1 AND item_is_deleted = 0
+               AND item_type IN ('fact','article','site')
+             GROUP BY item_type"
+        )->fetchAll();
+
+        $stats = ['facts' => 0, 'articles' => 0, 'sites' => 0];
+        foreach ($rows as $row) {
+            $type = (string)$row['item_type'];
+            if (isset($stats[$type])) {
+                $stats[$type] = (int)$row['c'];
+            }
+        }
+        return $stats;
+    }
+
     // «Лучшие» факты с пагинацией (для страницы /best/)
     public static function getBestFacts(int $page = 1, int $limit = 20): false|array
     {
@@ -1047,6 +1082,7 @@ class ItemModel extends Model
                     i.item_id,
                     i.item_title,
                     i.item_slug,
+                    i.item_content,
                     i.item_date,
                     i.item_views,
                     rel.facet_list

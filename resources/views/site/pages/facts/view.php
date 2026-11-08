@@ -1,58 +1,149 @@
-<?= insert('/site/layouts/header', ['meta' => $meta, 'preview' => !empty($preview)]); ?>
+<?= insert('/site/layouts/header', ['meta' => $meta, 'preview' => !empty($preview), 'activeRoot' => 'facts']); ?>
 
-<main class="content">
+<?php
+$mod     = !empty($preview) ? 'preview' : 'static';
+$dir     = $dir ?? [];
+$facetPath = trim((string)($dir[2] ?? ''), '/');
+$related = $related ?? [];
+$similar = $similar ?? [];
+$faq     = $faq ?? [];
+$backlinks = $backlinks ?? [];
+
+// Разбор заголовков статьи для оглавления
+$slugify = class_exists('\Cocur\Slugify\Slugify') ? new \Cocur\Slugify\Slugify() : null;
+$toc = [];
+foreach (explode("\n", (string)($item['item_content'] ?? '')) as $line) {
+  if (preg_match('/^#{2,3}\s+(.+)$/u', trim($line), $m)) {
+    $toc[] = [
+      'text'  => trim($m[1] ?? ''),
+      'anchor' => $slugify ? $slugify->slugify(html_entity_decode(strip_tags(trim($m[1] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8')) : trim($m[1] ?? ''),
+    ];
+  }
+}
+?>
+
+<main class="wrap article-page" id="article-main">
   <?= insert('/shared/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
-  <article>
-    <h1 class="title"><?= htmlEncode($item['item_title']); ?>
+  <header class="article-title-block" id="article-top">
+    <div class="eyebrow">
+      <span class="small-square"></span> <?= Html::facetDir($item['facet_list'] ?? '', $mod); ?>
+    </div>
+    <h1><?= htmlEncode($item['item_title']); ?>
       <?php if (!empty($preview)) : ?>
         <a class="admin-icon-action" aria-label="<?= __('app.edit'); ?>" href="<?= url('item.form.edit', ['id' => $item['item_id']]); ?>">
           <svg class="icon text-sm" aria-hidden="true"><use xlink:href="/assets/svg/icons.svg#edit"></use></svg>
         </a>
       <?php endif; ?>
     </h1>
-
-    <div class="hint mb1">
-      <?= Html::facetDir($item['facet_list'] ?? '', !empty($preview) ? 'preview' : 'static'); ?>
-      <span class="lowercase"><?= langDate($item['item_date']); ?></span>
+    <p class="article-subtitle"><?= htmlEncode(Parser::noHTML($item['item_content'], 90)); ?></p>
+    <div class="article-title-foot">
+      <span><?= langDate($item['item_date']); ?></span>
+      <span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+        <?= __('app.encyclopedia_name'); ?>
+      </span>
     </div>
+  </header>
 
-    <?php if (!empty($item['item_thumb_img'])) : ?>
-      <div class="mb1">
-        <img class="w-100" src="<?= htmlEncode(Img::PATH['thumbs'] . $item['item_thumb_img']); ?>" alt="<?= htmlEncode($item['item_title']); ?>">
-      </div>
-    <?php endif; ?>
-
-    <?php if (!empty($faq)) : ?>
-      <section class="mb1" aria-label="FAQ">
-        <h2 class="title"><?= __('app.faq'); ?></h2>
-        <?php foreach ($faq as $qa) : ?>
-          <details>
-            <summary><?= htmlEncode($qa['question']); ?></summary>
-            <div><?= markdown($qa['answer']); ?></div>
-          </details>
-        <?php endforeach; ?>
-      </section>
-    <?php endif; ?>
-
-    <?= insert('/site/components/toc', ['item' => $item]); ?>
-
-    <div>
-      <?= markdown($item['item_content'], 'text', !empty($preview)); ?>
-    </div>
-
-    <?php $srcUrl = trim((string)($item['item_source_url'] ?? '')); ?>
-    <?php if (!empty($item['item_source_title']) || $srcUrl !== '') : ?>
-      <div class="mt1 mb1 gray">
-        <?= __('app.source'); ?>:
-        <?php if ($srcUrl !== '') : ?>
-          <a class="gray" href="<?= htmlEncode($srcUrl); ?>" rel="nofollow"><?= htmlEncode(!empty($item['item_source_title']) ? $item['item_source_title'] : $srcUrl); ?></a>
-        <?php else : ?>
-          <?= htmlEncode($item['item_source_title']); ?>
+  <div class="reading-layout">
+    <aside class="article-sidebar">
+      <nav aria-label="<?= __('app.article_toc_label'); ?>" class="article-toc">
+        <span class="eyebrow"><?= __('app.article_toc_eyebrow'); ?></span>
+        <?php if ($toc) : ?>
+          <ol>
+            <?php foreach ($toc as $i => $tl) : ?>
+              <li><a href="#<?= htmlEncode($tl['anchor']); ?>"><span><?= str_pad((string)($i + 1), 2, '0', STR_PAD_LEFT); ?></span><?= htmlEncode($tl['text']); ?></a></li>
+            <?php endforeach; ?>
+          </ol>
         <?php endif; ?>
+        <a class="toc-back" href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          <?= __('app.back_archive'); ?>
+        </a>
+      </nav>
+    </aside>
+
+    <article class="reading-column">
+      <?= insert('/site/components/article-body', ['item' => $item, 'mod' => $mod, 'faq' => $faq]); ?>
+
+      <?php $srcUrl = trim((string)($item['item_source_url'] ?? '')); ?>
+      <?php if (!empty($item['item_source_title']) || $srcUrl !== '') : ?>
+        <div class="article-source">
+          <span class="eyebrow"><?= __('app.source'); ?></span>
+          <p>
+            <?php if ($srcUrl !== '') : ?>
+              <a href="<?= htmlEncode($srcUrl); ?>" rel="nofollow"><?= htmlEncode(!empty($item['item_source_title']) ? $item['item_source_title'] : $srcUrl); ?></a>
+            <?php else : ?>
+              <?= htmlEncode($item['item_source_title']); ?>
+            <?php endif; ?>
+          </p>
+        </div>
+      <?php endif; ?>
+
+      <div class="article-bottom">
+        <a href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>" class="read-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          <?= __('app.to_archive'); ?>
+        </a>
+        <a href="#article-top" class="read-link">
+          <?= __('app.to_top'); ?>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+        </a>
       </div>
-    <?php endif; ?>
-  </article>
+    </article>
+  </div>
+
+  <?php
+  // Карточки «Продолжить открывать»: related, при пустом — из similar
+  $relCards = [];
+  foreach ($related as $value) {
+      $relCards[] = [
+          'title'   => $value['item_title'] ?? '',
+          'slug'    => $value['item_slug'] ?? '',
+          'facets'  => $value['facet_list'] ?? '',
+          'excerpt' => $value['item_content'] ?? '',
+      ];
+  }
+  if (empty($relCards)) {
+      foreach ($similar as $value) {
+          $f = json_decode((string)($value['url'] ?? ''), true);
+          $relCards[] = [
+              'title'   => $value['title'] ?? '',
+              'slug'    => $f['slug'] ?? '',
+              'facets'  => $f['facets'] ?? '',
+              'excerpt' => $value['snippet'] ?? '',
+          ];
+      }
+  }
+  ?>
+  <?php if ($relCards) : ?>
+    <section class="article-related" id="article-related" aria-labelledby="related-title">
+      <div class="section-heading">
+        <h2 id="related-title"><?= __('app.continue_discover'); ?></h2>
+        <a href="<?= urlDir('facts', $mod); ?>">
+          <?= __('app.whole_archive'); ?>
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+        </a>
+      </div>
+      <div class="related-grid">
+        <?php foreach ($relCards as $value) :
+          $rDir = preg_split('/(@)/', (string)($value['facets'] ?? ''));
+          $rPath = urlItem(isset($rDir[2]) ? trim($rDir[2], '/') : '', (string)($value['slug'] ?? ''), $mod);
+          ?>
+          <article>
+            <span class="article-meta"><?= Html::facetDir($value['facets'] ?? '', $mod); ?></span>
+            <h3><a href="<?= $rPath; ?>"><?= htmlEncode($value['title'] ?? ''); ?></a></h3>
+            <p><?= htmlEncode(Parser::noHTML((string)($value['excerpt'] ?? ''), 130)); ?></p>
+            <a class="read-link" href="<?= $rPath; ?>">
+              <?= __('app.read_article'); ?>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </article>
+        <?php endforeach; ?>
+      </div>
+    </section>
+  <?php endif; ?>
 
   <?php if (empty($preview)) : ?>
   <script type="application/ld+json">
@@ -76,59 +167,6 @@
   }
   </script>
   <?php endif; ?>
-
-  <fieldset class="copy">
-    <label for="inputText"><?= __('app.copy'); ?> URL</label>
-    <input id="inputText" type="text" readonly value="<?= isset($dir[2]) ? fact_slug($dir[2], $item['item_slug']) : ''; ?>">
-    <button class="btn" id="copyText" aria-label="<?= __('app.copy'); ?> URL">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path fill-rule="evenodd" d="M4 12.3V12c0-1.47.005-2.547.075-3.403.074-.904.216-1.482.454-1.949a4.85 4.85 0 0 1 2.12-2.12c.466-.237 1.045-.379 1.948-.453C9.51 4.001 10.675 4 12.3 4h4.512a2.073 2.073 0 0 0-.174-.49 2.4 2.4 0 0 0-1.048-1.048 2.439 2.439 0 0 0-.931-.239 13.48 13.48 0 0 0-1.026-.023H12.26c-1.576 0-2.814 0-3.81.081-1.014.083-1.856.255-2.619.644A6.65 6.65 0 0 0 2.925 5.83c-.389.763-.56 1.605-.644 2.62-.081.995-.081 2.233-.081 3.809v1.373c0 .392 0 .738.023 1.025.025.306.081.623.239.931a2.4 2.4 0 0 0 1.048 1.05c.162.082.326.136.49.173V12.3ZM10.08 6h-.035c-.52 0-.964 0-1.329.03-.382.03-.755.097-1.112.276a2.9 2.9 0 0 0-1.298 1.298c-.179.357-.246.73-.277 1.112C6 9.081 6 9.524 6 10.046v7.909c0 .52 0 .964.03 1.329.03.382.097.755.276 1.112a2.9 2.9 0 0 0 1.298 1.298c.357.179.73.246 1.112.277.365.029.808.029 1.33.029h6.909c.52 0 .964 0 1.329-.03.383-.03.755-.097 1.112-.276a2.9 2.9 0 0 0 1.298-1.298c.179-.357.246-.73.277-1.112.029-.365.029-.808.029-1.33v-7.909c0-.52 0-.964-.03-1.329-.03-.382-.097-.755-.276-1.112a2.9 2.9 0 0 0-1.298-1.298c-.357-.179-.73-.246-1.112-.277C17.919 6 17.476 6 16.954 6H10.08ZM8.408 7.916c.065-.032.179-.07.452-.093a17.65 17.65 0 0 1 1.22-.023h6.84c.565 0 .936 0 1.22.023.273.022.387.06.452.093a1.1 1.1 0 0 1 .492.492c.032.065.07.179.093.452.022.284.023.655.023 1.22v7.84c0 .565 0 .936-.023 1.22-.023.273-.06.387-.093.452a1.1 1.1 0 0 1-.492.492c-.065.032-.179.07-.452.093a17.65 17.65 0 0 1-1.22.023h-6.84c-.565 0-.936 0-1.22-.023-.273-.023-.387-.06-.452-.093a1.1 1.1 0 0 1-.492-.492c-.032-.065-.07-.18-.093-.452a17.057 17.057 0 0 1-.023-1.22v-7.84c0-.565 0-.936.023-1.22.022-.273.06-.387.093-.452a1.1 1.1 0 0 1 .492-.492Z" clip-rule="evenodd" />
-      </svg>
-    </button>
-  </fieldset>
-
-  <?php
-    $related = $related ?? [];
-    if ($related) :
-      $relTitle = (($item['item_type'] ?? 'fact') === 'fact')
-          ? __('app.related_articles')
-          : __('app.related_facts');
-      echo insert('/shared/related', ['related' => $related, 'title' => $relTitle, 'accent' => true, 'preview' => !empty($preview)]);
-    endif;
-  ?>
-
-  <?php if ($similar) : ?>
-    <h3 class="title"><?= __('app.recommended'); ?></h3>
-    <ol class="stories">
-      <?php foreach ($similar as $value) :
-        $fields = json_decode($value['url'], true); ?>
-        <li class="story">
-          <div class="story_liner">
-            <div class="link"><a href="<?= urlItem(isset($fields['facets']) ? Html::facets_puth($fields['facets']) : '', $fields['slug'] ?? '', !empty($preview) ? 'preview' : 'static'); ?>"><?= htmlEncode($value['title']); ?></a></div>
-            <div class="story_content"><?= preg_replace('/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/', '$1', $value['snippet']); ?> <?= $value['snippet2']; ?></div>
-            <div class="byline">
-              <?= Html::facetDir($fields['facets'] ?? '', !empty($preview) ? 'preview' : 'static'); ?>
-              <span class="divider">·</span>
-              <span class="lowercase"><?= langDate($value['added_at']); ?></span>
-            </div>
-          </div>
-        </li>
-      <?php endforeach; ?>
-    </ol>
-  <?php endif; ?>
-
-  <?= insert('/site/components/backlinks', ['backlinks' => $backlinks ?? [], 'preview' => !empty($preview)]); ?>
 </main>
-
-<script nonce="<?= config('main', 'nonce'); ?>">
-  let text = document.getElementById("inputText");
-  let btn = document.getElementById("copyText");
-  if (text && btn) {
-    btn.onclick = function() {
-      text.select();
-      document.execCommand("copy");
-    }
-  }
-</script>
 
 <?= insert('/site/layouts/footer', ['preview' => !empty($preview)]); ?>

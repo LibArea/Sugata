@@ -1,21 +1,25 @@
-<ul itemscope itemtype="https://schema.org/BreadcrumbList" class="breadcrumb">
+<nav class="breadcrumbs" aria-label="<?= __('app.breadcrumbs'); ?>" itemscope itemtype="https://schema.org/BreadcrumbList">
   <?php
-  end($list);
-  $last_item_key   = key($list);
-  $show_last = true;
-  foreach ($list as $key => $item) :
-    if ($key != $last_item_key) :
+  $items = [];
+  foreach ($list as $key => $item) {
+      $items[] = $item;
+  }
+  $lastIdx = count($items) - 1;
+  foreach ($items as $i => $item) :
   ?>
-      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <?php if (!empty($item['link'])) : ?>
-          <a itemprop="item" href="<?= $item['link']; ?>"><span itemprop="name"><?= $item['name']; ?></span></a>
-        <?php else : ?>
-          <span itemprop="name"><?= $item['name']; ?></span>
-        <?php endif; ?>
-        <meta itemprop="position" content="<?= $key + 1; ?>">
-      </li>
-    <?php elseif ($show_last) : ?>
-      <li><span aria-current="page"><?= $item['name']; ?></span></li>
-  <?php endif;
-  endforeach; ?>
-</ul>
+    <?php if ($i > 0) : ?>
+      <span aria-hidden="true">/</span>
+    <?php endif; ?>
+    <?php if ($i < $lastIdx) : ?>
+      <a itemprop="item" href="<?= $item['link'] ?? '#'; ?>" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name"><?= $item['name']; ?></span>
+        <meta itemprop="position" content="<?= $i + 1; ?>">
+      </a>
+    <?php else : ?>
+      <span aria-current="page" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name"><?= $item['name']; ?></span>
+        <meta itemprop="position" content="<?= $i + 1; ?>">
+      </span>
+    <?php endif; ?>
+  <?php endforeach; ?>
+</nav>
