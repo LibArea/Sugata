@@ -4,43 +4,51 @@
 $mod = !empty($preview) ? 'preview' : 'static';
 ?>
 
-<main class="wrap" id="article-main">
+<main class="container" id="article-main">
   <?= insert('/shared/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
-  <div class="category-heading">
-    <h1><?= htmlEncode($facet['facet_title']); ?></h1>
+  <header class="page-head">
+    <h1 class="article-title"><?= htmlEncode($facet['facet_title']); ?></h1>
     <?php if (!empty($facet['facet_info'])) : ?>
-      <span class="eyebrow"><?= htmlEncode($facet['facet_info']); ?></span>
+      <p class="article-sub"><?= htmlEncode($facet['facet_info']); ?></p>
     <?php endif; ?>
-  </div>
+    <div class="chips">
+      <span class="chip"><?= (int)($pagesCount ?? 1); ?> <?= __('app.pages'); ?></span>
+      <?php if (!empty($childrens)) : ?><span class="chip"><?= count($childrens); ?> <?= __('app.categories'); ?></span><?php endif; ?>
+    </div>
+  </header>
+
+  <div class="rule"></div>
 
   <?php if ($childrens) : ?>
-    <div class="category-links" style="margin-bottom:20px;">
+    <div class="cat-index">
       <?php foreach ($childrens as $lt) : ?>
-        <a href="<?= urlDir($lt['facet_path'], $mod); ?>" style="padding:12px 0;font-size:18px;">
-          <span><?= htmlEncode($lt['facet_title']); ?><small><?= (int)$lt['facet_count']; ?> <?= __('app.items'); ?></small></span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-        </a>
+        <span class="cat-index__item"><a href="<?= urlDir($lt['facet_path'], $mod); ?>"><?= htmlEncode($lt['facet_title']); ?></a><sup><?= (int)$lt['facet_count']; ?></sup></span>
       <?php endforeach; ?>
     </div>
   <?php endif; ?>
 
   <?php if ($items) : ?>
-    <div class="new-grid">
-      <?php $ni = 0; ?>
+    <div class="fact-rows">
       <?php foreach ($items as $item) :
         $dir  = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
         $path = urlItem(isset($dir[2]) ? trim($dir[2], '/') : '', (string)$item['item_slug'], $mod);
-        $ni++;
+        $img  = !empty($item['item_thumb_img'])
+          ? Img::PATH['thumbs'] . $item['item_thumb_img']
+          : trim((string)Parser::miniature((string)($item['item_content'] ?? '')));
         ?>
-        <article class="new-card">
-          <div class="article-meta"><?= Html::facetDir($item['facet_list'] ?? '', $mod); ?></div>
-          <h3><a href="<?= $path; ?>"><?= htmlEncode($item['item_title'] ?? ''); ?></a></h3>
-          <p><?= htmlEncode(Parser::noHTML((string)($item['item_content'] ?? ''), 130)); ?></p>
-          <a class="card-arrow" href="<?= $path; ?>" aria-label="<?= __('app.read_btn'); ?>: <?= htmlEncode($item['item_title'] ?? ''); ?>">
-            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-          </a>
-          <span class="card-number" aria-hidden="true"><?= sprintf('%02d', $ni); ?></span>
+        <article class="fact-row<?= $img === '' ? ' fact-row--text' : ''; ?>">
+          <div class="fact-row__body">
+            <div class="hint"><?= Html::facetDir($item['facet_list'] ?? '', $mod); ?></div>
+            <h3><a href="<?= $path; ?>"><?= htmlEncode($item['item_title'] ?? ''); ?></a></h3>
+            <p><?= htmlEncode(Parser::noHTML((string)($item['item_content'] ?? ''), 160)); ?></p>
+            <a href="<?= $path; ?>"><?= __('app.read_fact'); ?> →</a>
+          </div>
+          <?php if ($img !== '') : ?>
+            <a class="fact-row__thumb" href="<?= $path; ?>" tabindex="-1" aria-hidden="true">
+              <img src="<?= htmlEncode($img); ?>" alt="<?= htmlEncode($item['item_title'] ?? ''); ?>" loading="lazy">
+            </a>
+          <?php endif; ?>
         </article>
       <?php endforeach; ?>
     </div>

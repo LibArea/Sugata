@@ -12,6 +12,30 @@ use Html;
 class ItemModel extends Model
 {
     /**
+     * Картинка записи для og:image и соцсетей.
+     * Приоритет: фото инфобокса → обложка записи → первое фото в тексте.
+     */
+    public static function socialImage(array $item): string
+    {
+        $itemId = (int)($item['item_id'] ?? 0);
+
+        if ($itemId > 0) {
+            $instance = TemplateModel::instance($itemId);
+            $image = trim((string)($instance['values']['image'] ?? ''));
+
+            if ($image !== '') {
+                return $image;
+            }
+        }
+
+        if (!empty($item['item_thumb_img'])) {
+            return \Img::PATH['thumbs'] . $item['item_thumb_img'];
+        }
+
+        return (string)\Parser::miniature((string)($item['item_content'] ?? ''));
+    }
+
+    /**
      * Общий подзапрос дерева категорий статьи: relation_item_id -> facet_list.
      * Используется во многих запросах, раньше дублировался в ~17 местах.
      *
@@ -62,6 +86,9 @@ class ItemModel extends Model
                 break;
             case 'moderation':
                 $sort     = "item_published = 0 AND item_type = 'fact' ORDER BY item_date DESC";
+                break;
+            case 'unpublished':
+                $sort     = "item_published = 0 AND item_is_deleted = 0 AND item_type IN ('fact','article','site','page') ORDER BY item_date DESC";
                 break;
             case 'my':
                 $sort     = "item_type = 'fact' AND item_user_id = :my_user_id ORDER BY item_date DESC";
@@ -119,6 +146,7 @@ class ItemModel extends Model
                     item_date,
 	                item_is_deleted,
 					item_favicon_img,
+					item_screen_img,
 					item_yandex_tcy,
 					s.url    AS item_source_url,
 					u.id, u.login, u.avatar, u.created_at, 
@@ -364,6 +392,162 @@ class ItemModel extends Model
         if (($cur['item_favicon_img'] ?? '') !== $relativePath) {
             DB::run("UPDATE items SET item_favicon_img = :img WHERE item_id = :id", ['img' => $relativePath, 'id' => $itemId]);
         }
+    }
+
+    // Скачивает скриншот сайта с внешнего сервиса (адрес сервиса — в конфиге
+    // general.screenshot_service) и сохраняет в /uploads/screens/YYYY/M/<host>.<ext>.
+    // Путь кладёт в item_screen_img. Возвращает relative-путь либо false.
+    public static function saveScreenshot(int $itemId, string $itemUrl): string|false
+    {
+        $itemUrl = trim($itemUrl);
+        if ($itemUrl === '') {
+            return false;
+        }
+        if (!preg_match('~^https?://~i', $itemUrl)) {
+            $itemUrl = 'https://' . $itemUrl;
+        }
+
+        $host = parse_url($itemUrl, PHP_URL_HOST);
+        if (!$host) {
+            return false;
+        }
+        $host = str_replace('www.', '', strtolower(trim($host)));
+
+        $template = trim((string)config('general', 'screenshot_service'));
+        if ($template === '') {
+            return false;
+        }
+
+        $serviceUrl = str_replace(
+            ['{url}', '{raw}'],
+            [rawurlencode($itemUrl), $itemUrl],
+            $template
+        );
+
+        $timeout = max(5, (int)config('general', 'screenshot_timeout'));
+
+        $context = stream_context_create([
+            'http' => [
+                'timeout'         => $timeout,
+                'user_agent'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+                'follow_location' => 1,
+                'max_redirects'   => 5,
+            ],
+        ]);
+
+        // Некоторые сервисы (например, WordPress mShots) на первый запрос отдают
+        // заглушку «генерирую скриншот», а настоящий снимок — со второго-третьего.
+        // Поэтому делаем несколько попыток с паузой.
+        $imageData = false;
+        $ext = '';
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $imageData = @file_get_contents($serviceUrl, false, $context);
+
+            if ($imageData === false || strlen($imageData) < 1024) {
+                usleep(800000);
+                continue;
+            }
+
+            // Определяем формат по сигнатуре, чтобы не сохранить HTML-ошибку сервиса
+            $ext = '';
+            if (strncmp($imageData, "\x89PNG\r\n\x1a\n", 8) === 0) {
+                $ext = 'png';
+            } elseif (strncmp($imageData, "\xFF\xD8\xFF", 3) === 0) {
+                $ext = 'jpg';
+            } elseif (strncmp($imageData, 'RIFF', 4) === 0 && substr($imageData, 8, 4) === 'WEBP') {
+                $ext = 'webp';
+            } elseif (strncmp($imageData, 'GIF8', 4) === 0) {
+                $ext = 'gif';
+            }
+
+            if ($ext === '') {
+                return false;
+            }
+
+            // Маленький GIF — это заглушка mShots, ждём и пробуем снова
+            if ($ext === 'gif' && strlen($imageData) < 20000 && $attempt < 2) {
+                sleep(3);
+                continue;
+            }
+
+            break;
+        }
+
+        if ($imageData === false || $ext === '' || strlen($imageData) < 1024) {
+            return false;
+        }
+        // Заглушку так и не заменили настоящим снимком — не сохраняем
+        if ($ext === 'gif' && strlen($imageData) < 20000) {
+            return false;
+        }
+
+        $year  = date('Y');
+        $month = date('n');
+        $fileName = $host . '.' . $ext;
+        $relativePath = $year . '/' . $month . '/' . $fileName;
+
+        $targetDir = HLEB_PUBLIC_DIR . '/uploads/screens/' . $year . '/' . $month;
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0777, true);
+        }
+
+        // Убираем прежние файлы этого же сайта с другим расширением
+        foreach (glob($targetDir . '/' . $host . '.*') ?: [] as $old) {
+            if (basename($old) !== $fileName) {
+                @unlink($old);
+            }
+        }
+
+        if (@file_put_contents($targetDir . '/' . $fileName, $imageData) === false) {
+            return false;
+        }
+
+        self::updateScreenshotPath($itemId, $relativePath);
+        return $relativePath;
+    }
+
+    // Пишет путь к скриншоту в БД (если отличается)
+    protected static function updateScreenshotPath(int $itemId, string $relativePath): void
+    {
+        $cur = DB::run("SELECT item_screen_img FROM items WHERE item_id = :id", ['id' => $itemId])->fetch();
+        if (($cur['item_screen_img'] ?? '') !== $relativePath) {
+            DB::run("UPDATE items SET item_screen_img = :img WHERE item_id = :id", ['img' => $relativePath, 'id' => $itemId]);
+        }
+    }
+
+    // Другие сайты из той же категории (для блока «Похожие сайты» на странице сайта).
+    public static function sitesByFacet(int $facetId, int $excludeId, int $limit = 3): array
+    {
+        if ($facetId <= 0) {
+            return [];
+        }
+
+        $sql = "SELECT DISTINCT
+                    i.item_id,
+                    i.item_title,
+                    i.item_slug,
+                    i.item_content,
+                    i.item_screen_img,
+                    i.item_favicon_img,
+                    i.item_yandex_tcy,
+                    i.item_date,
+                    i.item_views,
+                    s.url AS item_source_url,
+                    rel.facet_list
+                FROM facets_items_relation fir
+                INNER JOIN items i ON i.item_id = fir.relation_item_id
+                LEFT JOIN article_sources a_s ON a_s.article_id = i.item_id AND a_s.sort_order = 0
+                LEFT JOIN sources s ON s.id = a_s.source_id
+                " . self::facetListJoin('i.item_id') . "
+                WHERE fir.relation_facet_id = :fid
+                    AND i.item_type = 'site'
+                    AND i.item_published = 1
+                    AND i.item_is_deleted = 0
+                    AND i.item_id <> :exclude
+                ORDER BY i.item_views DESC, i.item_id DESC
+                LIMIT :limit";
+
+        return DB::run($sql, ['fid' => $facetId, 'exclude' => $excludeId, 'limit' => $limit])->fetchAll();
     }
 
     // Список сайтов (item_type = 'site') с их исходным URL (доменом).
@@ -629,6 +813,7 @@ class ItemModel extends Model
                     s.url    AS item_source_url,
                     i.item_thumb_img,
                     i.item_favicon_img,
+                    i.item_screen_img,
                     i.item_yandex_tcy,
                     i.item_date,
                     rel.facet_list
@@ -749,6 +934,7 @@ class ItemModel extends Model
                     item_modified,
                     item_thumb_img,
                     item_favicon_img,
+                    item_screen_img,
                     item_yandex_tcy,
                     item_date,
                     rel.*
@@ -1015,8 +1201,9 @@ class ItemModel extends Model
         $stats = ['facts' => 0, 'articles' => 0, 'sites' => 0];
         foreach ($rows as $row) {
             $type = (string)$row['item_type'];
-            if (isset($stats[$type])) {
-                $stats[$type] = (int)$row['c'];
+            $key = $type . 's';
+            if (isset($stats[$key])) {
+                $stats[$key] = (int)$row['c'];
             }
         }
         return $stats;

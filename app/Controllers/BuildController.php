@@ -191,6 +191,38 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.tcy_recalculated', ['checked' => $result['checked'], 'saved' => $result['saved']]), 'success', url('tools'));
 	}
 
+	// Кнопка в админке (скрытая): пересчитать скриншоты для ВСЕХ сайтов
+	public function screensAction(): void
+	{
+		$this->grabScreenshots('');
+	}
+
+	// Кнопка в админке (видимая): скриншоты только для новых сайтов
+	public function screensNewAction(): void
+	{
+		$this->grabScreenshots('item_screen_img');
+	}
+
+	// Общий обход сайтов: $blankColumn пустая строка — все сайты, иначе только с пустым полем
+	protected function grabScreenshots(string $blankColumn): void
+	{
+		$saved = 0;
+		$failed = 0;
+
+		foreach (ItemModel::sitesWithUrl($blankColumn) as $site) {
+			$result = ItemModel::saveScreenshot((int)$site['item_id'], (string)($site['url'] ?? ''));
+			if ($result !== false) {
+				$saved++;
+			} else {
+				$failed++;
+			}
+			// Небольшая пауза, чтобы не долбить сервис скриншотов
+			usleep(400000);
+		}
+
+		Msg::redirect(__('msg.screens_saved', ['saved' => $saved, 'failed' => $failed]), 'success', url('tools'));
+	}
+
 	// Рендер страницы статики: подставляет запечённый подвал вместо SSI-директивы.
 	// Возвращает готовый HTML (подвал читается из assets/footer.shtml, если он собран).
 	protected function renderStaticHtml(string $template, array $data): string
@@ -727,7 +759,7 @@ class BuildController extends Controller
 		// Выбор шаблона записи (факт/статья/сайт/страница) — единая логика
 		$tmp = \App\Content\CatalogService::itemTemplate($item, (string)($dir[2] ?? ''));
 
-		$img_url = Parser::miniature($item['item_content']);
+		$img_url = ItemModel::socialImage($item);
 
 		file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', $this->renderStaticHtml($tmp, [
 			'item' =>  $item,

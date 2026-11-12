@@ -1,0 +1,51 @@
+/*
+ * Токены дизайн-системы.
+ * Один источник значений для сайта и админки.
+ */
+
+:root {
+  /* Фон и текст */
+  --bg: #ffffff;
+  --bg-soft: #f8f9fa;
+  --bg-head: #eaecf0;
+  --ink: #202122;
+  --ink-2: #3c4043;
+  --muted: #54595d;
+
+  /* Линии */
+  --line: #c8ccd1;
+  --line-2: #e4e6e9;
+
+  /* Ссылки и акценты */
+  --link: #3366cc;
+  --link-hover: #2a56ad;
+  --link-visited: #795cb2;
+  --accent: #b32424;
+  --ok: #14866d;
+  --warn: #8a5a00;
+  --danger: #d73333;
+
+  /* Шрифты */
+  --font-sans: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Linux Libertine", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, Consolas, "Liberation Mono", monospace;
+
+  /* Размеры */
+  --fs: 15px;
+  --lh: 1.65;
+  --r: 2px;
+
+  /* Отступы */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  /* Прочее */
+  --shadow: 0 1px 2px rgba(0, 0, 0, .06);
+  --shadow-pop: 0 6px 20px rgba(0, 0, 0, .12);
+  --w-page: 1180px;
+}

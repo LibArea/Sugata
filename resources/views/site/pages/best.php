@@ -4,27 +4,27 @@
 $mod = !empty($preview) ? 'preview' : 'static';
 ?>
 
-<main class="wrap" id="article-main">
-  <div class="category-heading category-heading--page">
-    <h1><?= __('app.best_facts'); ?></h1>
-  </div>
+<main class="container" id="article-main">
+  <?= insert('/shared/navigation/breadcrumbs', ['list' => $breadcrumb ?? []]); ?>
 
-  <?php if ($items) :
-    ?>
-    <div class="new-grid">
-      <?php foreach ($items as $i => $item) :
+  <header class="page-head">
+    <h1 class="article-title"><?= __('app.best_facts'); ?></h1>
+    <p class="article-sub"><?= __('app.continue_discover'); ?></p>
+  </header>
+
+  <div class="rule"></div>
+
+  <?php if ($items) : ?>
+    <div class="grid grid--3">
+      <?php foreach ($items as $item) :
         $dir  = preg_split('/(@)/', (string)($item['facet_list'] ?? ''));
         $path = urlItem(isset($dir[2]) ? trim($dir[2], '/') : '', (string)$item['item_slug'], $mod);
-        $ni = $i + 1;
         ?>
-        <article class="new-card">
-          <div class="article-meta"><?= Html::facetDir($item['facet_list'] ?? '', $mod); ?></div>
+        <article class="card">
+          <div class="hint"><?= Html::facetDir($item['facet_list'] ?? '', $mod); ?></div>
           <h3><a href="<?= $path; ?>"><?= htmlEncode($item['item_title'] ?? ''); ?></a></h3>
           <p><?= htmlEncode(Parser::noHTML((string)($item['item_content'] ?? ''), 150)); ?></p>
-          <a class="card-arrow" href="<?= $path; ?>" aria-label="<?= __('app.read_btn'); ?>: <?= htmlEncode($item['item_title'] ?? ''); ?>">
-            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-          </a>
-          <span class="card-number" aria-hidden="true"><?= sprintf('%02d', $ni); ?></span>
+          <a href="<?= $path; ?>"><?= __('app.read_article'); ?> →</a>
         </article>
       <?php endforeach; ?>
     </div>

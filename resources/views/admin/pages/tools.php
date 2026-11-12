@@ -73,6 +73,11 @@
       <div class="hint"><?= __('app.sites_tcy_new'); ?></div>
     </div>
 
+    <div class="box">
+      <a class="btn" href="<?= url('update.screens.new'); ?>"><?= __('app.run'); ?></a>
+      <div class="hint"><?= __('app.sites_screens_new'); ?></div>
+    </div>
+
     <details class="box tools-danger">
       <summary><?= __('app.tools_full_rebuild'); ?></summary>
       <div class="box">
@@ -83,6 +88,11 @@
       <div class="box">
         <a class="btn" href="<?= url('update.tcy'); ?>"><?= __('app.run'); ?></a>
         <div class="hint"><?= __('app.sites_tcy'); ?></div>
+      </div>
+
+      <div class="box">
+        <a class="btn btn-danger" href="<?= url('update.screens'); ?>"><?= __('app.run'); ?></a>
+        <div class="hint"><?= __('app.sites_screens'); ?></div>
       </div>
 
       <div class="box">

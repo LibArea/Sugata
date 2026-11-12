@@ -44,6 +44,7 @@ class HomeController extends Controller
             'articles'   => __('app.articles'),
             'sites'      => __('app.sites'),
             'deleted'    => __('app.deleted'),
+            'unpublished' => __('app.unpublished'),
             default      => __('app.facts'),
         };
 

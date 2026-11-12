@@ -1,6 +1,6 @@
 <?php
 /*
- * Сайдбар с навигацией по разделам (нативный класс nav base.css)
+ * Сайдбар с навигацией по разделам.
  * Expects: $sideNav (array), $preview (bool), optional $activePath (string), optional $sideRoot (string)
  */
 $activePath = $activePath ?? '';
@@ -22,9 +22,9 @@ if ($sideRoot !== '') {
     $sideNav = $filtered;
 }
 ?>
-<nav class="nav" aria-label="<?= __('app.category'); ?>">
-  <div class="title"><?= __('app.category'); ?></div>
-  <?php foreach ($sideNav as $i => $cat) :
+<nav class="toc" aria-label="<?= __('app.category'); ?>">
+  <b><?= __('app.category'); ?></b>
+  <?php foreach ($sideNav as $cat) :
     if ($cat['level'] != 0) continue;
     $active = ($activePath === $cat['facet_path']);
     ?>

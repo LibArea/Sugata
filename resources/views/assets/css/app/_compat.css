@@ -1,0 +1,808 @@
+/*
+ * Классы, перенесённые из прежней темы админки.
+ * Сохранены как есть, чтобы разметка страниц не менялась.
+ */
+
+.bg-blue {
+background-color: var(--link);
+}
+
+.prevImg {
+margin-top: 0.5em;
+}
+
+
+
+/* ---------- Карточка истории с новыми комментариями ---------- */
+.story-card--has-new {
+    border-left: 3px solid var(--link);
+    background-color: var(--bg-soft);
+}
+
+.new-comments {
+    display: inline-block;
+    color: var(--danger);
+}
+
+.new-comments:hover { opacity: 0.8; }
+
+.alert-warning {
+    background-color: var(#fff6d6);
+    border-color: var(#ffcc66);
+    color: var(--ink);
+}
+
+.alert-info {
+    background-color: var(#fff4e8);
+    color: var(--ink-2);
+}
+
+.alert strong { font-weight: bold; }
+
+/* ---------- Всплывающее уведомление (функция Notice) ---------- */
+.notice {
+    position: fixed;
+    z-index: 1000;
+    max-width: 320px;
+    padding: 0.8em 1em;
+    border-radius: 4px;
+    background-color: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    box-shadow: 0 2px 12px rgb(0 0 0 / 0.18);
+    font-size: 0.95em;
+    line-height: 1.4;
+    animation-name: notice-out;
+    animation-fill-mode: both;
+}
+
+.notice-top { top: 12px; }
+
+.notice-bottom { bottom: 12px; }
+
+.notice-left { left: 12px; }
+
+.notice-right { right: 12px; }
+
+.notice-center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+.notice { animation: none; }
+}
+
+.form-actions { margin-top: 1em; }
+
+.form-actions a { margin-left: 1em; }
+
+button,
+input[type="submit"],
+input[type="button"],
+a.button {
+    background-color: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-bottom-color: var(--line);
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-block;
+    line-height: 18px;
+    padding: 4px 10px;
+    text-align: center;
+    text-decoration: none;
+}
+
+button.button-no {
+    border: 0;
+    background-color: var(--bg);
+    color: var(--muted);
+    text-decoration: none;
+}
+
+button.button-no:hover {
+    color: var(--muted);
+    background-color: var(--bg);
+}
+
+.dropdown-avatar-badge-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-notification-icon {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+}
+
+.dropdown-arrow-icon {
+    font-size: 0.7em;
+    color: var(--muted);
+}
+
+.dropdown-item-admin {
+    color: var(--link);
+    font-weight: bold;
+}
+
+a.dropdown-item-admin:hover {
+    background-color: var(--link);
+    color: white;
+}
+
+.navbar-logout-link { color: var(--danger); }
+
+.navbar-logout-link:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* ---------- Хлебные крошки (Breadcrumb) ---------- */
+.breadcrumb {
+  margin: 10px 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;            /* расстояние между элементами */
+  font-size: 0.95rem;
+}
+
+.breadcrumb li {
+  display: contents;       /* чтобы стилизовать ссылки, а не li */
+}
+
+.breadcrumb a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover,
+.breadcrumb a:focus {
+  color: #007bff;          /* цвет при наведении/фокусе */
+  text-decoration: underline;
+}
+
+/* разделитель между пунктами */
+.breadcrumb li:not(:last-child)::after {
+  content: "/";            /* символ: ›, >, /, → — на выбор */
+  margin-left: 0.5rem;
+  color: var(--muted);
+}
+
+/* убираем разделитель после последнего элемента */
+.breadcrumb li:last-child::after {
+  content: none;
+}
+
+/* стиль для текущего пункта (не ссылка) */
+.breadcrumb [aria-current="page"] {
+  color: var(--link);
+}
+
+/* ============================================
+   Страница уведомлений (Notifications)
+   ============================================ */
+
+/* ---------- Контейнер страницы ---------- */
+.notifications-page {
+    margin-top: 1em;
+}
+
+/* ---------- Шапка: заголовок + действия ---------- */
+.notifications-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.notifications-header h2 {
+    margin: 0;
+}
+
+/* ---------- Список уведомлений ---------- */
+ol.notification-list {
+    padding: 0;
+    list-style: none;
+    margin: 0;
+}
+
+.notification-item {
+    border-bottom: 1px solid var(--bg-soft);
+}
+
+.notification-item:first-child {
+    border-top: 1px solid var(--bg-soft);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* ---------- Ссылка-элемент уведомления ---------- */
+.notification-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75em;
+    padding: 0.6em 0.25em;
+    text-decoration: none;
+    color: var(--ink);
+    transition: background-color var(.2s ease);
+}
+
+.notification-link:hover {
+    background-color: var(--bg-soft);
+}
+
+.notification-link:visited {
+    color: var(--ink);
+}
+
+/* ---------- Иконка уведомления (круг) ---------- */
+.notification-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: var(--bg-soft);
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+/* ---------- Контент уведомления ---------- */
+.notification-body {
+    flex-grow: 1;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.notification-sender {
+    font-weight: bold;
+    margin-right: 0.3em;
+}
+
+.notification-action {
+    color: var(--muted);
+    font-size: 0.9em;
+}
+
+.notification-quote {
+    margin: 0.3em 0 0 0;
+    font-size: 0.9em;
+}
+
+.notification-time {
+    color: var(--muted);
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+/* ---------- Непрочитанное уведомление ---------- */
+.notification-unread {
+    background-color: var(#eef4ff);
+}
+
+.notification-unread .notification-link {
+    font-weight: bold;
+}
+
+.notification-unread .notification-icon {
+    background-color: var(--link);
+    color: white;
+}
+
+
+
+/* ---------- Профиль пользователя ---------- */
+.profile-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5em;
+    margin-bottom: 1.5em;
+}
+
+.profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 3px;
+    object-fit: cover;
+    border: 1px solid var(--line);
+    flex-shrink: 0;
+}
+
+.profile-avatar-placeholder-large {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 3px;
+    background-color: var(--link);
+    color: white;
+    font-size: 3em;
+    font-weight: bold;
+    border: 1px solid var(--line);
+    flex-shrink: 0;
+}
+
+.profile-info {
+    flex-grow: 1;
+}
+
+.profile-username {
+    margin: 0 0 0.3em 0;
+    font-size: 1.5em;
+}
+
+.profile-status {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    background-color: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 0.85em;
+    color: var(--muted);
+}
+
+.profile-bio {
+    margin: 1em 0;
+    padding: 1em;
+    background-color: var(--bg-soft);
+    border-left: 3px solid var(--line);
+    font-style: italic;
+    color: var(--muted);
+}
+
+.profile-details {
+    width: 100%;
+    max-width: 600px;
+    border-collapse: collapse;
+    margin-top: 1.5em;
+}
+
+.profile-details td {
+    padding: 0.5em 0;
+    border-bottom: 1px solid var(--bg-soft);
+}
+
+.profile-details td:first-child {
+    font-weight: bold;
+    color: var(--muted);
+    width: 200px;
+    vertical-align: top;
+}
+
+.profile-details td:last-child {
+    color: var(--ink);
+}
+
+.profile-karma-positive {
+    color: var(--ok);
+    font-weight: bold;
+}
+
+.profile-karma-negative {
+    color: var(--danger);
+    font-weight: bold;
+}
+
+.profile-karma-neutral {
+    color: var(--muted);
+}
+
+.profile-id-subtext {
+    color: var(--muted);
+    font-size: 0.85em;
+    margin-left: 0.5em;
+}
+
+.profile-message-btn {
+    margin-top: 0.5em;
+}
+
+.form-search {
+    max-width: 650px; /* Ограничиваем максимальную ширину для красоты на больших экранах */
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* ==========================================================================
+   Поддержка темной темы (Data Attribute)
+   ========================================================================== */
+
+[data-theme="dark"] .search-options {
+    color: #aaa;
+}
+
+.search-radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none; /* Запрет выделения текста на лейбле */
+}
+
+.search-radio-label input[type="radio"] {
+    margin-right: 6px;
+    cursor: pointer;
+    accent-color: #007bff; /* Цвет самой радио-кнопки в современных браузерах */
+}
+
+.search-example {
+    margin-left: 30px;
+}
+
+[data-theme="dark"] .search-example {
+    color: #aaa;
+}
+
+.search-example .word {
+    color: #007bff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+}
+
+.search-example .word:hover {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+[data-theme="dark"] .search-example .word {
+    color: #4dabf7;
+}
+
+[data-theme="dark"] .search-example .word:hover {
+    color: #74c0fc;
+}
+
+.voters {
+    float: left;
+    margin: 7px 10px 0 0;
+    text-align: center;
+}
+
+.upvoter {
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-self: center;
+    text-decoration: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color var(.2s ease);
+}
+
+.upvoter:hover,
+.upvoter.upvoted { color: var(--link); }
+
+.score {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: var(--muted);
+    margin: 2px 0;
+}
+
+.domain-row,
+.story_footer {
+    display: flex;
+	gap: 1.125rem;
+	align-items: center;
+}
+
+li .domain {
+    color: var(--ok);
+    font-style: italic;
+    text-decoration: none;
+    vertical-align: middle;
+    font-size: 0.85em;
+    margin-left: 0.25em;
+}
+
+li .domain:hover { text-decoration: underline; }
+
+.story_btn {
+    display: flex;
+    margin-top: 20px;
+}
+
+.tag {
+    background-color: var(#fdf6d8);
+    border: 1px solid var(#d5d458);
+    border-radius: 5px;
+    color: var(--ink-2);
+    font-size: var(11px);
+    margin-left: 0.25em;
+    padding: 0 0.4em 1px 0.4em;
+    text-decoration: none;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1.2em;
+    font-weight: normal;
+}
+
+.tag:hover { opacity: 0.8; }
+
+.tag:visited { color: var(--ink-2); }
+
+.tag-meta {
+    background-color: var(#e8f0ff);
+    border-color: var(#c6dafc);
+    color: var(--muted);
+}
+
+.tag-ask {
+    background-color: #f9ddde;
+    border-color: #f0b2b8;
+    color: var(--muted);
+}
+
+img.avatar {
+    border-radius: 3px;
+    height: 16px;
+    margin-bottom: 2px;
+    margin-right: 2px;
+    vertical-align: middle;
+    width: 16px;
+}
+
+
+
+/* Утилиты */
+
+.item-categories {
+display: flex;
+    flex-wrap: wrap;
+    padding: 10px 0 0 0;
+    margin-bottom: 25px;
+    border-radius: 5px;
+}
+
+.categories-telo,
+.item-categories>div {
+width: 33%;
+    margin-bottom: 10px;
+}
+
+.modal {
+position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.clear {
+clear: both;
+}
+
+.delete {
+font-size: 0.85em;
+}
+
+.delete:hover {
+opacity: 0.8;
+}
+
+.black {
+color: var(--ink);
+}
+
+.sky {
+color: #87CEEB;
+}
+
+.bold {
+font-weight: bold;
+}
+
+.mb1 {
+margin-bottom: 1em;
+}
+
+.mt1 {
+margin-top: 1em;
+}
+
+.hidden {
+display: none;
+}
+
+.right {
+float: right;
+}
+
+.mr5 {
+margin-right: 5px;
+}
+
+.flex {
+display: flex;
+}
+
+.gap {
+gap: 1.125rem;
+}
+
+.flex-end {
+justify-content: flex-end;
+}
+
+.justify-between {
+justify-content: space-between;
+}
+
+.favicon {
+width: 16px; height: 16px;
+}
+
+.center {
+text-align: center;
+}
+
+.gray-600 {
+color: var(--muted);
+}
+
+.gap-sm {
+gap: 0.375rem;
+}
+
+.inline {
+display: inline;
+}
+
+.items-center {
+align-items: center;
+}
+
+.max-w-md {
+max-width: 800px;
+}
+
+.mb10 {
+margin-bottom: 10px;
+}
+
+.mb15 {
+margin-bottom: 15px;
+}
+
+.mb5 {
+margin-bottom: 5px;
+}
+
+.middle {
+vertical-align: middle;
+}
+
+.none {
+display: none;
+}
+
+.p15 {
+padding: 15px;
+}
+
+.p5 {
+padding: 5px;
+}
+
+.p5-10 {
+padding: 5px 10px;
+}
+
+.relative {
+position: relative;
+}
+
+.block {
+display: block;
+}
+
+.wiki-search-item__title {
+display: block;
+    font-weight: 600;
+}
+
+.fact-search-modal {
+position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.fact-search-modal.block {
+display: flex;
+}
+
+.fact-search-modal__box {
+background-color: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1em;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.fact-search-results {
+display: flex; flex-direction: column; gap: 0.3em;
+}
+
+.fact-search-item {
+text-align: left;
+    background-color: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.4em 0.6em;
+    cursor: pointer;
+    color: var(--link);
+}
+
+.fact-search-item:hover {
+background-color: var(--bg-soft);
+}
+
+.foto {
+margin: 1em auto;
+    text-align: center;
+}
+
+.foto img {
+max-width: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto 0.4em;
+}
+
+.foto em {
+display: block;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.9em;
+}
+
+.foto img {
+cursor: zoom-in;
+}
+
+.g-recaptcha {
+margin-bottom: 15px;
+}
+
+.wikilink {
+color: var(--link); text-decoration: underline;
+}
+
+.wikilink-ok {
+color: var(--link);
+}
+
+.wikilink-missing {
+color: var(--danger);
+}
+
+.wikilink-nolink {
+color: var(--muted);
+    border-bottom: 1px dotted var(--muted);
+    cursor: help;
+}

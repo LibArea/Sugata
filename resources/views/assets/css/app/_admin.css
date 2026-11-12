@@ -1,0 +1,543 @@
+/*
+ * Админский слой: навбар, статистика, поиск, служебные элементы.
+ * Классы сохранены прежние — разметка админки не меняется.
+ */
+
+/* ---------- Верхний навбар ---------- */
+.navbar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--s5);
+}
+
+a.navbar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--r);
+  background: var(--ink);
+  color: #fff;
+  font: 700 14px / 1 var(--font-sans);
+}
+
+a.navbar-logo:hover {
+  opacity: .85;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  margin-left: auto;
+  font-size: 13px;
+}
+
+.navbar-links a {
+  color: var(--muted);
+}
+
+.navbar-links a:hover {
+  color: var(--link);
+  text-decoration: none;
+}
+
+/* ---------- Выпадающее меню пользователя ---------- */
+.navbar-user-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: none;
+  color: var(--ink);
+  font: 500 13px / 1.4 var(--font-sans);
+  cursor: pointer;
+}
+
+.dropdown-trigger-btn:hover {
+  border-color: var(--line);
+}
+
+.navbar-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  display: none;
+  min-width: 190px;
+  padding: var(--s1) 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  box-shadow: var(--shadow-pop);
+}
+
+.navbar-dropdown-menu.active {
+  display: block;
+}
+
+.dropdown-menu-item {
+  display: block;
+  padding: 6px var(--s3);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.dropdown-menu-item:hover {
+  background: var(--bg-soft);
+  text-decoration: none;
+}
+
+.dropdown-divider {
+  height: 1px;
+  margin: var(--s1) 0;
+  background: var(--line-2);
+}
+
+.mini-avatar-img,
+.mini-avatar-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r);
+}
+
+.mini-avatar-placeholder {
+  background: var(--link);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ---------- Счётчики и уведомления ---------- */
+.nav-badge-counter,
+.nav-notification-badge,
+.header-notification-badge {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.header-notification-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+}
+
+.header-notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+}
+
+/* ---------- Поиск в админке ---------- */
+.admin-navbar-search {
+  position: relative;
+  flex: 1;
+  max-width: 560px;
+}
+
+.search-results,
+.wiki-search-results {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  max-height: 360px;
+  margin-top: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  box-shadow: var(--shadow-pop);
+  overflow: auto;
+}
+
+.search-item,
+.wiki-search-item {
+  display: block;
+  padding: 8px var(--s3);
+  border-bottom: 1px solid var(--line-2);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.search-item:hover,
+.wiki-search-item:hover {
+  background: var(--bg-soft);
+  text-decoration: none;
+}
+
+.search-item__path,
+.wiki-search-item__path {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.search-empty,
+.wiki-search-empty {
+  padding: 10px var(--s3);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---------- Статистика ---------- */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--s4);
+  margin-bottom: var(--s5);
+}
+
+.admin-stat-card {
+  padding: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+}
+
+.admin-stat-card:hover {
+  border-color: var(--link);
+}
+
+.admin-stat-title {
+  margin: 0 0 var(--s2);
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-stat-value {
+  font: 400 30px / 1.1 var(--font-serif);
+  color: var(--ink);
+}
+
+.admin-stat-value--link {
+  color: var(--link);
+}
+
+.admin-stat-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------- Панель инструментов и превью ---------- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-bottom: var(--s4);
+}
+
+.toolbar .btn.active {
+  border-color: var(--link);
+  background: var(--link);
+  color: #fff;
+}
+
+.preview-bar {
+  margin-bottom: var(--s3);
+  padding: 6px var(--s3);
+  border: 1px solid #c6dafc;
+  border-radius: var(--r);
+  background: #e8f0fe;
+  font-size: 13px;
+}
+
+.title {
+  margin-bottom: var(--s1);
+}
+
+/* ---------- Служебные элементы форм ---------- */
+.faq-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--s3);
+}
+
+.faq-q,
+.faq-a,
+.add {
+  width: 100%;
+}
+
+.faq-row-del,
+.remove,
+.showPassword,
+.tip,
+.type-ban,
+.type-return {
+  cursor: pointer;
+}
+
+.img-remove {
+  color: var(--danger);
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: var(--s2);
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.copy {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: var(--s4) 0;
+  padding: var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg-soft);
+}
+
+.copy input {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-icon-action {
+  margin-left: var(--s2);
+  color: var(--muted);
+  vertical-align: middle;
+}
+
+.site-favicon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  border-radius: var(--r);
+  vertical-align: -2px;
+}
+
+.site-tcy {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--ok);
+  white-space: nowrap;
+}
+
+/* ---------- Навигационные вкладки ---------- */
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin: 0 0 var(--s4);
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.nav a {
+  display: inline-block;
+  padding: 6px 2px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.nav a:hover {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.nav .active,
+.nav a.current {
+  color: var(--ink);
+  border-bottom: 2px solid var(--link);
+  margin-bottom: -1px;
+}
+
+/* ---------- Контейнер страниц админки ---------- */
+body > .navbar-container,
+body > .w-100,
+body > main {
+  max-width: var(--w-page);
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: var(--s4);
+  padding-left: var(--s4);
+}
+
+.content {
+  max-width: var(--w-page);
+  margin: 0 auto;
+  padding: 0 var(--s4);
+}
+
+body > .w-100 {
+  padding-bottom: var(--s6);
+}
+
+/* ---------- Поиск в шапке: поле и кнопка в строку ---------- */
+.admin-navbar-search .form-search-telo {
+  display: flex;
+  width: 100%;
+}
+
+.admin-navbar-search .table-cell {
+  display: flex;
+}
+
+.admin-navbar-search .table-cell.w-100,
+.admin-navbar-search .w-100 {
+  width: 100%;
+}
+
+.admin-navbar-search .search {
+  border-radius: var(--r) 0 0 var(--r);
+  border-right: none;
+}
+
+.admin-navbar-search .btn-search {
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 0 var(--r) var(--r) 0;
+  background: var(--bg-soft);
+  color: var(--ink);
+  font: 500 13px / 1.4 var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-navbar-search .btn-search:hover {
+  background: #eef0f3;
+}
+
+/* ---------- Ширина полей формы ---------- */
+.form-input-wide {
+  width: 100%;
+  max-width: 600px;
+}
+
+.form-field-group {
+  margin-bottom: var(--s4);
+}
+
+.form-field-hint-inline {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- Выбор фото (медиа-пикер) ---------- */
+.media-picker__preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 110px;
+  margin-bottom: var(--s2);
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.media-picker__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-picker__actions {
+  flex-wrap: wrap;
+}
+
+.media-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, .55);
+}
+
+.media-modal__box {
+  display: flex;
+  flex-direction: column;
+  width: min(900px, 100%);
+  max-height: 80vh;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.media-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.media-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.media-modal__item {
+  text-align: left;
+  padding: 4px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  cursor: pointer;
+}
+
+.media-modal__item img {
+  display: block;
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+}
+
+.media-modal__item span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

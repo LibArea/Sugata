@@ -13,6 +13,7 @@
       $filters = [
         ['type' => 'my',         'title' => 'app.my_facts',  'active' => ($data['type'] ?? '') === 'my' || empty($data['type'])],
         ['type' => 'moderation', 'title' => 'app.moderation','active' => ($data['type'] ?? '') === 'moderation'],
+        ['type' => 'unpublished','title' => 'app.unpublished','active' => ($data['type'] ?? '') === 'unpublished'],
         ['type' => 'all',        'title' => 'app.all_facts', 'active' => ($data['type'] ?? '') === 'all'],
         ['type' => 'articles',   'title' => 'app.articles',  'active' => ($data['type'] ?? '') === 'articles'],
         ['type' => 'sites',      'title' => 'app.sites',     'active' => ($data['type'] ?? '') === 'sites'],

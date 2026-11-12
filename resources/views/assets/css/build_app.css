@@ -1,0 +1,14 @@
+/*
+ * Сборка общей дизайн-системы для сайта и админки.
+ * Результат: public/assets/css/app.css
+ */
+
+@import './app/_tokens.css';
+@import './app/_dark.css';
+@import './app/_base.css';
+@import './app/_layout.css';
+@import './app/_components.css';
+@import './app/_compat.css';
+@import './app/_admin.css';
+@import './app/_site.css';
+@import './app/_responsive.css';

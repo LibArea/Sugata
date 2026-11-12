@@ -99,7 +99,7 @@ public function site(): void
                 'similar' => $similar,
                 'related' => ItemModel::getRelatedItems((int)$item['item_id'], 'article'),
                 'dir' => $dir,
-                'meta' => Meta::view($item, $facetPath, Parser::miniature($item['item_content'])),
+                'meta' => Meta::view($item, $facetPath, ItemModel::socialImage($item)),
                 'breadcrumb' => $breadcrumb,
                 'faq' => \App\Models\FaqModel::forItem((int)$item['item_id']),
                 'backlinks' => $backlinks,

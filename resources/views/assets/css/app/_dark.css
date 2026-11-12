@@ -1,0 +1,35 @@
+/*
+ * Тёмная тема: переопределение токенов.
+ * Класс dark на <body> вешает theme.js; data-theme — для предпросмотра.
+ */
+
+body.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0f1317;
+  --bg-soft: #161b21;
+  --bg-head: #1e252d;
+  --ink: #e7e9ec;
+  --ink-2: #c9ced4;
+  --muted: #98a1ab;
+
+  --line: #313b45;
+  --line-2: #232b33;
+
+  --link: #8ab4f8;
+  --link-hover: #aecbfa;
+  --link-visited: #c58af9;
+  --accent: #ff7b72;
+  --ok: #4dd0a8;
+  --warn: #ffc861;
+  --danger: #ff7b72;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, .5);
+  --shadow-pop: 0 6px 20px rgba(0, 0, 0, .55);
+}
+
+body.dark img,
+[data-theme="dark"] img {
+  color-scheme: dark;
+}

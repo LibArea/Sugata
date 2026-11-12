@@ -34,6 +34,7 @@ return [
     'site_added'            => 'Сайт добавлен!',
     'favicons_saved'        => 'Фавиконы сохранены: {saved}, не удалось: {failed}',
     'tcy_recalculated'      => 'ТИЦ пересчитан: обработано {checked} сайтов, сохранено {saved}',
+    'screens_saved'         => 'Скриншоты сохранены: {saved}, не удалось: {failed}',
     'command_executed'      => 'Команда выполнена',
     'cover_removed'         => 'Обложка удалена',
     'select_topic'          => 'Выберите тему',

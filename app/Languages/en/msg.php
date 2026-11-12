@@ -34,6 +34,7 @@ return [
     'site_added'            => 'Site added!',
     'favicons_saved'        => 'Favicons saved: {saved}, failed: {failed}',
     'tcy_recalculated'      => 'TCY recalculated: {checked} sites processed, {saved} saved',
+    'screens_saved'         => 'Screenshots saved: {saved}, failed: {failed}',
     'command_executed'      => 'Command completed',
     'cover_removed'         => 'Cover removed',
     'select_topic'          => 'Choose a theme',

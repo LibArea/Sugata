@@ -9,11 +9,15 @@
 
 $mod  = $mod ?? 'static';
 $faq  = $faq ?? [];
+$noFigure = $noFigure ?? false;
 $content = (string)($item['item_content'] ?? '');
 
-/* ---------- 1. Вырезаем блок фото :::{.foto} … ::: ---------- */
+/* ---------- 1. Вырезаем блок фото :::{.foto} … ::: ----------
+ * Если фото уже показано в инфобоксе (noFigure), блок не вырезаем:
+ * его отрисует Parser как <figure class="foto"> с подписью и правами.
+ */
 $figure = null;
-if (preg_match('/:::\{\.foto\}(.*?):::/su', $content, $fm)) {
+if (empty($noFigure) && preg_match('/:::\{\.foto\}(.*?):::/su', $content, $fm)) {
     $block = $fm[1];
     $content = str_replace($fm[0], '', $content);
     if (preg_match('/!\[([^\]]*)\]\(([^)]+)\)/u', $block, $im)) {
@@ -47,13 +51,15 @@ $rest = array_slice($lines, $i);
 /* ---------- 4. Секции по заголовкам ---------- */
 $sections = [];
 $curTitle = null;
+$curLevel = 2;
 $curLines = [];
 foreach ($rest as $l) {
-    if (preg_match('/^#{1,6}\s+(.+)$/u', trim($l), $hm)) {
+    if (preg_match('/^(#{1,6})\s+(.+)$/u', trim($l), $hm)) {
         if ($curTitle !== null) {
-            $sections[] = ['title' => $curTitle, 'body' => trim(implode("\n", $curLines))];
+            $sections[] = ['title' => $curTitle, 'level' => $curLevel, 'body' => trim(implode("\n", $curLines))];
         }
-        $curTitle = trim($hm[1]);
+        $curTitle = trim($hm[2]);
+        $curLevel = strlen($hm[1]);
         $curLines = [];
         continue;
     }
@@ -67,7 +73,7 @@ foreach ($rest as $l) {
     }
 }
 if ($curTitle !== null) {
-    $sections[] = ['title' => $curTitle, 'body' => trim(implode("\n", $curLines))];
+    $sections[] = ['title' => $curTitle, 'level' => $curLevel, 'body' => trim(implode("\n", $curLines))];
 }
 
 /* ---------- 5. Сводка «Коротко о главном» ---------- */
@@ -103,7 +109,7 @@ if (!empty($item['item_date'])) {
   <?php endif; ?>
 <?php endif; ?>
 
-<?php if ($figure) : ?>
+<?php if ($figure && empty($noFigure)) : ?>
   <figure class="article-figure">
     <img src="<?= htmlEncode($figure['src']); ?>" alt="<?= htmlEncode($figure['alt']); ?>" fetchpriority="high">
     <?php if ($figure['caption'] !== '') : ?>
@@ -127,10 +133,15 @@ if (!empty($item['item_date'])) {
 <?php endif; ?>
 
 <?php if ($sections) : ?>
+  <?php $anchorSeen = []; ?>
   <?php foreach ($sections as $idx => $sec) : ?>
-    <section class="prose-section">
+    <?php
+      $secAnchor = Parser::anchor((string)$sec['title'], $anchorSeen);
+      $secTag = (int)($sec['level'] ?? 2) >= 3 ? 'h3' : 'h2';
+    ?>
+    <section class="prose-section" id="<?= htmlEncode($secAnchor); ?>">
       <span class="section-index"><?= sprintf('%02d', $idx + 1); ?> / <?= htmlEncode(mb_strtoupper($sec['title'], 'UTF-8')); ?></span>
-      <h2><?= htmlEncode($sec['title']); ?></h2>
+      <<?= $secTag ?>><?= htmlEncode($sec['title']); ?></<?= $secTag ?>>
       <?= markdown($sec['body'], 'text', $mod === 'preview'); ?>
     </section>
   <?php endforeach; ?>

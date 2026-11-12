@@ -1,0 +1,73 @@
+/*
+ * Адаптивные правила: админка и общие компоненты.
+ */
+
+@media (max-width: 1080px) {
+  .article-layout {
+    grid-template-columns: 170px minmax(0, 1fr);
+  }
+
+  .aside {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .navbar-container {
+    flex-wrap: wrap;
+  }
+
+  .admin-navbar-search {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .container {
+    padding: 0 var(--s4);
+  }
+
+  .article-layout,
+  .grid--2,
+  .grid--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar nav {
+    display: none;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-links {
+    gap: var(--s3);
+  }
+
+  table.data {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .form-input-wide {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .mb-none {
+    display: none;
+  }
+
+  .admin-stat-value {
+    font-size: 24px;
+  }
+}

@@ -44,8 +44,18 @@
 
     var tagify_post = new Tagify(input, options_post);
 
-    <?php if ($action == 'edit') {   ?>
-      tagify_post.addTags(JSON.parse('<?= json_encode($data['low_arr']) ?>'))
+    <?php if ($action == 'edit') {
+      // Значение тега должно совпадать с форматом подсказки: "путь / Название"
+      $lowTags = [];
+      foreach ((array)($data['low_arr'] ?? []) as $low) {
+        $lowPath = trim((string)($low['facet_path'] ?? ''), '/');
+        $lowTags[] = [
+          'id'    => (int)($low['id'] ?? 0),
+          'value' => ($lowPath !== '' ? $lowPath . ' / ' : '') . (string)($low['value'] ?? ''),
+        ];
+      }
+    ?>
+      tagify_post.addTags(<?= json_encode($lowTags, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_TAG) ?>)
     <?php } ?>
 
   });

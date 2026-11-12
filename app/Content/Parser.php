@@ -111,6 +111,10 @@ class Parser
         $fencedDivs = [];
         $content = self::fencedDivs($content, $fencedDivs, $preview);
 
+        // Встроенные шаблоны: {{code:id}} → placeholder с готовым HTML
+        $inlineBlocks = [];
+        $content = self::inlineTemplates($content, $inlineBlocks);
+
         // Мини-сниппеты: убираем сноски
         if ($type == 'mini') {
             $content = preg_replace('/^\[\^\d+\]:[^\r\n]*/mi', '', $content);
@@ -124,6 +128,11 @@ class Parser
         // Восстанавливаем fenced div'ы (после CommonMark, т.к. он экранирует HTML)
         if ($fencedDivs) {
             $text = strtr($text, $fencedDivs);
+        }
+
+        // Восстанавливаем встроенные шаблоны
+        if ($inlineBlocks) {
+            $text = strtr($text, $inlineBlocks);
         }
 
         // Восстанавливаем красные ссылки
@@ -165,6 +174,18 @@ class Parser
                 $class = ltrim(trim($m[1]), '.');
                 $innerMarkdown = $m[2] ?? '';
 
+                // :::foto / :::figure → <figure> с подписью и правами из media_meta
+                if ($class === 'foto' || $class === 'figure') {
+                    $figureHtml = self::figureFromMarkdown($innerMarkdown);
+
+                    if ($figureHtml !== null) {
+                        $marker = '<!--WDIV' . count($fencedDivs) . '-->';
+                        $fencedDivs[$marker] = $figureHtml;
+
+                        return $marker . "\n\n";
+                    }
+                }
+
                 $inner = self::parseInner($innerMarkdown, $preview);
 
                 // Адмонишен с иконкой
@@ -191,6 +212,146 @@ class Parser
         $html = $converter->convert($markdown)->getContent();
 
         return trim($html);
+    }
+
+    /**
+     * :::foto / :::figure → семантический <figure>:
+     * изображение, подпись и права (автор, лицензия) из media_meta.
+     */
+    protected static function figureFromMarkdown(string $markdown): ?string
+    {
+        if (!preg_match('/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/u', $markdown, $img)) {
+            return null;
+        }
+
+        $alt = trim($img[1]);
+        $src = trim($img[2]);
+
+        $caption = '';
+        if (preg_match('/\*([^*]+)\*/u', $markdown, $cap)) {
+            $caption = trim($cap[1]);
+        } else {
+            $rest = trim(preg_replace('/!\[[^\]]*\]\([^)]+\)/u', '', $markdown));
+            $rest = trim(strip_tags($rest));
+            if ($rest !== '') {
+                $caption = $rest;
+            }
+        }
+
+        $media = null;
+        try {
+            $media = \App\Models\TemplateModel::media($src);
+        } catch (\Throwable $e) {
+            $media = null;
+        }
+
+        $credit = '';
+        if ($media) {
+            if ($caption === '' && !empty($media['media_caption'])) {
+                $caption = (string)$media['media_caption'];
+            }
+
+            $credit = implode(', ', array_filter([
+                trim((string)($media['media_author'] ?? '')),
+                trim((string)($media['media_license'] ?? '')),
+            ]));
+        }
+
+        $esc = static fn($value) => htmlspecialchars((string)$value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        $html = '<figure class="foto">' . "\n"
+            . '<img src="' . $esc($src) . '" alt="' . $esc($alt) . '" loading="lazy">' . "\n";
+
+        if ($caption !== '' || $credit !== '') {
+            $html .= '<figcaption>' . $esc($caption);
+            if ($credit !== '') {
+                $html .= ' <span class="foto__credit">' . $esc($credit) . '</span>';
+            }
+            $html .= '</figcaption>' . "\n";
+        }
+
+        $html .= '</figure>';
+
+        return $html;
+    }
+
+    /**
+     * Встроенные шаблоны: маркер {{code:id}} → HTML экземпляра шаблона.
+     * Как и fenced div'ы, подставляем placeholder, чтобы CommonMark не экранировал HTML.
+     */
+    public static function inlineTemplates(string $content, array &$blocks): string
+    {
+        if (strpos($content, '{{') === false) {
+            return $content;
+        }
+
+        return preg_replace_callback(
+            '/\{\{\s*([a-zA-Z0-9_\-]+)\s*:\s*(\d+)\s*\}\}/u',
+            function ($m) use (&$blocks) {
+                $code = strtolower(trim($m[1]));
+                $id   = (int)$m[2];
+
+                $instance = \App\Models\TemplateModel::instanceById($id);
+
+                if (
+                    !$instance
+                    || ($instance['template_scope'] ?? '') !== 'inline'
+                    || (string)$instance['template_code'] !== $code
+                ) {
+                    return $m[0];
+                }
+
+                $marker = '<!--WTPL' . count($blocks) . '-->';
+                $blocks[$marker] = self::renderInlineTemplate($instance);
+
+                return $marker . "\n\n";
+            },
+            $content
+        );
+    }
+
+    // Рендер одного встроенного блока по экземпляру шаблона
+    protected static function renderInlineTemplate(array $instance): string
+    {
+        $code   = (string)$instance['template_code'];
+        $values = $instance['values'] ?? [];
+
+        $esc = static fn($value) => htmlspecialchars((string)$value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        if ($code === 'quote') {
+            $text = trim((string)($values['text'] ?? ''));
+            if ($text === '') {
+                return '';
+            }
+
+            $author = trim((string)($values['author'] ?? ''));
+            $source = trim((string)($values['source'] ?? ''));
+
+            $cite = '';
+            if ($author !== '' || $source !== '') {
+                $cite = '<cite>' . $esc($author);
+                if ($author !== '' && $source !== '') {
+                    $cite .= ', ';
+                }
+                $cite .= $esc($source) . '</cite>';
+            }
+
+            return '<blockquote class="tpl-quote"><p>' . $esc($text) . '</p>' . $cite . '</blockquote>';
+        }
+
+        $rows = '';
+        foreach (($instance['fields'] ?? []) as $field) {
+            $key = (string)$field['field_key'];
+            $value = trim((string)($values[$key] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+            $rows .= '<tr><th>' . $esc($field['field_label']) . '</th><td>' . $esc($value) . '</td></tr>';
+        }
+
+        return '<div class="tpl-inline tpl-' . $esc($code) . '">'
+            . ($rows !== '' ? '<table>' . $rows . '</table>' : '')
+            . '</div>';
     }
 
     /**
@@ -417,6 +578,25 @@ class Parser
         $slugify = new \Cocur\Slugify\Slugify();
 
         return substr((string)$slugify->slugify($target), 0, 90);
+    }
+
+    // Якорь заголовка. Повторяющиеся слаги получают суффикс -2, -3 и т.д.
+    public static function anchor(string $text, array &$seen = []): string
+    {
+        $plain = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $slug = trim((string)(new \Cocur\Slugify\Slugify())->slugify($plain), '-');
+        if ($slug === '') {
+            $slug = 'section';
+        }
+
+        $anchor = $slug;
+        $i = 1;
+        while (in_array($anchor, $seen, true)) {
+            $anchor = $slug . '-' . (++$i);
+        }
+        $seen[] = $anchor;
+
+        return $anchor;
     }
 
 }

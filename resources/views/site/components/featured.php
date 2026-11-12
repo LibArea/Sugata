@@ -1,11 +1,11 @@
 <?php
 /*
- * Главный блок: главный/избранный факт дня на нативных классах.
+ * Главный блок: главный/избранный факт дня.
  * Expects: $featured (array|null), $bestFact (array|null), $preview (bool), $mod (string)
  */
-$preview = $preview ?? false;
+$preview  = $preview ?? false;
 $bestFact = $bestFact ?? ($featured ?? null);
-$mod = $mod ?? ($preview ? 'preview' : 'static');
+$mod      = $mod ?? ($preview ? 'preview' : 'static');
 ?>
 <?php if (!empty($bestFact)) : ?>
   <section class="mb1">
@@ -22,10 +22,12 @@ $mod = $mod ?? ($preview ? 'preview' : 'static');
         $len += mb_strlen($clean);
     }
     ?>
-    <h2 class="title"><?= __('app.best_fact'); ?></h2>
+    <div class="section-head">
+      <h2><?= __('app.best_fact'); ?></h2>
+      <a href="<?= $path; ?>"><?= __('app.read_more'); ?> →</a>
+    </div>
     <h3><a href="<?= $path; ?>"><?= htmlEncode($bestFact['item_title']); ?></a></h3>
-    <div><?= markdown(implode("\n\n", $keep), 'text', $preview); ?></div>
-    <a class="bold" href="<?= $path; ?>"><?= __('app.read_more'); ?> →</a>
+    <div class="prose"><?= markdown(implode("\n\n", $keep), 'text', $preview); ?></div>
   </section>
 <?php endif; ?>
 
@@ -35,9 +37,11 @@ $mod = $mod ?? ($preview ? 'preview' : 'static');
     $dir  = preg_split('/(@)/', (string)($featured['facet_list'] ?? ''));
     $path = urlItem(isset($dir[2]) ? trim($dir[2], '/') : '', (string)$featured['item_slug'], $mod);
     ?>
-    <h2 class="title"><?= __('app.fact_of_the_day'); ?></h2>
+    <div class="section-head">
+      <h2><?= __('app.fact_of_the_day'); ?></h2>
+      <a href="<?= $path; ?>"><?= __('app.read_more'); ?> →</a>
+    </div>
     <h3><a href="<?= $path; ?>"><?= htmlEncode($featured['item_title']); ?></a></h3>
     <p><?= htmlEncode(Parser::noHTML($featured['item_content'], 400)); ?></p>
-    <a class="bold" href="<?= $path; ?>"><?= __('app.read_more'); ?> →</a>
   </section>
 <?php endif; ?>

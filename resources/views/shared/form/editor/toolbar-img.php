@@ -88,6 +88,36 @@ var customMenuC = Cherry.createMenuHook('factlink', {
 	}
 });
 
+// --- Кнопка «Блок записи»: вставка маркера встроенного шаблона ---
+var customMenuBlock = Cherry.createMenuHook('{{ }}', {
+	iconName: '',
+	onClick: function() {
+		fetch('/mod/admin/inline/list/<?= $id; ?>', { credentials: 'same-origin' })
+			.then(function(r) { return r.json(); })
+			.then(function(data) {
+				var items = (data && data.items) || [];
+				if (!items.length) {
+					alert('<?= __('app.inline_none_in_record'); ?>');
+					return;
+				}
+				if (items.length === 1) {
+					cherry.insert('{{' + items[0].code + ':' + items[0].id + '}}');
+					return;
+				}
+				var list = items.map(function(it, i) {
+					return (i + 1) + '. ' + it.title + ' (' + it.code + ':' + it.id + ')';
+				}).join('\n');
+				var num = parseInt(window.prompt('<?= __('app.inline_choose'); ?>\n' + list, '1'), 10);
+				var chosen = items[(num || 1) - 1];
+				if (chosen) {
+					cherry.insert('{{' + chosen.code + ':' + chosen.id + '}}');
+				}
+			})
+			.catch(function() { /* сеть недоступна — ничего не вставляем */ });
+		return '';
+	}
+});
+
 // --- Подсветка вики-ссылок [[...]] в превью (синяя — статья есть, красная — нет) ---
 if (typeof window.__wikiLinkStatus === 'undefined') {
 	window.__wikiLinkStatus = {}; // цель -> 1|0
@@ -202,10 +232,12 @@ var cherry = new Cherry({
 				cut: customMenuA,
 				help: customMenuB,
 				factlink: customMenuC,
+
+				block: customMenuBlock,
 			},
 
 			// Определим верхнюю панель инструментов
-			toolbar: ['switchModel', '|', 'bold', 'italic', 'strikethrough', 'image', '|', 'cut', 'help', 'factlink'],
+			toolbar: ['switchModel', '|', 'bold', 'italic', 'strikethrough', 'image', '|', 'cut', 'help', 'block', 'factlink'],
 			
 			// Выключить верхнюю панель
 			// showToolbar: false,
