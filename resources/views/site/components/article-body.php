@@ -93,6 +93,17 @@ if (!empty($item['item_date'])) {
 }
 ?>
 
+<?php if ($faq) : ?>
+  <div class="article-faq">
+    <?php foreach ($faq as $qa) : ?>
+      <details class="article-faq__item">
+        <summary><?= htmlEncode($qa['question']); ?></summary>
+        <div class="article-faq__answer"><?= markdown($qa['answer']); ?></div>
+      </details>
+    <?php endforeach; ?>
+  </div>
+<?php endif; ?>
+
 <?php if ($lead !== '') :
   $leadHtml = trim((string) markdown($lead, 'text', $mod === 'preview'));
   $leadSingle = substr_count($leadHtml, '<p>') === 1
@@ -118,15 +129,12 @@ if (!empty($item['item_date'])) {
   </figure>
 <?php endif; ?>
 
-<?php if (!empty($summary) || $faq) : ?>
+<?php if (!empty($summary)) : ?>
   <div class="article-summary">
     <span class="eyebrow"><?= __('app.summary_title'); ?></span>
     <dl>
       <?php foreach ($summary as $s) : ?>
         <div><dt><?= htmlEncode($s['k']); ?></dt><dd><?= htmlEncode($s['v']); ?></dd></div>
-      <?php endforeach; ?>
-      <?php foreach ($faq as $qa) : ?>
-        <div><dt><?= htmlEncode($qa['question']); ?></dt><dd><?= markdown($qa['answer']); ?></dd></div>
       <?php endforeach; ?>
     </dl>
   </div>

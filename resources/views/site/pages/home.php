@@ -90,13 +90,6 @@ $dayText = $dayFact ? Parser::noHTML((string)($dayFact['item_content'] ?? ''), 1
 
 <main class="container" id="home-main">
 
-  <div class="home-kpi">
-    <div><b><?= (int)($stats['facts'] ?? 0); ?></b><span><?= __('app.kpi_facts'); ?></span></div>
-    <div><b><?= (int)($stats['categories'] ?? 0); ?></b><span><?= __('app.kpi_sections'); ?></span></div>
-    <div><b><?= (int)($stats['articles'] ?? 0); ?></b><span><?= __('app.kpi_articles'); ?></span></div>
-    <div><b><?= (int)($stats['sites'] ?? 0); ?></b><span><?= __('app.kpi_sites'); ?></span></div>
-  </div>
-
   <?php if ($bestFacts) : ?>
     <div class="section-head">
       <h2><?= __('app.featured_title'); ?></h2>
@@ -171,20 +164,7 @@ $dayText = $dayFact ? Parser::noHTML((string)($dayFact['item_content'] ?? ''), 1
     </div>
   <?php endif; ?>
 
-  <?php if ($sections) : ?>
-    <div class="section-head">
-      <h2><?= __('app.categories_title'); ?></h2>
-      <a href="<?= urlDir('facts', $mod); ?>"><?= __('app.whole_archive'); ?> →</a>
-    </div>
-    <div class="home-cats">
-      <?php foreach ($sections as $cat) : ?>
-        <a href="<?= urlDir($cat['path'], $mod); ?>">
-          <b><?= htmlEncode($cat['title']); ?></b>
-          <?php if (!empty($cat['help'])) : ?><span><?= htmlEncode($cat['help']); ?></span><?php endif; ?>
-        </a>
-      <?php endforeach; ?>
-    </div>
-  <?php endif; ?>
+  
 </main>
 
 <?= insert('/site/layouts/footer', ['preview' => !empty($preview)]); ?>

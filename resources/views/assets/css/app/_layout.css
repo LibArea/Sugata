@@ -104,10 +104,6 @@
   align-items: start;
 }
 
-.article-body p {
-  max-width: 70ch;
-}
-
 /* Подвал */
 .footer {
   display: flex;

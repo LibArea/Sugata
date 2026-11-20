@@ -193,6 +193,8 @@
 
 .prose-section h2 {
   margin-top: var(--s3);
+  /* Линия под заголовком не заходит под float-инфобокс */
+  overflow: hidden;
 }
 
 .prose-section h3 {
@@ -213,6 +215,8 @@
   padding: var(--s4);
   border: 1px solid var(--line);
   background: var(--bg-soft);
+  /* Не пересекаться с float-инфобоксом: рамка/фон обходят карточку слева */
+  overflow: hidden;
 }
 
 .article-summary .eyebrow {
@@ -242,6 +246,65 @@
 
 .article-summary dd {
   margin: 0;
+}
+
+/* FAQ — вопросы в начале статьи, каждый раскрывается по нажатию */
+.article-faq {
+  margin: var(--s5) 0;
+  /* Не пересекаться с float-инфобоксом: фон и рамки обходят карточку */
+  overflow: hidden;
+}
+
+.article-faq__item {
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  background: var(--bg-soft);
+}
+
+.article-faq__item:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.article-faq__item + .article-faq__item {
+  margin-top: -1px;
+}
+
+.article-faq__item summary {
+  padding: var(--s3) var(--s4);
+  font: 600 15px/1.4 var(--font-sans);
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.article-faq__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.article-faq__item summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: var(--s2);
+  color: var(--accent);
+  transition: transform .15s ease;
+}
+
+.article-faq__item[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.article-faq__item summary:hover {
+  color: var(--link);
+}
+
+.article-faq__item[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.article-faq__answer {
+  padding: var(--s2) var(--s4) var(--s4);
+  font-size: 15px;
 }
 
 .article-figure {
@@ -359,7 +422,7 @@
     overflow-x: auto;
   }
 
-  .card-grid {
+.card-grid {
     grid-template-columns: 1fr;
   }
 
@@ -390,13 +453,17 @@
   grid-template-columns: 190px minmax(0, 1fr);
 }
 
-.article-layout--3 {
-  grid-template-columns: 190px minmax(0, 1fr) 300px;
+/* Инфобокс (карточка) внутри текстовой колонки — врезка с обтеканием, как в Википедии */
+.side {
+  float: right;
+  width: 300px;
+  margin: 4px 0 var(--s4) var(--s5);
 }
 
-.side {
-  position: sticky;
-  top: var(--s3);
+.side::after {
+  content: "";
+  display: block;
+  clear: both;
 }
 
 .inbox {
@@ -444,19 +511,23 @@
 }
 
 @media (max-width: 1080px) {
-  .article-layout--3 {
-    grid-template-columns: 190px minmax(0, 1fr);
-  }
-
-  .side {
-    display: none;
+  /* Центральная: обложка в одну колонку на планшетах и узких экранах */
+  .home-band__in {
+    grid-template-columns: 1fr;
+    gap: var(--s5);
   }
 }
 
 @media (max-width: 760px) {
-  .article-layout--2,
-  .article-layout--3 {
+  .article-layout--2 {
     grid-template-columns: 1fr;
+  }
+
+  /* Инфобокс: на мобильной убираем обтекание и делаем во всю ширину (не скрываем) */
+  .side {
+    float: none;
+    width: 100%;
+    margin: 0 0 var(--s4);
   }
 }
 
@@ -759,30 +830,6 @@ a.chip:hover {
   color: var(--ink-2);
 }
 
-.home-cats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 var(--s6);
-}
-
-.home-cats a {
-  display: block;
-  padding: var(--s3) 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.home-cats b {
-  display: block;
-  font-size: 15px;
-}
-
-.home-cats span {
-  display: block;
-  margin-top: 2px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
 /* ---------- Главная: полоса-обложка ---------- */
 .home-band {
   background: var(--bg-soft);
@@ -839,40 +886,6 @@ a.chip:hover {
   border-top: 1px solid var(--line);
   font-size: 11px;
   letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* ---------- Главная: цифры ---------- */
-.home-kpi {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-bottom: 1px solid var(--line);
-}
-
-.home-kpi div {
-  padding: var(--s4) var(--s5) var(--s4) 0;
-  border-right: 1px solid var(--line);
-}
-
-.home-kpi div + div {
-  padding-left: var(--s5);
-}
-
-.home-kpi div:last-child {
-  border-right: 0;
-  padding-right: 0;
-}
-
-.home-kpi b {
-  display: block;
-  font: 600 28px/1 var(--font-sans);
-  letter-spacing: -.02em;
-}
-
-.home-kpi span {
-  font-size: 10px;
-  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -998,13 +1011,14 @@ a.chip:hover {
 
 .home-today__img {
   display: block;
-  margin: 0 calc(var(--s4) * -1) var(--s3);
+  margin: 0 0 var(--s3);
 }
 
 .home-today__img img {
   display: block;
   width: 100%;
-  height: 150px;
+  height: auto;
+  max-height: 220px;
   object-fit: cover;
 }
 
@@ -1021,12 +1035,8 @@ a.chip:hover {
     margin: 0 0 var(--s3);
   }
 
-  .home-lead__title {
+.home-lead__title {
     font-size: 24px;
-  }
-
-  .home-cats {
-    grid-template-columns: 1fr;
   }
 }
 /* ---------- Блок «Сюда ссылаются»: отступ от предыдущей секции ---------- */
@@ -1038,5 +1048,37 @@ a.chip:hover {
   .article-sidebar,
   .side {
     position: static;
+  }
+}
+
+/* ---- Mobile: переопределения в самом конце, чтобы выигрывать базовые правила ---- */
+@media (max-width: 760px) {
+  .home-band__in {
+    grid-template-columns: 1fr;
+    gap: var(--s5);
+  }
+
+  .home-today__img {
+    margin: 0 0 var(--s3);
+  }
+
+  .home-today__img img {
+    height: auto;
+    max-height: 220px;
+  }
+
+  .cat-index {
+    grid-template-columns: 1fr;
+  }
+
+  .fact-row {
+    grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+
+  .fact-row__thumb img {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
   }
 }

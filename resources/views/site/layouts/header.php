@@ -55,6 +55,7 @@
     <a class="<?= (trim((string)($activeRoot ?? ''), '/') === '' ? 'active' : ''); ?>" href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>"><?= __('app.nav_home'); ?></a>
     <a class="<?= (trim((string)($activeRoot ?? ''), '/') === 'facts' ? 'active' : ''); ?>" href="<?= urlDir('facts', !empty($preview) ? 'preview' : 'static'); ?>"><?= __('app.nav_facts'); ?></a>
     <a class="<?= (trim((string)($activeRoot ?? ''), '/') === 'articles' ? 'active' : ''); ?>" href="<?= urlDir('articles', !empty($preview) ? 'preview' : 'static'); ?>"><?= __('app.nav_articles'); ?></a>
+    <a class="<?= (trim((string)($activeRoot ?? ''), '/') === 'web' ? 'active' : ''); ?>" href="<?= urlDir('web', !empty($preview) ? 'preview' : 'static'); ?>"><?= __('app.nav_sites'); ?></a>
     <a href="<?= !empty($preview) ? url('preview.site') : url('homepage'); ?>#home-categories"><?= __('app.nav_categories'); ?></a>
     <a class="random-link" href="<?= !empty($preview) ? url('random') : '/random'; ?>" data-random-fact><?= __('app.nav_random'); ?></a>
   </div>

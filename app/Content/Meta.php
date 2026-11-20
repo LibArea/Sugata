@@ -73,7 +73,7 @@ class Meta
             'main'      => 'main',
             'og'        => true,
             'imgurl'    => config('meta', 'img_path'),
-            'url'       => '/',
+            'url'       => config('general', 'url_html') . '/',
         ];
 
         $title = self::cutLen((string)config('meta', 'home_title'), 65);
@@ -84,8 +84,17 @@ class Meta
 
     public static function view(array $content, $facet_path, $img_url): string
     {
+            // ISO 8601 (напр. 2026-10-02T09:57:26+03:00) для article:published_time
+            $published = '';
+            if (!empty($content['item_date'])) {
+                $ts = strtotime((string)$content['item_date']);
+                if ($ts !== false) {
+                    $published = date('c', $ts);
+                }
+            }
+
             $meta = [
-                'published_time' => $content['item_date'],
+                'published_time' => $published,
                 'type'      => 'article',
                 'og'        => true,
                 'imgurl'    => config('general', 'url_html') . $img_url,
@@ -130,7 +139,7 @@ class Meta
         return '<script type="application/ld+json">' . json_encode($json, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>';
     }
 
-    public static function category(array $facet): string
+    public static function category(array $facet, int $pageNum = 1): string
     {
 		$url    = config('general', 'url_html') . '/' . $facet['facet_path'] . '/';
 
@@ -156,6 +165,11 @@ class Meta
 
         // Служебная категория Информация — noindex
         if (trim($facet['facet_path'], '/') === 'info') {
+            $meta['indexing'] = true;
+        }
+
+        // Страницы пагинации (page-2.html и далее) — noindex, чтобы не плодить дубли
+        if ($pageNum > 1) {
             $meta['indexing'] = true;
         }
 

@@ -40,10 +40,6 @@ if ($instance) {
             'value' => $value,
         ];
     }
-} else {
-    $image = !empty($item['item_thumb_img'])
-        ? Img::PATH['thumbs'] . $item['item_thumb_img']
-        : (string)Parser::miniature((string)($item['item_content'] ?? ''));
 }
 
 $image = trim((string)$image);
@@ -58,6 +54,7 @@ $hasKey = static function (array $rows, array $keys): bool {
 };
 ?>
 
+<?php if ($instance) : ?>
 <aside class="side">
   <div class="inbox">
     <div class="inbox__cap"><?= htmlEncode($item['item_title']); ?></div>
@@ -119,6 +116,7 @@ $hasKey = static function (array $rows, array $keys): bool {
     </table>
   </div>
 </aside>
+<?php endif; ?>
 
 <?php if ($instance) :
     $ldType = match ((string)($instance['template_code'] ?? '')) {

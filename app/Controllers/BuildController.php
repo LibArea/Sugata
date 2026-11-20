@@ -26,7 +26,7 @@ class BuildController extends Controller
 
 	public function __construct()
 	{
-		$this->path = HLEB_GLOBAL_DIR . config('general', 'path_html');
+		$this->path = rtrim((string)(HLEB_GLOBAL_DIR . config('general', 'path_html')), '\/') . DIRECTORY_SEPARATOR;
 	}
 
 	public function index(): void
@@ -223,22 +223,11 @@ class BuildController extends Controller
 		Msg::redirect(__('msg.screens_saved', ['saved' => $saved, 'failed' => $failed]), 'success', url('tools'));
 	}
 
-	// Рендер страницы статики: подставляет запечённый подвал вместо SSI-директивы.
-	// Возвращает готовый HTML (подвал читается из assets/footer.shtml, если он собран).
+	// Рендер страницы статики.
+	// Возвращает готовый HTML (подвал подставляется в шаблон напрямую, без SSI).
 	protected function renderStaticHtml(string $template, array $data): string
 	{
-		$html = view($template, $data);
-
-		$dir = $this->path;
-		$needle = '<!--#include virtual="/assets/footer.shtml"-->';
-
-		$footerPath = $dir . '/assets/footer.shtml';
-		if (strpos($html, $needle) !== false && is_file($footerPath)) {
-			$footer = file_get_contents($footerPath);
-			$html = str_replace($needle, $footer !== false ? $footer : '', $html);
-		}
-
-		return $html;
+		return view($template, $data);
 	}
 
 	// Строим CSS для админки
@@ -257,6 +246,20 @@ class BuildController extends Controller
 		$minifier->minify(HLEB_PUBLIC_DIR . '/assets/js/' . $key . '.js');
 
 		return true;
+	}
+
+	// Записывает файл в статику, создавая недостающие каталоги.
+	// Возвращает false при неудачной записи.
+	protected function writeStaticFile(string $path, string $content): bool
+	{
+		$dir = dirname($path);
+		if (!is_dir($dir)) {
+			if (!@mkdir($dir, 0755, true) && !is_dir($dir)) {
+				return false;
+			}
+		}
+
+		return file_put_contents($path, $content) !== false;
 	}
 
 	public function path()
@@ -464,7 +467,7 @@ class BuildController extends Controller
 				'pagesCount' => $pages,
 				'pNum'       => $page,
 				'sideNav'    => $sideNav,
-				'meta'       => Meta::get(__('app.best_facts_page')),
+				'meta'       => Meta::get(__('app.best_facts_page'), __('app.best_facts_desc')),
 				'preview'    => false,
 			]));
 		}
@@ -476,10 +479,6 @@ class BuildController extends Controller
 		$items = ItemModel::feedItem(false, false, 1, 5, 'main');
 
 		Html::pageNumber();
-
-		// Переносим общий подвал до рендера главной, чтобы подставить его в HTML
-		$temp_footer = view('/site/layouts/footer.php');
-		file_put_contents($this->path . '/assets/footer.shtml',$temp_footer);
 
 		$temp_home =  $this->renderStaticHtml('/site/pages/home.php', [
 			'meta' => Meta::home(),
@@ -519,7 +518,7 @@ class BuildController extends Controller
 		}
 
 		$js = "window.__RANDOM_FACTS__ = " . json_encode($urls, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ";";
-		file_put_contents($this->path . '/assets/js/random-facts.js', $js);
+		$this->writeStaticFile($this->path . '/assets/js/random-facts.js', $js);
 
 		// Также в public — чтобы админка/предпросмотр не ловили 404
 		file_put_contents(HLEB_PUBLIC_DIR . '/assets/js/random-facts.js', $js);
@@ -548,7 +547,7 @@ class BuildController extends Controller
 		}
 
 		$js = "window.__SEARCH_INDEX__ = " . json_encode($docs, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ";";
-		file_put_contents($this->path . '/assets/js/search-index.js', $js);
+		$this->writeStaticFile($this->path . '/assets/js/search-index.js', $js);
 		file_put_contents(HLEB_PUBLIC_DIR . '/assets/js/search-index.js', $js);
 	}
 
@@ -614,7 +613,6 @@ class BuildController extends Controller
 
 		$tree = FacetModel::breadcrumb($facetId);
 		$breadcrumb = Html::breadcrumbDir($tree, 'static');
-		$meta = Meta::category($facet);
 		$dirPath = $this->path . $facet['facet_path'];
 
 		// Шаблон списка категории (статьи/сайты/факты) — единая логика
@@ -632,7 +630,7 @@ class BuildController extends Controller
 			'breadcrumb' => $breadcrumb,
 			'childrens' => $catalog['childrens'],
 			'facet' => $facet,
-			'meta' => $meta,
+			'meta' => Meta::category($facet, 1),
 			'pNum' => 1,
 			'pagesCount' => $catalog['pagesCount'],
 			'sideNav' => $sideNav,
@@ -647,7 +645,7 @@ class BuildController extends Controller
 				'breadcrumb' => $breadcrumb,
 				'childrens' => $catalog['childrens'],
 				'facet' => $facet,
-				'meta' => $meta,
+				'meta' => Meta::category($facet, $page),
 				'pNum' => $page,
 				'pagesCount' => $catalog['pagesCount'],
 				'sideNav' => $sideNav,
@@ -760,6 +758,13 @@ class BuildController extends Controller
 		$tmp = \App\Content\CatalogService::itemTemplate($item, (string)($dir[2] ?? ''));
 
 		$img_url = ItemModel::socialImage($item);
+
+		// Гарантируем существование каталога назначения (факты/, web/, articles/ и т.д.),
+		// иначе file_put_contents ниже не создаст файл, если родительской папки нет.
+		$targetDir = $this->path . trim((string)($dir[2] ?? ''), '/');
+		if ($targetDir !== '' && $targetDir !== $this->path && !is_dir($targetDir)) {
+			mkdir($targetDir, 0755, true);
+		}
 
 		file_put_contents($this->path . $dir[2] . '/' . $item['item_slug'] . '.html', $this->renderStaticHtml($tmp, [
 			'item' =>  $item,

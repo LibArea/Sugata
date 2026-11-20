@@ -60,7 +60,7 @@ public function site(): void
                 'pagesCount' => max(1, (int)ceil($total / $limit)),
                 'pNum'       => $page,
                 'sideNav'    => \App\Content\CatalogService::sidebar(),
-                'meta'       => Meta::get(__('app.best_facts_page')),
+                'meta'       => Meta::get(__('app.best_facts_page'), __('app.best_facts_desc')),
                 'preview'    => true,
             ]));
             return;

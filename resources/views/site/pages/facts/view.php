@@ -52,7 +52,7 @@ foreach (explode("\n", (string)($item['item_content'] ?? '')) as $line) {
 
   <div class="rule"></div>
 
-  <div class="article-layout article-layout--3">
+  <div class="article-layout article-layout--2">
     <aside class="toc article-sidebar">
       <nav aria-label="<?= __('app.article_toc_label'); ?>">
         <b><?= __('app.article_toc_eyebrow'); ?></b>
@@ -68,6 +68,8 @@ foreach (explode("\n", (string)($item['item_content'] ?? '')) as $line) {
     </aside>
 
     <article class="article-body">
+      <?= insert('/site/components/infobox', ['item' => $item, 'mod' => $mod, 'toc' => $toc]); ?>
+
       <?= insert('/site/components/article-body', ['item' => $item, 'mod' => $mod, 'faq' => $faq, 'noFigure' => $sideImg !== '']); ?>
 
       <?php $srcUrl = trim((string)($item['item_source_url'] ?? '')); ?>
@@ -89,8 +91,6 @@ foreach (explode("\n", (string)($item['item_content'] ?? '')) as $line) {
         <a class="btn" href="#article-top"><?= __('app.to_top'); ?> ↑</a>
       </div>
     </article>
-
-    <?= insert('/site/components/infobox', ['item' => $item, 'mod' => $mod, 'toc' => $toc]); ?>
   </div>
 
   <?php
