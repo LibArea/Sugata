@@ -1,7 +1,10 @@
 /*
- * Адаптивные правила: админка и общие компоненты.
+ * Адаптивные правила: админка, общие компоненты и сайт.
+ * Единый слой: все media-запросы собраны здесь, файл импортируется последним,
+ * поэтому его правила доминируют над базовыми.
  */
 
+/* ---------- 1080px ---------- */
 @media (max-width: 1080px) {
   .article-layout {
     grid-template-columns: 170px minmax(0, 1fr);
@@ -10,8 +13,14 @@
   .aside {
     display: none;
   }
+
+  .home-band__in {
+    grid-template-columns: 1fr;
+    gap: var(--s5);
+  }
 }
 
+/* ---------- 900px ---------- */
 @media (max-width: 900px) {
   .admin-stats-grid {
     grid-template-columns: 1fr 1fr;
@@ -26,16 +35,26 @@
     flex: 1 1 100%;
     max-width: none;
   }
+
+  .card-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
+/* ---------- 760px ---------- */
 @media (max-width: 760px) {
+  /* Общие контейнеры и сетки */
   .container {
     padding: 0 var(--s4);
   }
 
-  .article-layout,
   .grid--2,
   .grid--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .article-layout,
+  .article-layout--2 {
     grid-template-columns: 1fr;
   }
 
@@ -43,6 +62,103 @@
     display: none;
   }
 
+  /* Инфобокс: на мобильной убираем обтекание и делаем во всю ширину (не скрываем) */
+  .side {
+    float: none;
+    width: 100%;
+    margin: 0 0 var(--s4);
+  }
+
+  .article-sidebar,
+  .side {
+    position: static;
+  }
+
+  /* Шапка сайта */
+  .site-header__in {
+    flex-wrap: wrap;
+    gap: var(--s3);
+    padding: 10px var(--s4);
+  }
+
+  .header-search {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .site-nav__in {
+    gap: var(--s4);
+    padding: 0 var(--s4);
+    overflow-x: auto;
+  }
+
+  /* Сетки контента */
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-summary dl > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .cat-index {
+    grid-template-columns: 1fr;
+  }
+
+  .fact-row {
+    grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+
+  .fact-row__thumb img {
+    width: 100%;
+    height: auto;
+    max-height: 220px;
+  }
+
+  /* Строчный список (каталог сайтов) */
+  .row {
+    grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+
+  .row__shot img {
+    width: 100%;
+    height: auto;
+  }
+
+  .row__actions {
+    justify-content: flex-start;
+  }
+
+  /* Центральная: обложка и лента */
+  .home-band__in {
+    grid-template-columns: 1fr;
+    gap: var(--s5);
+  }
+
+  .home-lead__img {
+    float: none;
+    width: 100%;
+    margin: 0 0 var(--s3);
+  }
+
+  .home-lead__title {
+    font-size: 24px;
+  }
+
+  .home-today__img {
+    margin: 0 0 var(--s3);
+  }
+
+  .home-today__img img {
+    height: auto;
+    max-height: 220px;
+  }
+
+  /* Админка */
   .admin-stats-grid {
     grid-template-columns: 1fr;
   }
@@ -62,6 +178,7 @@
   }
 }
 
+/* ---------- 480px ---------- */
 @media (max-width: 480px) {
   .mb-none {
     display: none;

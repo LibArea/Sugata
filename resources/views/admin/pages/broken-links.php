@@ -1,8 +1,4 @@
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <div class="flex justify-between items-center">
     <h1 class="title"><?= __('app.broken_links'); ?></h1>
     <a class="btn" href="<?= url('broken.links.check'); ?>"><?= __('app.broken_links_check'); ?></a>

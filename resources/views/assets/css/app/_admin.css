@@ -261,9 +261,9 @@ a.navbar-logo:hover {
 .preview-bar {
   margin-bottom: var(--s3);
   padding: 6px var(--s3);
-  border: 1px solid #c6dafc;
+  border: 1px solid var(--preview-bar-line);
   border-radius: var(--r);
-  background: #e8f0fe;
+  background: var(--preview-bar-bg);
   font-size: 13px;
 }
 
@@ -437,7 +437,7 @@ body > .w-100 {
 }
 
 .admin-navbar-search .btn-search:hover {
-  background: #eef0f3;
+  background: var(--bg-hover);
 }
 
 /* ---------- Ширина полей формы ---------- */
@@ -540,4 +540,122 @@ body > .w-100 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ---------- Левая боковая панель админки ---------- */
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-head);
+  border-right: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.admin-sidebar__brand {
+  padding: var(--s4);
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-sidebar__brand .navbar-logo {
+  font-size: 18px;
+}
+
+.admin-sidebar__nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s3) 0;
+}
+
+.admin-sidebar__nav a {
+  display: block;
+  padding: 10px var(--s5);
+  font-size: 14px;
+  color: var(--ink-2);
+  border-left: 3px solid transparent;
+}
+
+.admin-sidebar__nav a:hover {
+  color: var(--ink);
+  background: var(--bg-soft);
+  text-decoration: none;
+}
+
+.admin-sidebar__nav a.active {
+  color: var(--link);
+  background: var(--bg);
+  border-left-color: var(--link);
+  font-weight: 600;
+}
+
+.admin-sidebar__foot {
+  padding: var(--s3) var(--s5);
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  font-size: 13px;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Верхняя полоса с поиском */
+.admin-main .navbar-container {
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 10px var(--s5);
+}
+
+/* Убрать старый центрирующий ограничитель для admin-main */
+.admin-main > .w-100 {
+  max-width: none;
+  padding: var(--s5);
+}
+
+@media (max-width: 760px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+
+  .admin-sidebar__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--s3);
+    padding: var(--s2) var(--s4);
+  }
+
+  .admin-sidebar__nav a {
+    padding: 8px var(--s2);
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+  }
+
+  .admin-sidebar__nav a.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--link);
+  }
+
+  .admin-sidebar__foot {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }

@@ -8,10 +8,6 @@ $scope = (string)($template['template_scope'] ?? 'infobox');
 ?>
 
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <div class="flex justify-between items-center mb20">
     <div>
       <p class="hint"><a href="<?= url('templates'); ?>">← <?= __('app.templates'); ?></a></p>

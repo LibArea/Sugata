@@ -19,7 +19,7 @@
 }
 
 .btn:hover {
-  background: #eef0f3;
+  background: var(--bg-hover);
   text-decoration: none;
 }
 
@@ -138,7 +138,46 @@ table.data tbody tr:nth-child(even) td {
 }
 
 table.data tbody tr:hover td {
-  background: #eef4ff;
+  background: var(--bg-tint);
+}
+
+/* ---------- Markdown-таблицы в тексте статьи ---------- */
+.prose table,
+.prose-section table {
+  width: 100%;
+  margin: var(--s4) 0;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.prose table th,
+.prose table td,
+.prose-section table th,
+.prose-section table td {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+
+.prose table th,
+.prose-section table th {
+  background: var(--bg-head);
+  font-weight: 600;
+}
+
+.prose table tbody tr:nth-child(even) td,
+.prose-section table tbody tr:nth-child(even) td {
+  background: var(--bg-soft);
+}
+
+/* На узких экранах таблица прокручивается, а не ломается */
+@media (max-width: 760px) {
+  .prose table,
+  .prose-section table {
+    display: block;
+    overflow-x: auto;
+  }
 }
 
 /* ---------- Блоки ---------- */
@@ -161,17 +200,17 @@ table.data tbody tr:hover td {
 
 .flash-success {
   border-left-color: var(--ok);
-  background: #eefaf5;
+  background: var(--bg-soft-success);
 }
 
 .flash-error {
   border-left-color: var(--danger);
-  background: #fdeeee;
+  background: var(--bg-soft-danger);
 }
 
 .flash-notice {
   border-left-color: var(--link);
-  background: #eef4ff;
+  background: var(--bg-tint);
 }
 
 /* ---------- Пагинация ---------- */
@@ -208,20 +247,13 @@ table.data tbody tr:hover td {
   color: #fff;
 }
 
-/* ---------- Чипы и значки ---------- */
-.chip {
-  display: inline-block;
-  padding: 2px 8px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--bg-soft);
-  font-size: 11px;
-  color: var(--muted);
-}
-
+/* ---------- Чипы и значки ----------
+ * Канонический .chip находится в _site.css (импортируется позже и выигрывает каскад).
+ * Этот блок удалён как мёртвый дубль.
+ */
 .chip-ok {
-  border-color: #a7d7c5;
-  background: #eaf7f2;
+  border-color: var(--line-ok);
+  background: var(--bg-soft-ok);
   color: var(--ok);
 }
 
@@ -249,45 +281,9 @@ table.data tbody tr:hover td {
   margin-top: 0;
 }
 
-/* ---------- Инфобокс ---------- */
-.infobox {
-  border: 1px solid var(--line);
-  background: var(--bg-soft);
-  font-size: 13px;
-}
-
-.infobox__cap {
-  padding: var(--s2) 10px;
-  background: var(--bg-head);
-  font-weight: 700;
-  text-align: center;
-}
-
-.infobox__img {
-  height: 150px;
-  background: linear-gradient(140deg, #dfe4ea, #aab3bd);
-}
-
-.infobox table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.infobox th {
-  width: 42%;
-  padding: 6px 10px;
-  border-top: 1px solid var(--line);
-  background: #f2f4f7;
-  text-align: left;
-  vertical-align: top;
-  font-weight: 600;
-}
-
-.infobox td {
-  padding: 6px 10px;
-  border-top: 1px solid var(--line);
-  vertical-align: top;
-}
+/* ---------- Инфобокс ----------
+ * Канонический .inbox находится в _site.css. Этот .infobox удалён как мёртвый дубль.
+ */
 
 /* ---------- Оглавление ---------- */
 .toc {
@@ -310,6 +306,20 @@ table.data tbody tr:hover td {
 
 .toc li {
   margin: 3px 0;
+}
+
+.toc .eyebrow {
+  display: block;
+  margin-bottom: var(--s2);
+  font: 500 10px / 1 var(--font-sans);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.toc li.toc-sub {
+  margin-left: 12px;
+  font-size: 12px;
 }
 
 /* ---------- Сноски ---------- */

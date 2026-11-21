@@ -125,14 +125,21 @@
         box.hidden = false;
         return;
       }
-      var html = '';
-      results.forEach(function (r) {
-        var title = r.title || '(без названия)';
-        html += '<a class="wiki-search-item" href="' + (r.url || '#') + '">'
-          + '<span class="wiki-search-item__title">' + escapeHtml(title) + '</span>'
-          + '<span class="wiki-search-item__path">' + escapeHtml(r.path || '') + '</span>'
-          + '</a>';
-      });
+var html = '';
+  // В админке и в превью публичной ведём на превью-страницу, а не на статику
+  var isPreview = document.body && (document.body.classList.contains('wiki-preview') || document.body.classList.contains('admin-mode'));
+  results.forEach(function (r) {
+    var title = r.title || '(без названия)';
+    var href = r.url || '#';
+    // В режиме предпросмотра (админка) ведём на превью-страницу, а не на статику
+    if (isPreview && href && href.charAt(0) === '/' && href.indexOf('/mod/admin/') !== 0) {
+      href = '/mod/admin/preview' + href;
+    }
+    html += '<a class="wiki-search-item" href="' + href + '">'
+      + '<span class="wiki-search-item__title">' + escapeHtml(title) + '</span>'
+      + '<span class="wiki-search-item__path">' + escapeHtml(r.path || '') + '</span>'
+      + '</a>';
+  });
       box.innerHTML = html;
       box.hidden = false;
     });

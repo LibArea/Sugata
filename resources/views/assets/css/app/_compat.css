@@ -27,13 +27,13 @@ margin-top: 0.5em;
 .new-comments:hover { opacity: 0.8; }
 
 .alert-warning {
-    background-color: var(#fff6d6);
-    border-color: var(#ffcc66);
+    background-color: var(--bg-soft-warn);
+    border-color: var(--line-warn);
     color: var(--ink);
 }
 
 .alert-info {
-    background-color: var(#fff4e8);
+    background-color: var(--bg-soft-info);
     color: var(--ink-2);
 }
 
@@ -162,7 +162,7 @@ a.dropdown-item-admin:hover {
 
 .breadcrumb a:hover,
 .breadcrumb a:focus {
-  color: #007bff;          /* цвет при наведении/фокусе */
+  color: var(--search-link);   /* цвет при наведении/фокусе */
   text-decoration: underline;
 }
 
@@ -286,7 +286,7 @@ ol.notification-list {
 
 /* ---------- Непрочитанное уведомление ---------- */
 .notification-unread {
-    background-color: var(#eef4ff);
+    background-color: var(--bg-tint);
 }
 
 .notification-unread .notification-link {
@@ -418,7 +418,7 @@ ol.notification-list {
    ========================================================================== */
 
 [data-theme="dark"] .search-options {
-    color: #aaa;
+    color: var(--search-muted);
 }
 
 .search-radio-label {
@@ -431,7 +431,7 @@ ol.notification-list {
 .search-radio-label input[type="radio"] {
     margin-right: 6px;
     cursor: pointer;
-    accent-color: #007bff; /* Цвет самой радио-кнопки в современных браузерах */
+    accent-color: var(--search-link); /* Цвет самой радио-кнопки в современных браузерах */
 }
 
 .search-example {
@@ -439,27 +439,27 @@ ol.notification-list {
 }
 
 [data-theme="dark"] .search-example {
-    color: #aaa;
+    color: var(--search-muted);
 }
 
 .search-example .word {
-    color: #007bff;
+    color: var(--search-link);
     text-decoration: underline;
     text-underline-offset: 2px;
     transition: color 0.2s;
 }
 
 .search-example .word:hover {
-    color: #0056b3;
+    color: var(--search-link-hover);
     text-decoration: none;
 }
 
 [data-theme="dark"] .search-example .word {
-    color: #4dabf7;
+    color: var(--search-link-dark);
 }
 
 [data-theme="dark"] .search-example .word:hover {
-    color: #74c0fc;
+    color: var(--search-link-dark-hover);
 }
 
 .voters {
@@ -517,8 +517,8 @@ li .domain:hover { text-decoration: underline; }
 }
 
 .tag {
-    background-color: var(#fdf6d8);
-    border: 1px solid var(#d5d458);
+    background-color: var(--tag-bg);
+    border: 1px solid var(--tag-line);
     border-radius: 5px;
     color: var(--ink-2);
     font-size: var(11px);
@@ -537,14 +537,14 @@ li .domain:hover { text-decoration: underline; }
 .tag:visited { color: var(--ink-2); }
 
 .tag-meta {
-    background-color: var(#e8f0ff);
-    border-color: var(#c6dafc);
+    background-color: var(--tag-meta-bg);
+    border-color: var(--tag-meta-line);
     color: var(--muted);
 }
 
 .tag-ask {
-    background-color: #f9ddde;
-    border-color: #f0b2b8;
+    background-color: var(--tag-ask-bg);
+    border-color: var(--tag-ask-line);
     color: var(--muted);
 }
 
@@ -602,7 +602,7 @@ color: var(--ink);
 }
 
 .sky {
-color: #87CEEB;
+color: var(--sky);
 }
 
 .bold {

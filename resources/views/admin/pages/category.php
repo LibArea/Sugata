@@ -1,10 +1,6 @@
 <?php $category = $data['category'];  ?>
 
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <?= insert('/shared/navigation/breadcrumbs', ['list' => $data['breadcrumb']]); ?>
 
   <h1 class="title">

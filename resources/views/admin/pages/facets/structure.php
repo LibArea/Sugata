@@ -1,8 +1,4 @@
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <h1 class="title"><?= __('app.structure'); ?></h1>
 
   <?php if (!empty($data['nodes'])) : ?>

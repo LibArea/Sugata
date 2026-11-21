@@ -216,3 +216,105 @@ function dbTransaction(callable $callback)
 
     return $result;
 }
+
+/**
+ * Разбор строки facet_list (id@type@path@title, сгруппированной по @)
+ * в структурированный список категорий.
+ *
+ * @return array<array{id:int,type:string,path:string,title:string}>
+ */
+function parse_facets(string $facetList = ''): array
+{
+    $parts = preg_split('/@/', $facetList);
+    $facetCount = (int)floor(count($parts) / 4);
+    $result = [];
+    for ($i = 0; $i < $facetCount; $i++) {
+        $result[] = [
+            'id'    => (int)($parts[$i * 4] ?? 0),
+            'type'  => (string)($parts[$i * 4 + 1] ?? ''),
+            'path'  => trim((string)($parts[$i * 4 + 2] ?? ''), '/'),
+            'title' => (string)($parts[$i * 4 + 3] ?? ''),
+        ];
+    }
+    return $result;
+}
+
+/**
+ * Путь категории из facet_list (первая живая категория). Аналог $dir[2].
+ */
+function facet_list_path(string $facetList = ''): string
+{
+    $facets = parse_facets($facetList);
+    foreach ($facets as $f) {
+        if ($f['type'] === 'category' && $f['path'] !== '') {
+            return $f['path'];
+        }
+    }
+    return isset($facets[0]['path']) ? $facets[0]['path'] : '';
+}
+
+/**
+ * Сборка оглавления статьи из заголовков Markdown (H2-H3).
+ *
+ * @return array<array{text:string,anchor:string,level:int}>
+ */
+function build_article_toc(string $content = ''): array
+{
+    $toc = [];
+    $seen = [];
+    foreach (explode("\n", $content) as $line) {
+        if (preg_match('/^(#{1,6})\s+(.+)$/u', trim($line), $m)) {
+            $level = strlen($m[1]);
+            if ($level < 2 || $level > 3) {
+                continue;
+            }
+            $toc[] = [
+                'text'   => trim($m[2]),
+                'anchor' => Parser::anchor($m[2], $seen),
+                'level'  => $level,
+            ];
+        }
+    }
+    return $toc;
+}
+
+/**
+ * Боковая иллюстрация записи: из обложки (thumb) или первой картинки контента.
+ */
+function article_side_image(array $item): string
+{
+    if (!empty($item['item_thumb_img'])) {
+        return Img::PATH['thumbs'] . $item['item_thumb_img'];
+    }
+    return trim((string)Parser::miniature((string)($item['item_content'] ?? '')));
+}
+
+/**
+ * Сборка карточек «Продолжить открывать»: из related, при пустом — из similar.
+ *
+ * @return array<array{title:string,slug:string,facets:string,excerpt:string}>
+ */
+function article_related_cards(array $related, array $similar): array
+{
+    $cards = [];
+    foreach ($related as $value) {
+        $cards[] = [
+            'title'   => $value['item_title'] ?? '',
+            'slug'    => $value['item_slug'] ?? '',
+            'facets'  => $value['facet_list'] ?? '',
+            'excerpt' => $value['item_content'] ?? '',
+        ];
+    }
+    if (empty($cards)) {
+        foreach ($similar as $value) {
+            $f = json_decode((string)($value['url'] ?? ''), true);
+            $cards[] = [
+                'title'   => $value['title'] ?? '',
+                'slug'    => $f['slug'] ?? '',
+                'facets'  => $f['facets'] ?? '',
+                'excerpt' => $value['snippet'] ?? '',
+            ];
+        }
+    }
+    return $cards;
+}

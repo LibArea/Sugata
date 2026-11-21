@@ -1,8 +1,4 @@
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <h1 class="title"><?= __('app.setting'); ?></h1>
 
   <form class="max-w-md mt1" action="<?= url('setting.edit.profile', method: 'post'); ?>" method="post">

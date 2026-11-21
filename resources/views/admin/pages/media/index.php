@@ -1,8 +1,4 @@
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <div class="flex justify-between items-center mb20">
     <h1 class="title"><?= __('app.media'); ?></h1>
   </div>

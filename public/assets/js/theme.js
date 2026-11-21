@@ -17,6 +17,7 @@
     if (theme === 'dark') {
       body.classList.add('dark');
     }
+    body.setAttribute('data-theme', theme);
   }
 
   function current() {

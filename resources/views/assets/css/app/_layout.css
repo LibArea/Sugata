@@ -96,10 +96,10 @@
   grid-template-columns: repeat(3, 1fr);
 }
 
-/* Статья: оглавление, текст, инфобокс */
+/* Статья: оглавление + текст (инфобокс — плавающая врезка внутри текста) */
 .article-layout {
   display: grid;
-  grid-template-columns: 190px minmax(0, 1fr) 300px;
+  grid-template-columns: 190px minmax(0, 1fr);
   gap: var(--s5);
   align-items: start;
 }
@@ -115,28 +115,4 @@
   color: var(--muted);
 }
 
-@media (max-width: 1080px) {
-  .article-layout {
-    grid-template-columns: 170px minmax(0, 1fr);
-  }
-
-  .aside {
-    display: none;
-  }
-}
-
-@media (max-width: 760px) {
-  .container {
-    padding: 0 var(--s4);
-  }
-
-  .article-layout,
-  .grid--2,
-  .grid--3 {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar nav {
-    display: none;
-  }
-}
+/* Адаптивные правила собраны в едином _responsive.css */

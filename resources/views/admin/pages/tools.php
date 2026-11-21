@@ -1,8 +1,4 @@
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <h1 class="title"><?= __('app.tools'); ?></h1>
 
   <h2 class="title"><?= __('app.tools_build_site'); ?></h2>

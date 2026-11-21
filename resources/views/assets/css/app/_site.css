@@ -149,36 +149,6 @@
   top: var(--s3);
 }
 
-.article-toc {
-  padding: var(--s3) var(--s4);
-  border: 1px solid var(--line);
-  background: var(--bg-soft);
-  font-size: 13px;
-}
-
-.article-toc .eyebrow {
-  display: block;
-  margin-bottom: var(--s2);
-  font: 500 10px / 1 var(--font-sans);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.article-toc ol {
-  margin: 0 0 var(--s3);
-  padding-left: 18px;
-}
-
-.article-toc li {
-  margin: 3px 0;
-}
-
-.article-toc li.toc-sub {
-  margin-left: 12px;
-  font-size: 12px;
-}
-
 .toc-back {
   display: inline-block;
   margin-top: var(--s2);
@@ -397,40 +367,14 @@
 }
 
 
-@media (max-width: 900px) {
-  .card-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+.side {
+  float: right;
+  width: 300px;
+  margin: 4px 0 var(--s4) var(--s5);
 }
 
-@media (max-width: 760px) {
-  .site-header__in {
-    flex-wrap: wrap;
-    gap: var(--s3);
-    padding: 10px var(--s4);
-  }
 
-  .header-search {
-    order: 3;
-    flex: 1 1 100%;
-    max-width: none;
-  }
-
-  .site-nav__in {
-    gap: var(--s4);
-    padding: 0 var(--s4);
-    overflow-x: auto;
-  }
-
-.card-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .article-summary dl > div {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
-}
+/* (Адаптивные правила собраны в едином _responsive.css) */
 
 /* Совместимость: крошки из shared-компонента */
 .breadcrumbs {
@@ -446,11 +390,6 @@
 
 .breadcrumbs a {
   color: var(--link);
-}
-
-/* Статья в две и три колонки */
-.article-layout--2 {
-  grid-template-columns: 190px minmax(0, 1fr);
 }
 
 /* Инфобокс (карточка) внутри текстовой колонки — врезка с обтеканием, как в Википедии */
@@ -510,27 +449,6 @@
   vertical-align: top;
 }
 
-@media (max-width: 1080px) {
-  /* Центральная: обложка в одну колонку на планшетах и узких экранах */
-  .home-band__in {
-    grid-template-columns: 1fr;
-    gap: var(--s5);
-  }
-}
-
-@media (max-width: 760px) {
-  .article-layout--2 {
-    grid-template-columns: 1fr;
-  }
-
-  /* Инфобокс: на мобильной убираем обтекание и делаем во всю ширину (не скрываем) */
-  .side {
-    float: none;
-    width: 100%;
-    margin: 0 0 var(--s4);
-  }
-}
-
 /* ---------- Строчный список (каталог сайтов) ---------- */
 .rows {
   border-top: 1px solid var(--line);
@@ -582,22 +500,6 @@
   gap: var(--s3);
   white-space: nowrap;
   font-size: 13px;
-}
-
-@media (max-width: 760px) {
-  .row {
-    grid-template-columns: 1fr;
-    gap: var(--s3);
-  }
-
-  .row__shot img {
-    width: 100%;
-    height: auto;
-  }
-
-  .row__actions {
-    justify-content: flex-start;
-  }
 }
 
 /* ---------- Фото в тексте: figure с подписью и правами ---------- */
@@ -1028,57 +930,7 @@ a.chip:hover {
 }
 
 
-@media (max-width: 760px) {
-  .home-lead__img {
-    float: none;
-    width: 100%;
-    margin: 0 0 var(--s3);
-  }
-
-.home-lead__title {
-    font-size: 24px;
-  }
-}
 /* ---------- Блок «Сюда ссылаются»: отступ от предыдущей секции ---------- */
 .backlinks {
   margin-top: var(--s6);
-}
-/* На мобильных колонка «В этой статье» не должна залипать при листании */
-@media (max-width: 760px) {
-  .article-sidebar,
-  .side {
-    position: static;
-  }
-}
-
-/* ---- Mobile: переопределения в самом конце, чтобы выигрывать базовые правила ---- */
-@media (max-width: 760px) {
-  .home-band__in {
-    grid-template-columns: 1fr;
-    gap: var(--s5);
-  }
-
-  .home-today__img {
-    margin: 0 0 var(--s3);
-  }
-
-  .home-today__img img {
-    height: auto;
-    max-height: 220px;
-  }
-
-  .cat-index {
-    grid-template-columns: 1fr;
-  }
-
-  .fact-row {
-    grid-template-columns: 1fr;
-    gap: var(--s3);
-  }
-
-  .fact-row__thumb img {
-    width: 100%;
-    height: auto;
-    max-height: 220px;
-  }
 }

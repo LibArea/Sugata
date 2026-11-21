@@ -1,8 +1,4 @@
 <main class="content">
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <div class="flex justify-between items-center">
     <h1 class="title"><?= __('app.sources'); ?></h1>
     <a class="btn" href="<?= url('update.sources'); ?>"><?= __('app.sources_check'); ?></a>

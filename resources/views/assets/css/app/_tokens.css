@@ -25,6 +25,40 @@
   --warn: #8a5a00;
   --danger: #d73333;
 
+  /* Полутоновые фоны-подложки (для hover, таблиц, плашек) */
+  --bg-hover: #eef0f3;
+  --bg-tint: #eef4ff;
+  --bg-soft-success: #eefaf5;
+  --bg-soft-danger: #fdeeee;
+  --bg-soft-ok: #eaf7f2;
+  --bg-soft-warn: #fff6d6;
+  --bg-soft-info: #fff4e8;
+  --line-ok: #a7d7c5;
+  --line-danger: #f0b2b8;
+  --line-warn: #ffcc66;
+
+  /* Теги (совместимые классы .tag*) */
+  --tag-bg: #fdf6d8;
+  --tag-line: #d5d458;
+  --tag-meta-bg: #e8f0ff;
+  --tag-meta-line: #c6dafc;
+  --tag-ask-bg: #f9ddde;
+  --tag-ask-line: #f0b2b8;
+
+  /* Совместимые классы поиска (search) и breadcrumb */
+  --search-link: #007bff;
+  --search-link-hover: #0056b3;
+  --search-link-dark: #4dabf7;
+  --search-link-dark-hover: #74c0fc;
+  --search-muted: #aaa;
+
+  /* Утилита .sky */
+  --sky: #87ceeb;
+
+  /* Панель предпросмотра в админке */
+  --preview-bar-bg: #e8f0fe;
+  --preview-bar-line: #c6dafc;
+
   /* Шрифты */
   --font-sans: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-serif: "Linux Libertine", Georgia, "Times New Roman", serif;

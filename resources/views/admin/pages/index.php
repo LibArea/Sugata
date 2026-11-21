@@ -4,10 +4,6 @@
     <a class="btn" href="<?= url('item.form.add'); ?>"><?= __('app.add_fact'); ?></a>
   </div>
 
-  <nav class="nav">
-    <?= insert('/shared/navigation/nav', ['sheet' => $data['sheet']]); ?>
-  </nav>
-
   <nav class="nav br-none">
     <?php
       $filters = [
