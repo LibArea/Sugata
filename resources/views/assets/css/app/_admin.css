@@ -259,12 +259,22 @@ a.navbar-logo:hover {
 }
 
 .preview-bar {
+  display: block;
   margin-bottom: var(--s3);
-  padding: 6px var(--s3);
+  padding: 8px var(--s3);
   border: 1px solid var(--preview-bar-line);
   border-radius: var(--r);
   background: var(--preview-bar-bg);
+  color: var(--ink-2);
   font-size: 13px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.preview-bar:hover {
+  background: var(--bg-tint);
+  border-color: var(--link);
+  color: var(--link);
 }
 
 .title {

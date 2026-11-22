@@ -21,9 +21,9 @@
 <body>
 
 <?php if (!empty($preview)) : ?>
-  <div class="preview-bar" role="note">
+  <a class="preview-bar" href="<?= url('facts', ['type' => 'my']); ?>" role="note">
     <?= __('app.admin_preview_bar'); ?>
-  </div>
+  </a>
 <?php endif; ?>
 
 <header class="site-header">
