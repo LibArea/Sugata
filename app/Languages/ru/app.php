@@ -363,7 +363,17 @@ return [
 	'today'         => 'Сегодня',
 	'yesterday'     => 'Вчера',
 	
-	'meta_description'	=> 'Описание для поисковых систем...',
+'meta_description'	=> 'Описание для поисковых систем...',
 	'information' 		=> 'Короткое описание...',
+
+	'plugins'			=> 'Плагины',
+	'plugins_help'		=> 'Система хуков: PRE-хуки выполняются до кода по умолчанию, POST-хуки — после и могут менять результат.',
+	'plugin_active'		=> 'Активен',
+	'plugin_hooks_count' => 'Хуков',
+	'config_path'		=> 'Файл конфигурации',
+	'plugins_disable'	=> 'Выключить',
+	'plugins_enable'	=> 'Включить',
+	'hooks_available'	=> 'Доступные хуки',
+	'demo_plugin_note'	=> 'Подпись добавлена демо-плагином.',
 ];
 

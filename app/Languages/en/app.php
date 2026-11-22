@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /*
 * The following language strings are used to translate the site core 
@@ -363,7 +363,17 @@ return [
 	'today'         => 'Today',
 	'yesterday'     => 'Yesterday',
 	
-	'meta_description'	=> 'Description for search engines...',
+'meta_description'	=> 'Description for search engines...',
 	'information' 		=> 'Short description...',
+
+	'plugins'			=> 'Plugins',
+	'plugins_help'		=> 'Hook system: PRE hooks run before the default code, POST hooks run after and may alter the result.',
+	'plugin_active'		=> 'Active',
+	'plugin_hooks_count' => 'Hooks',
+	'config_path'		=> 'Config file',
+	'plugins_disable'	=> 'Disable',
+	'plugins_enable'	=> 'Enable',
+	'hooks_available'	=> 'Available hooks',
+	'demo_plugin_note'	=> 'Signature added by the demo plugin.',
 ];
 

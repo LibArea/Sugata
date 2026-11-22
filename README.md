@@ -4,111 +4,115 @@
 <img src="https://img.shields.io/badge/MySQL-8/MariaDB-4479A1" alt="DB">
 </p>
 
-# Сугата (Sugata)
+<p align="center">
+  <b>English</b> · <a href="./README.ru.md">Русский</a>
+</p>
 
-Статическая вики по архитектуре личного сайта фактов: статьи пишутся в админке, а затем **собираются в готовые HTML-файлы** и раздаются без PHP на продуктиве.
+# Sugata
 
-Проект основан на форке [LibArea/Sugata](https://github.com/LibArea/Sugata), переработан под энциклопедическую модель: история версий, авто-ссылки между статьями, обратные ссылки и проверка битых ссылок.
+A static wiki for a personal fact site: articles are written in the admin panel and then **built into standalone HTML files** to be served with no PHP in production.
 
-## Возможности
+The project is a fork of [LibArea/Sugata](https://github.com/LibArea/Sugata), reworked around an encyclopedia model: version history, auto-links between articles, backlinks and broken-link checking.
 
-- **Статическая сборка** каждой статьи в `{категория}/{slug}.html` + категории в `index.html`/`page-N.html`, `sitemap.xml`, общий подвал `footer.shtml`.
-- **Инкрементальная пересборка** — обновляются только изменённые факты и зависящие от них категории/главная.
-- **История версий** — снимок состояния до каждой правки (контент, slug, метаданные), просмотр версии и **откат** на любую из них.
-- **Авто-ссылки `[[Термин]]`** — вики-разметка: резолвится в синюю ссылку при однозначном совпадении, в красную на создание — если статьи нет (в админке/превью).
-- **Обратные ссылки «Сюда ссылаются»** — список статей, ссылающихся на текущую.
-- **Проверка битых ссылок** — отчёт о битых `[текст](/url)` и несозданных `[[Термин]]`.
-- **Поиск** с морфологией русского/английского (S2\Rose, стеммер Porter).
-- **Разметка CommonMark** (+ GFM-расширения: таблицы, сноски, чекбоксы, зачёркивание) с экранированием опасного HTML.
+## Features
+
+- **Static build** of every article as `{category}/{slug}.html`, categories as `index.html`/`page-N.html`, plus `sitemap.xml` and a shared `footer.shtml`.
+- **Incremental rebuild** — only changed facts and the categories/home that depend on them are updated.
+- **Version history** — a snapshot of the state before each edit (content, slug, metadata); view any version and **roll back** to it.
+- **Auto-links `[[Term]]`** — wiki markup resolved to a blue link on an unambiguous match, or to a red "create" link when the article does not exist (in the admin/preview).
+- **Backlinks “What links here”** — a list of articles that link to the current one.
+- **Broken-link checking** — a report of broken `[text](/url)` and uncreated `[[Term]]` links.
+- **Search** with Russian/English morphology (S2\Rose, Porter stemmer).
+- **CommonMark markup** (+ GFM extensions: tables, footnotes, task lists, strikethrough) with dangerous HTML escaped.
 
 
-![Sugata - архив фактов](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata-for-github.png)
+![Sugata - facts archive](public/assets/images/sugata-for-github.png)
 
-![Sugata - admin](https://raw.githubusercontent.com/LibArea/Sugata/main/public/assets/images/sugata-for-github-admin.png)
+![Sugata - admin](public/assets/images/sugata-for-github-admin.png)
 
-## Стек
+## Tech stack
 
 - PHP 8.2+
 - MySQL 8 / MariaDB 10.2.2+
-- Фреймворк [HLEB](https://github.com/phphleb/hleb) (2.x)
-- Парсер [league/commonmark](https://github.com/thephpleague/commonmark) (CommonMark/GFM)
-- Поиск [S2\Rose](https://github.com/s2ware/rose)
+- Framework [HLEB](https://github.com/phphleb/hleb) (2.x)
+- Parser [league/commonmark](https://github.com/thephpleague/commonmark) (CommonMark/GFM)
+- Search [S2\Rose](https://github.com/s2ware/rose)
 
-## Структура
+## Structure
 
 ```
-config/            настройки (general, database, main, meta...)
-routes/map.php     маршруты (админка + предпросмотр)
+config/            settings (general, database, main, meta...)
+routes/map.php     routes (admin panel + preview)
 app/
-  Controllers/     контроллеры (сборка, статьи, история, откаты...)
-  Models/          работа с БД (ItemModel, VersionModel, BacklinkModel...)
-  Content/         Parser (CommonMark + вики-ссылки), Html, Meta, Img, Validator
-  helpers.php      глобальные функции
-resources/views/   шаблоны (админка, сайт, общие компоненты)
-public/            точка входа, ассеты (собираются в статику)
-scripts/dev.sql    схема БД и тестовые данные
-wiki-view.local/   РЕЗУЛЬТАТ сборки (статический сайт)
+  Controllers/     controllers (build, articles, history, rollbacks...)
+  Models/          DB layer (ItemModel, VersionModel, BacklinkModel...)
+  Content/         Parser (CommonMark + wiki links), Html, Meta, Img, Validator
+  helpers.php      global functions
+resources/views/   templates (admin, front-end, shared components)
+public/            entry point, assets (built into static output)
+scripts/dev.sql    DB schema and test data
+wiki-view.local/   BUILD OUTPUT (static site)
 ```
 
-## Установка
+## Installation
 
 ```bash
 composer install
 ```
 
-1. Создайте базу и импортируйте схему: `scripts/dev.sql` (включает структуру и тестовые данные).
-2. Задайте подключение в `config/database.php` (или `config/database-local.php`).
-3. Настройте `config/general.php`: `url` (админка), `url_html` (публичный адрес статики), `path_html` (папка сборки).
-4. Запустите веб-сервер на папку `public/`.
+1. Create a database and import the schema: `scripts/dev.sql` (includes the structure and test data).
+2. Set the connection in `config/database.php` (or `config/database-local.php`).
+3. Configure `config/general.php`: `url` (admin), `url_html` (public static address), `path_html` (build folder).
+4. Point a web server at the `public/` folder.
 
-### Вход в админку (тестовые учётки)
+### Admin login (test accounts)
 
-- Администратор: `ss@sdf.ru` / `qwer14qwer14`
-- Пользователь: `test@test.ru` / `test@test.ru`
+- Administrator: `ss@sdf.ru` / `qwer14qwer14`
+- User: `test@test.ru` / `test@test.ru`
 
-Админка: `https://<url>/mod/admin/`
+Admin panel: `https://<url>/mod/admin/`
 
-## Сборка статического сайта
+## Building the static site
 
-В админке (меню **Инструменты** / `Tools`) последовательно:
+In the admin panel (menu **Tools**) run in order:
 
-1. **Перестроить ресурсы** — собрать CSS/JS (Minify) из исходников.
-2. **Пути категорий** — пересчитать `facet_path`.
-3. **Создать каталог** — папки категорий.
-4. **Собрать HTML-страницы категорий** — `index.html`/`page-N.html` каждой категории.
-5. **Собрать HTML-страницы фактов** — каждая статья в свой `.html`.
-6. **Обновить индекс поиска** — пересоздать морфологический индекс.
-7. **Sitemap** — сгенерировать `sitemap.xml`.
-8. **Проверить источники/битые ссылки** — HEAD-проверка источников и сканирование битых/несозданных ссылок.
+1. **Rebuild assets** — build CSS/JS (Minify) from sources.
+2. **Category paths** — recalculate `facet_path`.
+3. **Create directories** — category folders.
+4. **Build category HTML pages** — `index.html`/`page-N.html` for each category.
+5. **Build fact HTML pages** — each article into its own `.html`.
+6. **Update search index** — rebuild the morphological index.
+7. **Sitemap** — generate `sitemap.xml`.
+8. **Check sources/broken links** — HEAD checks on sources and a scan for broken/uncreated links.
 
-> **Инкрементальная сборка** — пересобирает только изменённые факты и зависимые категории/главную; полезно после правок, когда полная пересборка не нужна.
+> **Incremental build** — rebuilds only the changed facts and dependent categories/home; useful after edits when a full rebuild is not needed.
 
-## Вики-разметка
+## Wiki markup
 
-Внутри статей поддерживаются оба способа связывания:
+Both linking styles are supported inside articles:
 
-| Синтаксис | Результат |
+| Syntax | Result |
 |---|---|
-| `[[Дзогчен]]` | Авто-ссылка. Однозначное совпадение → синяя; нет/неоднозначно → красная (в админке) |
-| `[[Текст\|Дзогчен]]` | То же, но с произвольным текстом ссылки |
-| `[[Текст\|/путь/slug.html]]` | Явная точная ссылка на конкретный URL |
-| `[текст](/путь/slug.html)` | Обычная markdown-ссылка (не проверяется движком) |
-| `:::{.foto}` … `:::` | Блок-контейнер с классом (фото с подписью, примечания) |
-| `[^1]` и `[^1]: текст` | Сноски (собираются в блок «Примечания») |
+| `[[Dzogchen]]` | Auto-link. Unambiguous match → blue; none/ambiguous → red (in the admin) |
+| `[[Text\|Dzogchen]]` | Same, but with arbitrary link text |
+| `[[Text\|/path/slug.html]]` | Explicit exact link to a specific URL |
+| `[text](/path/slug.html)` | A regular markdown link (not checked by the engine) |
+| `:::{.foto}` … `:::` | Block container with a class (photo with caption, notes) |
+| `[^1]` and `[^1]: text` | Footnotes (gathered into a “Notes” block) |
 
-Красные и битые ссылки собираются в отчёте **Битые ссылки** (`/mod/admin/broken-links`).
+Red and broken links are gathered in the **Broken links** report (`/mod/admin/broken-links`).
 
-## База данных (ключевые таблицы)
+## Database (key tables)
 
-- `items` — факты/статьи/страницы.
-- `facets`, `facets_items_relation` — дерево категорий и связь статей с категориями.
-- `item_history` — **история версий** (снимок до каждой правки; откаты и просмотр).
-- `item_relations` — ручная связь «похожие статьи» (в обе стороны).
-- `sources`, `article_sources` — источники фактов и их привязка.
-- `broken_links` — отчёт о битых/несозданных ссылках.
-- `item_faq` — блоки «вопрос–ответ».
-- `users` — пользователи и права.
+- `items` — facts/articles/pages.
+- `facets`, `facets_items_relation` — the category tree and the article↔category relation.
+- `item_history` — **version history** (a snapshot before each edit; rollbacks and viewing).
+- `item_relations` — manual “related articles” links (both directions).
+- `sources`, `article_sources` — fact sources and their bindings.
+- `broken_links` — the broken/uncreated-link report.
+- `item_faq` — “question–answer” blocks.
+- `users` — users and permissions.
 
-## Лицензия
+## License
 
-MIT. См. [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).

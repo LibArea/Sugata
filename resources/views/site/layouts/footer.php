@@ -10,6 +10,8 @@
       <a href="#home-main"><?= __('app.to_start'); ?></a>
     </div>
   </div>
+
+  <?= dispatch('site_page_footer', fn() => '', ['preview' => !empty($preview)]); ?>
 </footer>
 
 <?php if ((int)config('general', 'metrika_id') > 0) : ?>

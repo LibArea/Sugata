@@ -16,6 +16,11 @@ $list = [
     'title' => 'app.templates',
   ],
   [
+    'id'    => 'plugins',
+    'url'   => url('plugins'),
+    'title' => 'app.plugins',
+  ],
+  [
     'id'    => 'media',
     'url'   => url('media'),
     'title' => 'app.media',

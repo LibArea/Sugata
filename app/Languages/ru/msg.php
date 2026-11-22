@@ -87,4 +87,6 @@ return [
 	'version_not_found'		=> 'Версия не найдена',
 	'rollback_done'			=> 'Факт откатан к выбранной версии',
 	'rollback_comment'		=> 'Откат к версии',
+	'plugin_saved'			=> 'Плагин сохранён',
+	'plugin_save_error'		=> 'Ошибка при сохранении конфигурации плагинов',
 ];

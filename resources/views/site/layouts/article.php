@@ -42,6 +42,8 @@ $facetPath = facet_list_path((string)($item['facet_list'] ?? ''));
 <main class="container" id="article-main">
   <?= insert('/shared/navigation/breadcrumbs', ['list' => $breadcrumb]); ?>
 
+  <?= dispatch('site_article_before', fn() => '', ['item' => $item, 'type' => $type, 'mod' => $mod]); ?>
+
   <header class="page-head" id="article-top">
     <h1 class="article-title"><?= htmlEncode($item['item_title']); ?>
       <?php if (!empty($preview)) : ?>
@@ -80,7 +82,7 @@ $facetPath = facet_list_path((string)($item['facet_list'] ?? ''));
         <?= insert('/site/components/infobox', ['item' => $item, 'mod' => $mod, 'toc' => $toc]); ?>
       <?php endif; ?>
 
-      <?= insert('/site/components/article-body', ['item' => $item, 'mod' => $mod, 'faq' => $faq, 'noFigure' => $sideImg]); ?>
+      <?= dispatch('site_article_body', fn() => insert('/site/components/article-body', ['item' => $item, 'mod' => $mod, 'faq' => $faq, 'noFigure' => $sideImg]), ['item' => $item, 'mod' => $mod, 'faq' => $faq]); ?>
 
       <?php if ($wikiTerms) : ?>
         <div class="box">
@@ -116,6 +118,7 @@ $facetPath = facet_list_path((string)($item['facet_list'] ?? ''));
 
   <?php $relCards = article_related_cards($related ?? [], $similar ?? []); ?>
   <?php if ($relCards) : ?>
+    <?= dispatch('site_article_related_before', fn() => '', ['item' => $item, 'type' => $type]); ?>
     <section id="article-related" aria-labelledby="related-title">
       <div class="section-head">
         <h2 id="related-title"><?= __('app.continue_discover'); ?></h2>
@@ -142,29 +145,31 @@ $facetPath = facet_list_path((string)($item['facet_list'] ?? ''));
     </section>
   <?php endif; ?>
 
-  <?= insert('/site/components/backlinks', ['backlinks' => $backlinks, 'preview' => !empty($preview)]); ?>
+  <?= dispatch('site_article_backlinks', fn() => insert('/site/components/backlinks', ['backlinks' => $backlinks, 'preview' => !empty($preview)]), ['backlinks' => $backlinks, 'preview' => !empty($preview)]); ?>
 
   <?php if (empty($preview) && $item['item_slug'] ?? null) : ?>
+    <?php
+      $ld = dispatch('site_article_ldjson', fn($d) => $d, ['data' => [
+        '@context'      => 'https://schema.org',
+        '@type'         => 'Article',
+        'headline'      => $item['item_title'],
+        'datePublished' => $item['item_date'],
+        'dateModified'  => $item['item_modified'] ?? $item['item_date'],
+        'url'           => config('general', 'url_html') . '/' . trim($facetPath, '/') . '/' . $item['item_slug'] . '.html',
+        'image'         => !empty($item['item_thumb_img']) ? config('general', 'url_html') . '/' . $item['item_thumb_img'] : null,
+        'citation'      => !empty($item['item_source_url']) ? $item['item_source_url'] : null,
+        'publisher'     => [
+          '@type' => 'Organization',
+          'name'  => config('general', 'site_name'),
+        ],
+      ]]);
+      $d = is_array($ld) ? $ld : null;
+    ?>
+    <?php if ($d) : ?>
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": <?= json_encode($item['item_title'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>,
-      "datePublished": <?= json_encode($item['item_date'], JSON_UNESCAPED_SLASHES); ?>,
-      "dateModified": <?= json_encode($item['item_modified'] ?? $item['item_date'], JSON_UNESCAPED_SLASHES); ?>,
-      "url": <?= json_encode(config('general', 'url_html') . '/' . trim($facetPath, '/') . '/' . $item['item_slug'] . '.html', JSON_UNESCAPED_SLASHES); ?>
-      <?php if (!empty($item['item_thumb_img'])) : ?>
-      ,"image": <?= json_encode(config('general', 'url_html') . '/' . $item['item_thumb_img'], JSON_UNESCAPED_SLASHES); ?>
-      <?php endif; ?>
-      <?php if (!empty($item['item_source_url'])) : ?>
-      ,"citation": <?= json_encode($item['item_source_url'], JSON_UNESCAPED_SLASHES); ?>
-      <?php endif; ?>
-      ,"publisher": {
-        "@type": "Organization",
-        "name": <?= json_encode(config('general', 'site_name'), JSON_UNESCAPED_UNICODE); ?>
-      }
-    }
+    <?= json_encode(array_filter($d, fn($v) => $v !== null), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_LINE_TERMINATORS); ?>
     </script>
+    <?php endif; ?>
   <?php endif; ?>
 </main>
 

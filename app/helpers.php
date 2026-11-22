@@ -98,6 +98,26 @@ function markdown(string $content, string $type = 'text', bool $preview = false)
     return Parser::parse($content, $type, $preview);
 }
 
+/**
+ * Запуск хука плагинов: PRE-хуки → код по умолчанию → POST-хуки.
+ *
+ * @param string   $hook    имя точки (например 'site_page_body')
+ * @param callable $default код по умолчанию
+ * @param array    $args    аргументы для хуков и default
+ */
+function dispatch(string $hook, callable $default, array $args = []): mixed
+{
+    return \App\Support\Hooks::dispatch($hook, $default, $args);
+}
+
+/**
+ * Путь к файлу-реестру плагинов.
+ */
+function plugin_config_path(): string
+{
+    return dirname(__DIR__, 1) . '/config/plugins.php';
+}
+
 function fragment(string $content, int $limit = 0)
 {
     return Parser::noHTML($content, $limit);

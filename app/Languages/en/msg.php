@@ -87,4 +87,6 @@ return [
 	'version_not_found'		=> 'Version not found',
 	'rollback_done'			=> 'Item rolled back to the selected version',
 	'rollback_comment'		=> 'Rollback to version',
+	'plugin_saved'			=> 'Plugin saved',
+	'plugin_save_error'		=> 'Error saving the plugins configuration',
 ];

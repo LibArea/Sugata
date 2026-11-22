@@ -4,7 +4,7 @@
  * Общие настройки сайта и статической сборки.
  */
 return [
-    'version'               => 103,
+    'version'               => 108,
 
     // «Режим запуска»: первые 50 участников получают повышенный trust level
     'mode'                  => true,
@@ -94,6 +94,13 @@ return [
             'id'    => 'setting',
             'tl'    => 1,
             'br'    => 'br',
+        ],
+        [
+            'url'   => 'plugins',
+            'title' => 'app.plugins',
+            'icon'  => 'layers',
+            'id'    => 'plugins',
+            'tl'    => 10,
         ],
     ],
 ];
