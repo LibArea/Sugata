@@ -606,6 +606,12 @@ body > .w-100 {
   font-weight: 600;
 }
 
+.nav-divider {
+  height: 1px;
+  margin: 8px var(--s5);
+  background: var(--line);
+}
+
 .admin-sidebar__foot {
   padding: var(--s3) var(--s5);
   border-top: 1px solid var(--line);

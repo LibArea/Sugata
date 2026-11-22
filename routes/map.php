@@ -17,6 +17,7 @@ use App\Controllers\{
 	SourceController,
 	TemplateAdminController,
 	BrokenLinkController,
+	PluginAdminController,
 	
 	Facet\FacetController,
 	Facet\EditFacetController,
@@ -123,6 +124,18 @@ Route::toGroup()
 	Route::get('/templates')->controller(TemplateAdminController::class)->name('templates');
 	Route::get('/templates/add')->controller(TemplateAdminController::class, 'form')->name('template.add');
 	Route::get('/templates/edit/{id}')->controller(TemplateAdminController::class, 'form')->where(['id' => '[0-9]+'])->name('template.edit');
+
+	// Плагины
+	Route::get('/plugins')->controller(PluginAdminController::class)->name('plugins');
+	// Админ-экраны плагинов: /mod/admin/plugins/admin/{plugin}/{path}
+	Route::get('/plugins/admin/{plugin}/{path?}')->controller(PluginAdminController::class, 'screen')
+		->where(['plugin' => '[a-z0-9\-]+', 'path' => '.*'])->name('plugin.screen');
+	Route::post('/plugins/admin/{plugin}/{path?}')->controller(PluginAdminController::class, 'screen')
+		->where(['plugin' => '[a-z0-9\-]+', 'path' => '.*']);
+
+		Route::toGroup()->protect();
+			Route::post('/plugins/toggle')->controller(PluginAdminController::class, 'toggle')->name('plugin.toggle');
+		Route::endGroup();
 
 		Route::toGroup()->protect();
 			Route::post('/templates/save')->controller(TemplateAdminController::class, 'save')->name('template.save');

@@ -375,5 +375,8 @@ return [
 	'plugins_enable'	=> 'Enable',
 	'hooks_available'	=> 'Available hooks',
 	'demo_plugin_note'	=> 'Signature added by the demo plugin.',
+	'demo_plugin_preview'	=> 'shown in preview',
+	'demo_plugin_title'	=> 'Demo plugin screen',
+	'demo_plugin_screen_text'	=> 'This is the plugin\u2019s own admin screen. It was picked up automatically from the plugin folder.',
 ];
 

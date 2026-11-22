@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use Hleb\Base\Controller;
 use Hleb\Static\Request;
+use Hleb\Static\Response;
 use App\Support\Hooks;
 use Meta, Msg;
 
@@ -14,16 +15,6 @@ use Meta, Msg;
  */
 class PluginAdminController extends Controller
 {
-    // Доступные точки хуков: имя => описание (для справки в админке).
-    private const HOOKS = [
-        'site_article_before'          => 'Перед телом статьи (PRE может перехватить вывод).',
-        'site_article_body'            => 'Тело статьи: PRE — подменить контент, POST — дополнить HTML.',
-        'site_article_related_before'  => 'Перед блоком «Продолжить открывать».',
-        'site_article_backlinks'       => 'Блок обратных ссылок.',
-        'site_article_ldjson'          => 'JSON-LD разметка (POST получает массив данных).',
-        'site_page_footer'             => 'Футер страницы (POST — добавить подпись/счётчик).',
-    ];
-
     // Список плагинов с возможностью включать/выключать.
     public function index(): void
     {
@@ -36,7 +27,7 @@ class PluginAdminController extends Controller
                 'data' => [
                     'sheet'   => 'plugins',
                     'plugins' => $plugins,
-                    'hooks'   => self::HOOKS,
+                    'hooks'   => Hooks::points(),
                 ],
             ]
         );
@@ -66,5 +57,33 @@ class PluginAdminController extends Controller
 
         Hooks::reset(); // сбросить кэш диспетчера
         Msg::redirect(__('msg.plugin_saved'), 'success', url('plugins'));
+    }
+
+    // Диспетчер админ-экранов плагина.
+    // URL: /mod/admin/plugins/admin/{plugin}/{path}
+    // Маршрут защищён middleware админа; метод подбирается строго по manifest.
+    public function screen(): void
+    {
+        $name = (string)Request::param('plugin')->asString('');
+        $path = (string)Request::param('path')->asString('') ?? '';
+
+        // Плагин должен существовать и иметь админ-экраны.
+        if ($name === '' || !Hooks::exists($name) || !Hooks::hasAdmin($name)) {
+            Response::setStatus(404);
+            render('/404', ['meta' => Meta::get(__('app.404'))]);
+            return;
+        }
+
+        $verb = strtoupper((string)Request::getMethod());
+        $callback = Hooks::resolveRoute($name, $verb, $path);
+        if ($callback === null) {
+            Response::setStatus(404);
+            render('/404', ['meta' => Meta::get(__('app.404'))]);
+            return;
+        }
+
+        // Вызов {Class}::{method}. Экран может либо вернуть строку-HTML,
+        // либо сам вызвать render()/redirect. Никакой произвольный код из URL.
+        call_user_func($callback);
     }
 }

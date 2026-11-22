@@ -40,6 +40,10 @@ final class Hooks
     protected static array $postHooks = [];
     protected static bool $loaded = false;
 
+    /** Реестр hook-точек: имя точки => описание. */
+    protected static array $points = [];
+    protected static bool $pointsLoaded = false;
+
     /**
      * Каталог, где лежат плагины (каждая подпапка — плагин).
      */
@@ -112,6 +116,79 @@ final class Hooks
     public static function isStop(mixed $value): bool
     {
         return $value === self::STOP;
+    }
+
+    /**
+     * Регистрирует hook-точку в реестре. Точки объявляются там же, где их
+     * вызывают (рядом с dispatch), либо плагины добавляют собственные.
+     */
+    public static function registerPoint(string $name, string $description = ''): void
+    {
+        static::$points[$name] = $description !== '' ? $description : static::$points[$name] ?? '';
+    }
+
+    /**
+     * Возвращает реестр hook-точек (имя => описание), отсортированный по имени.
+     * Включает встроенные точки по умолчанию и любые добавленные через registerPoint().
+     *
+     * @return array<string,string>
+     */
+    public static function points(): array
+    {
+        static::loadRegistry();
+        ksort(static::$points);
+        return static::$points;
+    }
+
+    /**
+     * Загружает встроенный реестр точек. Считается один раз.
+     */
+    protected static function loadRegistry(): void
+    {
+        if (static::$pointsLoaded) {
+            return;
+        }
+        static::$pointsLoaded = true;
+
+        static::$points = [
+            'site_article_before'          => 'Перед телом статьи (PRE может перехватить вывод).',
+            'site_article_body'            => 'Тело статьи: PRE — подменить контент, POST — дополнить HTML.',
+            'site_article_related_before'  => 'Перед блоком «Продолжить открывать».',
+            'site_article_backlinks'       => 'Блок обратных ссылок.',
+            'site_article_ldjson'          => 'JSON-LD разметка (POST получает массив данных).',
+            'site_page_footer'             => 'Футер страницы (POST — добавить подпись/счётчик).',
+        ];
+    }
+
+    /**
+     * Рендерит view из папки плагина (app/Plugins/<Имя>/views/...) и оборачивает
+     * в общий admin-layout, как это делает render(). Плагин носит свои view.
+     *
+     * @param string $pluginName имя плагина
+     * @param string $view       путь внутри app/Plugins/<Имя>/views без расширения (например 'screen')
+     * @param array  $data       данные для шаблона и admin-layout (['data' => ..., 'meta' => ...])
+     */
+    public static function renderPluginView(string $pluginName, string $view, array $data = []): void
+    {
+        $file = trim(static::pluginsDir(), '/\\') . '/' . $pluginName . '/views/' . trim($view, '/\\') . '.php';
+        if (!is_file($file)) {
+            \Hleb\Static\Response::setStatus(404);
+            echo 'Plugin view not found: ' . htmlspecialchars($view, ENT_QUOTES);
+            return;
+        }
+
+        $viewData = $data['data'] ?? [];
+        $metaData = $data['meta'] ?? null;
+        ob_start();
+        $data = $viewData; // шаблон видит $data уже как flat-данные экрана
+        require $file;
+        $content = ob_get_clean();
+
+        echo view('/admin/layout/main', [
+            'content' => $content,
+            'data'    => $viewData,
+            'meta'    => $metaData,
+        ]);
     }
 
     /**
@@ -249,6 +326,131 @@ final class Hooks
         }
 
         return static::writeState($state);
+    }
+
+    /**
+     * Список плагинов, у которых есть собственные админ-экраны (секция 'admin'
+     * в manifest). Для главного меню админки.
+     *
+     * @return array<int, array{name:string, id:string, title:string, icon:string, section:string, url:string}>
+     */
+    public static function adminPages(?string $dir = null): array
+    {
+        $dir = $dir ?? static::pluginsDir();
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $list = [];
+        foreach (glob($dir . '/*', GLOB_ONLYDIR) ?: [] as $pluginDir) {
+            $name = basename($pluginDir);
+            $admin = static::manifestOf($name, $dir)['admin'] ?? null;
+            if (!$admin || empty($admin['id']) || empty($admin['routes']) || !is_array($admin['routes'])) {
+                continue;
+            }
+            // Первый GET-роут — цель пункта меню.
+            $url = '';
+            foreach ($admin['routes'] as $spec => $method) {
+                if (preg_match('#^\s*GET\s+(\S+)$#i', (string)$spec, $m)) {
+                    $url = static::pluginAdminPath($name, $admin['id'], $m[1]);
+                    break;
+                }
+            }
+            $list[] = [
+                'name'    => $name,
+                'id'      => (string)$admin['id'],
+                'title'   => (string)($admin['title'] ?? $name),
+                'icon'    => (string)($admin['icon'] ?? 'layers'),
+                'section' => (string)($admin['section'] ?? 'tools'),
+                'url'     => $url,
+            ];
+        }
+
+        usort($list, fn($a, $b) => strcmp($a['name'], $b['name']));
+        return $list;
+    }
+
+    /**
+     * Есть ли у плагина админ-экраны.
+     */
+    public static function hasAdmin(string $name, ?string $dir = null): bool
+    {
+        $admin = static::manifestOf($name, $dir ?? static::pluginsDir())['admin'] ?? null;
+        return !empty($admin['routes']) && is_array($admin['routes']);
+    }
+
+    /**
+     * Разрешает метод обработчика экрана плагина по клическим данным.
+     * Строго по manifest: никакой произвольный код из URL не исполняется.
+     *
+     * @return string|\Closure|null  callback (строка 'Class::method'), если найден, иначе null
+     */
+    public static function resolveRoute(string $name, string $verb, string $path, ?string $dir = null): string|\Closure|null
+    {
+        $dir = $dir ?? static::pluginsDir();
+        $manifest = static::manifestOf($name, $dir);
+        $routes = $manifest['admin']['routes'] ?? null;
+        if (!is_array($routes)) {
+            return null;
+        }
+
+        $verb = mb_strtoupper(trim($verb));
+        $path = '/' . trim($path, '/');
+
+        foreach ($routes as $spec => $method) {
+            if (!is_string($spec) || !preg_match('#^\s*([A-Z]+)\s+(.+)$#i', $spec, $m)) {
+                continue;
+            }
+            [, $specVerb, $specPath] = $m;
+            $specVerb = mb_strtoupper(trim($specVerb));
+            $specPath = '/' . trim($specPath, '/');
+
+            if ($verb === $specVerb && $path === $specPath) {
+                return static::normalizeCallback($method, $name);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Читает manifest конкретного плагина (или пустой массив).
+     */
+    protected static function manifestOf(string $name, ?string $dir = null): array
+    {
+        $path = trim($dir ?? static::pluginsDir(), '/\\') . '/' . $name . '/manifest.php';
+        if (!is_file($path)) {
+            return [];
+        }
+        $manifest = require $path;
+        return is_array($manifest) ? $manifest : [];
+    }
+
+    /**
+     * Нормализует callback из manifest в FQCN-строку или оставляет Closure.
+     * String 'Class::method' → 'App\Plugins\<Имя>\Class::method'.
+     */
+    protected static function normalizeCallback(mixed $callback, string $pluginName): mixed
+    {
+        if ($callback instanceof \Closure) {
+            return $callback;
+        }
+        if (!is_string($callback)) {
+            return null;
+        }
+        if (str_starts_with($callback, 'App\\')) {
+            return $callback;
+        }
+        return 'App\\Plugins\\' . $pluginName . '\\' . ltrim($callback, '\\');
+    }
+
+    /**
+     * Строит внутренний путь экрана плагина в админке:
+     * /mod/admin/plugins/admin/{id}/{path}
+     */
+    public static function pluginAdminPath(string $name, string $id, string $path = ''): string
+    {
+        $path = trim($path, '/');
+        return '/mod/admin/plugins/admin/' . rawurlencode($id) . ($path !== '' ? '/' . $path : '');
     }
 
     /**

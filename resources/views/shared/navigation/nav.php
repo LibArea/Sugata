@@ -16,11 +16,6 @@ $list = [
     'title' => 'app.templates',
   ],
   [
-    'id'    => 'plugins',
-    'url'   => url('plugins'),
-    'title' => 'app.plugins',
-  ],
-  [
     'id'    => 'media',
     'url'   => url('media'),
     'title' => 'app.media',
@@ -48,6 +43,28 @@ $list = [
     'title' => 'app.add_fact',
   ],
 ];
+
+// Системный пункт «Плагины» — в самом низу, над плагинными пунктами.
+$pluginsMenu = [
+  [
+    'id'    => 'plugins',
+    'url'   => url('plugins'),
+    'title' => 'app.plugins',
+  ],
+];
+
+// Плагины со своими админ-экранами добавляют пункты меню автоматически.
+foreach (\App\Support\Hooks::adminPages() as $plugin) {
+  $pluginsMenu[] = [
+    'id'         => 'plugin_' . $plugin['id'],
+    'url'        => $plugin['url'],
+    'title'      => $plugin['title'],
+    'css'        => 'icon-' . $plugin['icon'],
+    'raw_title'  => true,
+  ];
+}
+
+$showDivider = count($pluginsMenu) > 1;
 ?>
 
 <?php foreach ($list as $key => $item) :
@@ -57,6 +74,21 @@ $list = [
   $class = ($css || $isActive) ? ' class="' . $isActive . ' ' .  $css . '"' : '';
 ?>
   <a<?= $class; ?> href="<?= $item['url']; ?>"<?= !empty($item['target']) ? ' target="' . $item['target'] . '" rel="noopener"' : ''; ?>>
-    <?= __($item['title']); ?>
+    <?= !empty($item['raw_title']) ? htmlEncode($item['title']) : __($item['title']); ?>
+  </a>
+<?php endforeach; ?>
+
+<?php if ($showDivider) : ?>
+  <div class="nav-divider"></div>
+<?php endif; ?>
+
+<?php foreach ($pluginsMenu as $key => $item) :
+  $tl = $item['tl'] ?? 0;
+  $css = empty($item['css']) ? false : $item['css'];
+  $isActive = $item['id'] == $sheet ? 'active' : false;
+  $class = ($css || $isActive) ? ' class="' . $isActive . ' ' .  $css . '"' : '';
+?>
+  <a<?= $class; ?> href="<?= $item['url']; ?>"<?= !empty($item['target']) ? ' target="' . $item['target'] . '" rel="noopener"' : ''; ?>>
+    <?= !empty($item['raw_title']) ? htmlEncode($item['title']) : __($item['title']); ?>
   </a>
 <?php endforeach; ?>
