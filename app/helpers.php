@@ -110,14 +110,6 @@ function dispatch(string $hook, callable $default, array $args = []): mixed
     return \App\Support\Hooks::dispatch($hook, $default, $args);
 }
 
-/**
- * Путь к файлу-реестру плагинов.
- */
-function plugin_config_path(): string
-{
-    return dirname(__DIR__, 1) . '/config/plugins.php';
-}
-
 function fragment(string $content, int $limit = 0)
 {
     return Parser::noHTML($content, $limit);

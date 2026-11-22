@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Plugins;
+namespace App\Plugins\Demo;
 
 /**
  * Демо-плагин, показывающий работу системы хуков.

@@ -24,7 +24,7 @@ The project is a fork of [LibArea/Sugata](https://github.com/LibArea/Sugata), re
 - **Broken-link checking** — a report of broken `[text](/url)` and uncreated `[[Term]]` links.
 - **Search** with Russian/English morphology (S2\Rose, Porter stemmer).
 - **CommonMark markup** (+ GFM extensions: tables, footnotes, task lists, strikethrough) with dangerous HTML escaped.
-- **Plugin system** — a hook system (along the lines of GT::Plugins): plugins register PRE/POST hooks in a config file and extend pages without touching the core.
+- **Plugin system** — a hook system: plugins register PRE/POST hooks in their folder and extend pages without touching the core.
 
 
 ![Sugata - facts archive](public/assets/images/sugata-for-github.png)
@@ -105,21 +105,32 @@ Red and broken links are gathered in the **Broken links** report (`/mod/admin/br
 
 ## Plugins
 
-Pages expose extension points (hooks) that plugins can subscribe to without modifying the core. A plugin is a PHP class with static handler methods, registered in the **plugin registry** (`config/plugins.php`):
+Pages expose extension points (hooks) that plugins can subscribe to without modifying the core. Each plugin lives in its own folder under `app/Plugins/`, so **installing one is just copying the folder** — no central registry to edit:
+
+```
+app/Plugins/
+  Demo/
+    Demo.php          # the plugin class (namespace App\Plugins\Demo)
+    manifest.php      # metadata + hook points
+```
+
+`manifest.php` declares the plugin's hooks:
 
 ```php
-'Demo' => [
-    'meta'  => ['name' => 'Demo', 'version' => '0.1', 'author' => 'you', 'description' => '...'],
-    'hooks' => [
+return [
+    'name'        => 'Demo',
+    'version'     => '0.1',
+    'description' => '...',
+    'hooks'       => [
         // [hook point, 'PRE'|'POST', 'Class::method', enabled]
-        ['site_page_footer', 'POST', 'App\Plugins\Demo::render_menu', 1],
+        ['site_page_footer', 'POST', 'Demo::render_menu', 1],
     ],
-],
+];
 ```
 
 - `PRE` hooks run before the default code and may replace its result (return `null` to continue).
 - `POST` hooks receive the default result and may alter it.
-- Hooks are toggled **on/off in the admin panel** (`/mod/admin/plugins`) by writing the flag back to the config.
+- Plugins are toggled **on/off in the admin panel** (`/mod/admin/plugins`); the enabled state is kept separately (in `storage/cache`) and never modifies the plugin folder itself.
 
 Available hook points: `site_article_before`, `site_article_body`, `site_article_related_before`, `site_article_backlinks`, `site_article_ldjson`, `site_page_footer`. New points are added by calling `dispatch('point_name', $default, $args)` in a template.
 
