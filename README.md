@@ -24,6 +24,7 @@ The project is a fork of [LibArea/Sugata](https://github.com/LibArea/Sugata), re
 - **Broken-link checking** — a report of broken `[text](/url)` and uncreated `[[Term]]` links.
 - **Search** with Russian/English morphology (S2\Rose, Porter stemmer).
 - **CommonMark markup** (+ GFM extensions: tables, footnotes, task lists, strikethrough) with dangerous HTML escaped.
+- **Plugin system** — a hook system (along the lines of GT::Plugins): plugins register PRE/POST hooks in a config file and extend pages without touching the core.
 
 
 ![Sugata - facts archive](public/assets/images/sugata-for-github.png)
@@ -101,6 +102,26 @@ Both linking styles are supported inside articles:
 | `[^1]` and `[^1]: text` | Footnotes (gathered into a “Notes” block) |
 
 Red and broken links are gathered in the **Broken links** report (`/mod/admin/broken-links`).
+
+## Plugins
+
+Pages expose extension points (hooks) that plugins can subscribe to without modifying the core. A plugin is a PHP class with static handler methods, registered in the **plugin registry** (`config/plugins.php`):
+
+```php
+'Demo' => [
+    'meta'  => ['name' => 'Demo', 'version' => '0.1', 'author' => 'you', 'description' => '...'],
+    'hooks' => [
+        // [hook point, 'PRE'|'POST', 'Class::method', enabled]
+        ['site_page_footer', 'POST', 'App\Plugins\Demo::render_menu', 1],
+    ],
+],
+```
+
+- `PRE` hooks run before the default code and may replace its result (return `null` to continue).
+- `POST` hooks receive the default result and may alter it.
+- Hooks are toggled **on/off in the admin panel** (`/mod/admin/plugins`) by writing the flag back to the config.
+
+Available hook points: `site_article_before`, `site_article_body`, `site_article_related_before`, `site_article_backlinks`, `site_article_ldjson`, `site_page_footer`. New points are added by calling `dispatch('point_name', $default, $args)` in a template.
 
 ## Database (key tables)
 
