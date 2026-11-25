@@ -81,9 +81,46 @@ function insert(string $hlTemplatePath, array $params = [])
 
     unset($params);
 
+    // Резолвим тему: themes/{active}/site/... или базовая site/...
+    $hlTemplatePath = \App\Content\Theme::resolve($hlTemplatePath);
+
     $tpl_puth = DIRECTORY_SEPARATOR . trim($hlTemplatePath, '/\\');
 
     require TEMPLATES . DIRECTORY_SEPARATOR . $tpl_puth . '.php';
+}
+
+/**
+ * view() для целых страниц сайта: резолвит тему перед отрисовкой.
+ * Админка и прочее идут через обычный view() без темизации.
+ */
+function site_view(string $template, array $params = [], ?int $status = null)
+{
+    return view(\App\Content\Theme::resolve($template), $params, $status);
+}
+
+/**
+ * Рендерит дополнительные ассеты активной темы ('css'|'js').
+ * Базовые ассеты остаются в шаблоне, тема только добавляет свои.
+ */
+function theme_assets(string $type = 'css', array $attrs = []): string
+{
+    $files = $type === 'js' ? \App\Content\Theme::js() : \App\Content\Theme::css();
+    if (!$files) {
+        return '';
+    }
+    // Гарантируем, что файлы активной темы есть в public/assets/ (для preview).
+    \App\Content\Theme::publishAssets();
+    $ver  = \App\Content\Theme::version();
+    $out  = '';
+    foreach ($files as $file) {
+        $file .= (str_contains($file, '?') ? '&' : '?') . $ver;
+        if ($type === 'js') {
+            $out .= '<script defer src="' . htmlEncode($file) . '"></script>' . "\n";
+        } else {
+            $out .= '<link rel="stylesheet" href="' . htmlEncode($file) . '" type="text/css">' . "\n";
+        }
+    }
+    return $out;
 }
 
 function render(string $name, array $data = [])

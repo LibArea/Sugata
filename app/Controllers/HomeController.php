@@ -165,7 +165,7 @@ class HomeController extends Controller
 
 		$mod = $preview ? 'preview' : 'static';
 
-		$this->response()->setBody(view('/site/pages/best.php', [
+		$this->response()->setBody(site_view('/site/pages/best.php', [
 			'items'     => $items,
 			'total'     => $total,
 			'pagesCount' => max(1, (int)ceil($total / $limit)),

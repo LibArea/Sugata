@@ -15,7 +15,7 @@ class PreviewController extends Controller
 public function site(): void
     {
         $items = ItemModel::feedItem(false, false, 1, 5, 'main');
-        $this->response()->setBody(view('/site/pages/home.php', [
+        $this->response()->setBody(site_view('/site/pages/home.php', [
             'meta' => Meta::home(),
             'items' => $items,
             'featuredBig' => ItemModel::getFeaturedBig(),
@@ -54,7 +54,7 @@ public function site(): void
             $items = ItemModel::getBestFacts($page, $limit);
             $total = ItemModel::countBest();
 
-            $this->response()->setBody(view('/site/pages/best.php', [
+            $this->response()->setBody(site_view('/site/pages/best.php', [
                 'items'      => $items,
                 'total'      => $total,
                 'pagesCount' => max(1, (int)ceil($total / $limit)),
@@ -94,7 +94,7 @@ public function site(): void
             $backlinks = \App\Models\BacklinkModel::referring((int)$item['item_id'], $facetPath, $slug);
             $template = \App\Content\CatalogService::itemTemplate($item, $facetPath);
 
-            $this->response()->setBody(view($template, [
+            $this->response()->setBody(site_view($template, [
                 'item' => $item,
                 'similar' => $similar,
                 'related' => ItemModel::getRelatedItems((int)$item['item_id'], 'article'),
@@ -129,7 +129,7 @@ public function site(): void
         // Шаблон списка категории (статьи/сайты/факты) — единая логика
         $indexTemplate = \App\Content\CatalogService::categoryTemplate($facetPath);
 
-        $this->response()->setBody(view($indexTemplate, [
+        $this->response()->setBody(site_view($indexTemplate, [
             'items' => $catalog['items'],
             'breadcrumb' => Html::breadcrumbDir(FacetModel::breadcrumb((int)$facet['facet_id']), 'preview'),
             'childrens' => $catalog['childrens'],

@@ -227,7 +227,7 @@ class BuildController extends Controller
 	// Возвращает готовый HTML (подвал подставляется в шаблон напрямую, без SSI).
 	protected function renderStaticHtml(string $template, array $data): string
 	{
-		return view($template, $data);
+		return site_view($template, $data);
 	}
 
 	// Строим CSS для админки
@@ -409,6 +409,9 @@ class BuildController extends Controller
 	 */
 	public function copyAssetsToStatic(): void
 	{
+		// Публикуем ассеты активной темы в public/assets (для preview), затем в статику.
+		\App\Content\Theme::publishAssets();
+
 		$dest = $this->path . '/assets';
 
 		// Перезаписываем: пересобранные CSS/JS обязаны попасть на статику.
@@ -461,7 +464,7 @@ class BuildController extends Controller
 			$items = ItemModel::getBestFacts($page, $limit);
 			$file  = ($page === 1) ? $dirPath . '/index.html' : $dirPath . '/page-' . $page . '.html';
 
-			file_put_contents($file, view('/site/pages/best.php', [
+			file_put_contents($file, site_view('/site/pages/best.php', [
 				'items'      => $items,
 				'total'      => $total,
 				'pagesCount' => $pages,

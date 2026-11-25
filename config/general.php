@@ -19,7 +19,7 @@ return [
     'path_html'             => '/../wiki-view.local',
 
     'site_name'             => 'Sugata',
-    'template'              => 'default',
+    'template'              => 'wiki', // wiki или blog
     'lang'                  => 'ru',
 
     // Регистрация только по инвайтам
